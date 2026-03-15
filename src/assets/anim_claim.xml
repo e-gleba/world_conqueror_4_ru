@@ -1,5 +1,0 @@
-<Texture name="anim_claim.png" w="248" h="248" />
-<Images>
-    <Image name="1.png" x="1" y="1" w="118" h="151" refx="0" refy="0" />
-    <Image name="2.png" x="120" y="1" w="126" h="144" refx="0" refy="0" />
-</Images>

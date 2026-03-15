@@ -1,6 +1,0 @@
-[
-{"Id":1,"AttackPercent":100,"HpPercent":100,"Rate":100},
-{"Id":2,"AttackPercent":125,"HpPercent":160,"Rate":180},
-{"Id":3,"AttackPercent":150,"HpPercent":210,"Rate":260},
-{"Id":4,"AttackPercent":175,"HpPercent":250,"Rate":340}
-]

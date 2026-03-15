@@ -1,0 +1,191 @@
+[
+  {
+    "Id": 1,
+    "Target": 1,
+    "Value": 3,
+    "Round": 0,
+    "CDTurn": 3,
+    "NeedTechNum": 0,
+    "Order": 1
+  },
+  {
+    "Id": 2,
+    "Target": 0,
+    "Value": 2001,
+    "Round": 2,
+    "CDTurn": 5,
+    "NeedTechNum": 0,
+    "Order": 13
+  },
+  {
+    "Id": 3,
+    "Target": 0,
+    "Value": 0,
+    "Round": 2,
+    "CDTurn": 4,
+    "NeedTechNum": 0,
+    "Order": 14
+  },
+  {
+    "Id": 4,
+    "Target": 1,
+    "Value": 30,
+    "Round": 0,
+    "CDTurn": 4,
+    "NeedTechNum": 0,
+    "Order": 4
+  },
+  {
+    "Id": 5,
+    "Target": -1,
+    "Value": 2,
+    "Round": 0,
+    "CDTurn": 4,
+    "NeedTechNum": 0,
+    "Order": 2
+  },
+  {
+    "Id": 6,
+    "Target": 1,
+    "Value": 0,
+    "Round": 0,
+    "CDTurn": 5,
+    "NeedTechNum": 0,
+    "Order": 15
+  },
+  {
+    "Id": 7,
+    "Target": 1,
+    "Value": 0,
+    "Round": 0,
+    "CDTurn": 5,
+    "NeedTechNum": 0,
+    "Order": 9
+  },
+  {
+    "Id": 8,
+    "Target": 1,
+    "Value": 0,
+    "Round": 0,
+    "CDTurn": 5,
+    "NeedTechNum": 0,
+    "Order": 5
+  },
+  {
+    "Id": 9,
+    "Target": 1,
+    "Value": 0,
+    "Round": 0,
+    "CDTurn": 5,
+    "NeedTechNum": 0,
+    "Order": 20
+  },
+  {
+    "Id": 10,
+    "Target": 1,
+    "Value": 0,
+    "Round": 0,
+    "CDTurn": 5,
+    "NeedTechNum": 0,
+    "Order": 19
+  },
+  {
+    "Id": 11,
+    "Target": 1,
+    "Value": 0,
+    "Round": 0,
+    "CDTurn": 5,
+    "NeedTechNum": 0,
+    "Order": 10
+  },
+  {
+    "Id": 12,
+    "Target": 1,
+    "Value": 0,
+    "Round": 0,
+    "CDTurn": 5,
+    "NeedTechNum": 0,
+    "Order": 11
+  },
+  {
+    "Id": 13,
+    "Target": 0,
+    "Value": 0,
+    "Round": 0,
+    "CDTurn": 3,
+    "NeedTechNum": 0,
+    "Order": 18
+  },
+  {
+    "Id": 14,
+    "Target": -1,
+    "Value": 2004,
+    "Round": 2,
+    "CDTurn": 5,
+    "NeedTechNum": 0,
+    "Order": 12
+  },
+  {
+    "Id": 15,
+    "Target": 0,
+    "Value": 2002,
+    "Round": 2,
+    "CDTurn": 4,
+    "NeedTechNum": 0,
+    "Order": 3
+  },
+  {
+    "Id": 16,
+    "Target": -1,
+    "Value": 20,
+    "Round": 2,
+    "CDTurn": 5,
+    "NeedTechNum": 0,
+    "Order": 6
+  },
+  {
+    "Id": 17,
+    "Target": -1,
+    "Value": 8,
+    "Round": 0,
+    "CDTurn": 6,
+    "NeedTechNum": 0,
+    "Order": 16
+  },
+  {
+    "Id": 18,
+    "Target": 0,
+    "Value": 2003,
+    "Round": 1,
+    "CDTurn": 4,
+    "NeedTechNum": 0,
+    "Order": 7
+  },
+  {
+    "Id": 19,
+    "Target": 0,
+    "Value": 9,
+    "Round": 0,
+    "CDTurn": 10,
+    "NeedTechNum": 0,
+    "Order": 21
+  },
+  {
+    "Id": 20,
+    "Target": -1,
+    "Value": 0,
+    "Round": 1,
+    "CDTurn": 4,
+    "NeedTechNum": 0,
+    "Order": 8
+  },
+  {
+    "Id": 21,
+    "Target": 1,
+    "Value": 0,
+    "Round": 0,
+    "CDTurn": 4,
+    "NeedTechNum": 0,
+    "Order": 17
+  }
+]

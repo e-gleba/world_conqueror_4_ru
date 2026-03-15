@@ -1,34 +1,68 @@
 #!/usr/bin/env python3
-"""wc4_unlock.py v6 — World Conqueror 4 ultimate unlocker.
+"""wc4_unlock.py v7 — World Conqueror 4 ultimate unlocker.
 
 Patches ALL JSON data files in-place to unlock everything.
 Does NOT change any stat/combat/effect values.
 PRESERVES AdvanceID chains in GeneralPromotionSettings.
 Does NOT touch ScenarioSettings.json.
+Does NOT touch FrontierStageSetting / FrontierNodeSetting / FrontierChapterSetting.
+Price field intentionally excluded — uint32 underflow risk with active promotions.
 
 Tutorial mission (Id=10001) grants HQ 50 + 1M medals + unlocks ALL stages.
 
-Usage:  python3 wc4_unlock.py /path/to/json/data/dir
-Requires: Python 3.12+ stdlib only.
+Usage:  python3 wc4_unlock.py <data_dir>
+Requires: Python 3.12+.  orjson optional (faster I/O).
 """
+
+from __future__ import annotations
 
 import json
 import sys
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 from typing import Any
 
-Rules = list[tuple[str, str, Any]]
-FILE_RULES: dict[str, Rules] = {}
+type Rules = list[tuple[str, str, Any]]
+type FileRules = dict[str, Rules]
+
+# ---------------------------------------------------------------------------
+# JSON backend — orjson ~3-5x faster; stdlib fallback
+# ---------------------------------------------------------------------------
+try:
+    import orjson as _orjson  # type: ignore[import-untyped]
+
+    def _read(p: Path) -> Any:
+        return _orjson.loads(p.read_bytes())
+
+    def _write(p: Path, obj: Any) -> None:
+        p.write_bytes(
+            _orjson.dumps(obj, option=_orjson.OPT_INDENT_2 | _orjson.OPT_NON_STR_KEYS)
+            + b"\n"
+        )
+
+except ModuleNotFoundError:
+
+    def _read(p: Path) -> Any:  # type: ignore[misc]
+        return json.loads(p.read_text(encoding="utf-8"))
+
+    def _write(p: Path, obj: Any) -> None:  # type: ignore[misc]
+        p.write_text(
+            json.dumps(obj, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+        )
 
 
-def _r(fn: str, field: str, op: str, val: Any = None):
+# ---------------------------------------------------------------------------
+# Rule registry
+# ---------------------------------------------------------------------------
+FILE_RULES: FileRules = {}
+
+
+def _r(fn: str, field: str, op: str, val: Any = None) -> None:
     FILE_RULES.setdefault(fn, []).append((field, op, val))
 
 
 # =====================================================================
-# 1. GENERALS — main definition (GeneralSettings.json, 1145 entries)
-#    Id 0 is sentinel — protected by set_nz / cap6.
-#    Evaluate: 0=sentinel, 1=normal, 2=special, 3=legendary(orange)
+# 1. GENERALS — main definition
 # =====================================================================
 _gs = "GeneralSettings.json"
 for _f in (
@@ -42,16 +76,12 @@ for _f in (
     _r(_gs, _f, "cap6")
 _r(_gs, "SkillsMax", "set_nz", 5)
 _r(_gs, "UnlockHQLv", "zero")
-_r(_gs, "CostMedal", "cost1")
 _r(_gs, "CostGold", "zero")
 _r(_gs, "InShop", "set_nz", 1)
 _r(_gs, "Evaluate", "set_nz", 3)
 
 # =====================================================================
-# 2. GENERALS — promotions (elite tiers, chain via AdvanceID)
-#    AdvanceID is a LINKED LIST: 10101 -> 10102 -> 10103 -> 0
-#    0 = end of chain. DO NOT TOUCH AdvanceID — it breaks the chain.
-#    Only zero the COSTS so each step is free.
+# 2. GENERALS — promotions  (AdvanceID untouched — linked list)
 # =====================================================================
 _gp = "GeneralPromotionSettings.json"
 for _f in (
@@ -64,25 +94,24 @@ for _f in (
 ):
     _r(_gp, _f, "set", 6)
 _r(_gp, "SkillsMax", "set", 5)
-# AdvanceID — NOT TOUCHED — preserves promotion chain
 _r(_gp, "CostSword", "zero")
 _r(_gp, "CostSceptre", "zero")
 _r(_gp, "CostMedal", "zero")
 _r(_gp, "CostMerit", "set", 1)
 
 # =====================================================================
-# 3. GENERALS — rank-up (Lieutenant -> Marshal)
+# 3. GENERALS — rank-up
 # =====================================================================
 _r("GeneralLevelSettings.json", "CostMedal", "cost1")
 _r("GeneralLevelSettings.json", "NeedHQLv", "set", 1)
 
 # =====================================================================
-# 4. GENERALS — decorations (medals/ribbons on portrait)
+# 4. GENERALS — decorations
 # =====================================================================
 _r("GeneralMedalSettings.json", "Cost", "cost1")
 
 # =====================================================================
-# 5. GENERALS — quality tiers (green->blue->purple->orange frame)
+# 5. GENERALS — quality tiers
 # =====================================================================
 _r("GeneralQualitySettings.json", "CostGold", "zero")
 _r("GeneralQualitySettings.json", "CostMedal", "cost1")
@@ -120,7 +149,7 @@ _r("CountryTechSettings.json", "CostMerit", "set", 1)
 _r("CountryTechSettings.json", "ResearchLv", "set", 1)
 
 # =====================================================================
-# 9. STAGES / CAMPAIGNS (generic rules — tutorial patch in post_process)
+# 9. STAGES / CAMPAIGNS
 # =====================================================================
 _r("StageSettings.json", "Open", "set", True)
 _r("StageSettings.json", "UnlockHQ", "zero")
@@ -179,7 +208,6 @@ _r("ArmySettings.json", "CostAtomic", "zero")
 _r("ArmySettings.json", "CostPoints", "zero")
 _r("ArmySettings.json", "BuildTime", "zero")
 _r("ArmySettings.json", "BuildCD", "zero")
-_r("ArmySettings.json", "Country", "clear")
 
 # =====================================================================
 # 14. BUILDINGS / FACILITIES / AIR DEFENCE
@@ -233,10 +261,10 @@ _r("EventCalendarSettings.json", "NeedHQLv", "zero")
 _r("AchievementSettings.json", "UnlockId", "zero")
 
 # =====================================================================
-# 20. FRONTIER
+# 20. FRONTIER — reinforcement costs only
+#     FrontierStageSetting / FrontierNodeSetting / FrontierChapterSetting
+#     are intentionally untouched.
 # =====================================================================
-_r("FrontierStageSetting.json", "UnlockedStageids", "clear")
-_r("FrontierStageSetting.json", "UnlockedNodes", "clear")
 _r("FrontierReinforcementSetting.json", "CostMoney", "zero")
 _r("FrontierReinforcementSetting.json", "CostGear", "zero")
 _r("FrontierReinforcementSetting.json", "CostAtomic", "zero")
@@ -258,12 +286,13 @@ _r("HQSettings.json", "CostMedal", "cost1")
 
 # =====================================================================
 # 23. SHOP / PRODUCTS
+#     Price intentionally excluded — promotions can subtract, and
+#     uint32(1 - N) wraps to a huge number.
 # =====================================================================
 for _fn in ("ProductSettings.json", "ShopSettings.json"):
     _r(_fn, "CostMedal", "cost1")
     _r(_fn, "CostMedals", "cost1")
     _r(_fn, "Cost", "cost1")
-    _r(_fn, "Price", "cost1")
     _r(_fn, "NeedHQLv", "zero")
     _r(_fn, "NeedLevel", "zero")
     _r(_fn, "UnlockId", "zero")
@@ -280,12 +309,12 @@ _r("WarZoneStageSetting.json", "UnlockStageId", "clear")
 _r("ElitePassSettings.json", "Point", "cost1")
 
 
-# =====================================================================
-# ENGINE
-# =====================================================================
+# ---------------------------------------------------------------------------
+# Engine
+# ---------------------------------------------------------------------------
 
 
-def apply_op(obj: dict, field: str, op: str, val: Any) -> bool:
+def apply_op(obj: dict[str, Any], field: str, op: str, val: Any) -> bool:
     if field not in obj:
         return False
     old = obj[field]
@@ -293,53 +322,46 @@ def apply_op(obj: dict, field: str, op: str, val: Any) -> bool:
         case "set":
             obj[field] = val
         case "set_nz":
-            if isinstance(old, (int, float)) and old != 0:
+            # bool check first: isinstance(True, int) is True in Python
+            if isinstance(old, (int, float)) and not isinstance(old, bool) and old != 0:
                 obj[field] = val
             else:
                 return False
         case "zero":
-            if isinstance(old, (int, float)):
-                obj[field] = 0
-            elif isinstance(old, bool):
+            if isinstance(old, bool):  # must precede int — bool is subclass of int
                 obj[field] = False
+            elif isinstance(old, (int, float)):
+                obj[field] = 0
             elif isinstance(old, list):
                 obj[field] = []
         case "cost1":
-            if isinstance(old, (int, float)) and old > 0:
+            if isinstance(old, (int, float)) and not isinstance(old, bool) and old > 0:
                 obj[field] = 1
         case "clear":
             if isinstance(old, list):
                 obj[field] = []
         case "cap6":
-            if isinstance(old, int):
+            if isinstance(old, int) and not isinstance(old, bool):
                 obj[field] = 6
             else:
                 return False
+        case _:
+            return False
     return obj[field] != old
 
 
 def process(path: Path, rules: Rules) -> int:
-    data = json.loads(path.read_text(encoding="utf-8"))
+    data = _read(path)
     n = 0
-    items = data if isinstance(data, list) else [data]
+    items: list[Any] = data if isinstance(data, list) else [data]
     for item in items:
         if not isinstance(item, dict):
             continue
         for field, op, val in rules:
             if apply_op(item, field, op, val):
                 n += 1
-    path.write_text(
-        json.dumps(data, ensure_ascii=False, indent=2) + "\n",
-        encoding="utf-8",
-    )
+    _write(path, data)
     return n
-
-
-# =====================================================================
-# POST-PROCESS: Tutorial mission (Id=10001) becomes the master unlocker.
-# Collect ALL stage Ids, stuff them into UnlockedStageIds.
-# Grant 10M exp (HQ 50) + 1M medals.
-# =====================================================================
 
 
 def post_process_tutorial(root: Path) -> None:
@@ -347,10 +369,10 @@ def post_process_tutorial(root: Path) -> None:
     if not path.exists():
         return
 
-    data = json.loads(path.read_text(encoding="utf-8"))
-
+    data = _read(path)
     all_ids: list[int] = []
-    tutorial = None
+    tutorial: dict[str, Any] | None = None
+
     for entry in data:
         if not isinstance(entry, dict):
             continue
@@ -364,21 +386,18 @@ def post_process_tutorial(root: Path) -> None:
         print("  WARN   StageSettings.json: Id=10001 not found", file=sys.stderr)
         return
 
-    # Remove tutorial's own Id from unlock list
     unlock_ids = sorted(i for i in all_ids if i != 10001)
-
-    tutorial["PrizeMedals"] = 1000000
-    tutorial["PrizeGold"] = 0
-    tutorial["PrizeIndustry"] = 0
-    tutorial["PrizeEnergy"] = 0
-    tutorial["PrizeTech"] = 0
-    tutorial["PrizeExp"] = 10000000
-    tutorial["UnlockedStageIds"] = unlock_ids
-
-    path.write_text(
-        json.dumps(data, ensure_ascii=False, indent=2) + "\n",
-        encoding="utf-8",
+    tutorial.update(
+        PrizeMedals=1_000_000,
+        PrizeGold=0,
+        PrizeIndustry=0,
+        PrizeEnergy=0,
+        PrizeTech=0,
+        PrizeExp=10_000_000,
+        UnlockedStageIds=unlock_ids,
     )
+
+    _write(path, data)
     print(
         f"  TUTOR  StageSettings.json: Id=10001 => "
         f"exp=10M, medals=1M, unlocks={len(unlock_ids)} stages"
@@ -395,26 +414,37 @@ def main() -> None:
         print(f"error: '{root}' is not a directory", file=sys.stderr)
         raise SystemExit(1)
 
-    total, touched = 0, 0
-    for path in sorted(root.rglob("*.json")):
-        rules = FILE_RULES.get(path.name)
-        if not rules:
-            continue
-        try:
-            n = process(path, rules)
-        except Exception as e:
-            print(f"  ERR    {path.name}: {e}", file=sys.stderr)
-            continue
-        tag = f"{n:>5d} D" if n else "   ok "
-        print(f"  {tag}  {path.name}")
-        total += n
-        touched += 1
+    tasks: list[tuple[Path, Rules]] = [
+        (p, FILE_RULES[p.name])
+        for p in sorted(root.rglob("*.json"))
+        if p.name in FILE_RULES
+    ]
 
-    # Tutorial mega-reward patch (runs after generic rules)
+    results: dict[Path, int | BaseException] = {}
+    with ThreadPoolExecutor() as pool:
+        futures: dict[Any, Path] = {pool.submit(process, p, r): p for p, r in tasks}
+        for fut in as_completed(futures):
+            p = futures[fut]
+            exc = fut.exception()
+            results[p] = exc if exc is not None else fut.result()
+
+    total = touched = 0
+    for path, _ in tasks:  # iterate in sorted order for deterministic CI output
+        match results.get(path):
+            case BaseException() as e:
+                print(f"  ERR    {path.name}: {e}", file=sys.stderr)
+            case int(n):
+                tag = f"{n:>5d} D" if n else "   ok "
+                print(f"  {tag}  {path.name}")
+                total += n
+                touched += 1
+            case None:
+                print(f"  ERR    {path.name}: no result", file=sys.stderr)
+
     post_process_tutorial(root)
-
     print(f"\n  patched: {touched}  |  mutations: {total}")
 
 
 if __name__ == "__main__":
     main()
+

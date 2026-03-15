@@ -1,0 +1,17 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/BlankSpruce/gersemi/master/gersemi/configuration.schema.json
+
+# ── layout ──────────────────────────────────────────────────────────────────
+line_length: 80
+indent: 4
+
+# favour-expansion: once a group wraps, every subgroup fully expands too.
+# Produces the symmetrically one-per-line style you want — equivalent to
+# cmake-format's max_pargs_hwrap: 1 + dangle_parens: false.
+list_expansion: favour-expansion
+
+# ── safety ──────────────────────────────────────────────────────────────────
+# surface EXECUTE_PROCESS keywords that gersemi doesn't know yet (3.18+)
+warn_about_unknown_commands: true
+
+# point at your custom cmake scripts so gersemi parses their signatures
+definitions: []

@@ -1,5 +1,0 @@
-﻿<Texture name="anim_smoke.png" />
-<Images>
-    <Image name="火点.png" x="1" y="75" w="8" h="5" refx="0" refy="0" />
-    <Image name="烟雾贴图2.png" x="1" y="1" w="79" h="73" refx="0" refy="0" />
-</Images>

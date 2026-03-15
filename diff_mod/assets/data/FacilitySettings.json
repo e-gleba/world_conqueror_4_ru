@@ -1,0 +1,682 @@
+[
+  {
+    "Id": 20001,
+    "Name": "小城市",
+    "Level": 1,
+    "Type": 1,
+    "UnlockArmy": [
+      1,
+      2
+    ],
+    "UnlockArmyType": [
+      1
+    ],
+    "CityRecovery": 4,
+    "ArmyRecovery": 0,
+    "ProduceMoney": 16,
+    "ProduceGear": 0,
+    "ProduceAtomic": 0,
+    "CostMoney": 0,
+    "CostGear": 0,
+    "CostAtomic": 0,
+    "Only": 0
+  },
+  {
+    "Id": 20002,
+    "Name": "中城市",
+    "Level": 2,
+    "Type": 1,
+    "UnlockArmy": [
+      3
+    ],
+    "UnlockArmyType": [
+      1
+    ],
+    "CityRecovery": 4,
+    "ArmyRecovery": 0,
+    "ProduceMoney": 30,
+    "ProduceGear": 0,
+    "ProduceAtomic": 0,
+    "CostMoney": 0,
+    "CostGear": 0,
+    "CostAtomic": 0,
+    "Only": 0
+  },
+  {
+    "Id": 20003,
+    "Name": "大城市",
+    "Level": 3,
+    "Type": 1,
+    "UnlockArmy": [
+      4
+    ],
+    "UnlockArmyType": [
+      1
+    ],
+    "CityRecovery": 4,
+    "ArmyRecovery": 0,
+    "ProduceMoney": 45,
+    "ProduceGear": 0,
+    "ProduceAtomic": 0,
+    "CostMoney": 0,
+    "CostGear": 0,
+    "CostAtomic": 0,
+    "Only": 0
+  },
+  {
+    "Id": 20004,
+    "Name": "大都市",
+    "Level": 4,
+    "Type": 1,
+    "UnlockArmy": [
+      5
+    ],
+    "UnlockArmyType": [
+      1
+    ],
+    "CityRecovery": 4,
+    "ArmyRecovery": 0,
+    "ProduceMoney": 60,
+    "ProduceGear": 0,
+    "ProduceAtomic": 0,
+    "CostMoney": 0,
+    "CostGear": 0,
+    "CostAtomic": 0,
+    "Only": 0
+  },
+  {
+    "Id": 20005,
+    "Name": "首都1",
+    "Level": 5,
+    "Type": 1,
+    "UnlockArmy": [
+      5
+    ],
+    "UnlockArmyType": [
+      1
+    ],
+    "CityRecovery": 4,
+    "ArmyRecovery": 0,
+    "ProduceMoney": 80,
+    "ProduceGear": 0,
+    "ProduceAtomic": 0,
+    "CostMoney": 0,
+    "CostGear": 0,
+    "CostAtomic": 0,
+    "Only": 0
+  },
+  {
+    "Id": 20006,
+    "Name": "首都2",
+    "Level": 6,
+    "Type": 1,
+    "UnlockArmy": [
+      5
+    ],
+    "UnlockArmyType": [
+      1
+    ],
+    "CityRecovery": 4,
+    "ArmyRecovery": 0,
+    "ProduceMoney": 90,
+    "ProduceGear": 0,
+    "ProduceAtomic": 0,
+    "CostMoney": 0,
+    "CostGear": 0,
+    "CostAtomic": 0,
+    "Only": 0
+  },
+  {
+    "Id": 20007,
+    "Name": "首都3",
+    "Level": 7,
+    "Type": 1,
+    "UnlockArmy": [
+      5
+    ],
+    "UnlockArmyType": [
+      1
+    ],
+    "CityRecovery": 4,
+    "ArmyRecovery": 0,
+    "ProduceMoney": 100,
+    "ProduceGear": 0,
+    "ProduceAtomic": 0,
+    "CostMoney": 0,
+    "CostGear": 0,
+    "CostAtomic": 0,
+    "Only": 0
+  },
+  {
+    "Id": 20008,
+    "Name": "首都4",
+    "Level": 8,
+    "Type": 1,
+    "UnlockArmy": [
+      5
+    ],
+    "UnlockArmyType": [
+      1
+    ],
+    "CityRecovery": 4,
+    "ArmyRecovery": 0,
+    "ProduceMoney": 110,
+    "ProduceGear": 0,
+    "ProduceAtomic": 0,
+    "CostMoney": 0,
+    "CostGear": 0,
+    "CostAtomic": 0,
+    "Only": 0
+  },
+  {
+    "Id": 20009,
+    "Name": "首都5",
+    "Level": 9,
+    "Type": 1,
+    "UnlockArmy": [
+      5
+    ],
+    "UnlockArmyType": [
+      1
+    ],
+    "CityRecovery": 4,
+    "ArmyRecovery": 0,
+    "ProduceMoney": 120,
+    "ProduceGear": 0,
+    "ProduceAtomic": 0,
+    "CostMoney": 0,
+    "CostGear": 0,
+    "CostAtomic": 0,
+    "Only": 0
+  },
+  {
+    "Id": 20101,
+    "Name": "工厂1",
+    "Level": 1,
+    "Type": 2,
+    "UnlockArmy": [
+      6,
+      7,
+      11
+    ],
+    "UnlockArmyType": [
+      2,
+      3
+    ],
+    "CityRecovery": 0,
+    "ArmyRecovery": 0,
+    "ProduceMoney": 0,
+    "ProduceGear": 5,
+    "ProduceAtomic": 0,
+    "CostMoney": 1,
+    "CostGear": 0,
+    "CostAtomic": 0,
+    "Only": 0
+  },
+  {
+    "Id": 20102,
+    "Name": "工厂2",
+    "Level": 2,
+    "Type": 2,
+    "UnlockArmy": [
+      8,
+      12
+    ],
+    "UnlockArmyType": [
+      2,
+      3,
+      13
+    ],
+    "CityRecovery": 0,
+    "ArmyRecovery": 0,
+    "ProduceMoney": 0,
+    "ProduceGear": 10,
+    "ProduceAtomic": 0,
+    "CostMoney": 1,
+    "CostGear": 0,
+    "CostAtomic": 0,
+    "Only": 0
+  },
+  {
+    "Id": 20103,
+    "Name": "工厂3",
+    "Level": 3,
+    "Type": 2,
+    "UnlockArmy": [
+      9,
+      13
+    ],
+    "UnlockArmyType": [
+      2,
+      3,
+      13
+    ],
+    "CityRecovery": 0,
+    "ArmyRecovery": 0,
+    "ProduceMoney": 0,
+    "ProduceGear": 15,
+    "ProduceAtomic": 0,
+    "CostMoney": 1,
+    "CostGear": 0,
+    "CostAtomic": 0,
+    "Only": 0
+  },
+  {
+    "Id": 20104,
+    "Name": "工厂4",
+    "Level": 4,
+    "Type": 2,
+    "UnlockArmy": [
+      10,
+      14
+    ],
+    "UnlockArmyType": [
+      2,
+      3,
+      13
+    ],
+    "CityRecovery": 0,
+    "ArmyRecovery": 0,
+    "ProduceMoney": 0,
+    "ProduceGear": 20,
+    "ProduceAtomic": 0,
+    "CostMoney": 1,
+    "CostGear": 0,
+    "CostAtomic": 0,
+    "Only": 0
+  },
+  {
+    "Id": 20201,
+    "Name": "科研所1",
+    "Level": 1,
+    "Type": 3,
+    "UnlockArmy": [],
+    "UnlockArmyType": [],
+    "CityRecovery": 0,
+    "ArmyRecovery": 0,
+    "ProduceMoney": 0,
+    "ProduceGear": 0,
+    "ProduceAtomic": 2,
+    "CostMoney": 1,
+    "CostGear": 0,
+    "CostAtomic": 0,
+    "Only": 0
+  },
+  {
+    "Id": 20202,
+    "Name": "科研所2",
+    "Level": 2,
+    "Type": 3,
+    "UnlockArmy": [],
+    "UnlockArmyType": [],
+    "CityRecovery": 0,
+    "ArmyRecovery": 0,
+    "ProduceMoney": 0,
+    "ProduceGear": 0,
+    "ProduceAtomic": 4,
+    "CostMoney": 1,
+    "CostGear": 0,
+    "CostAtomic": 0,
+    "Only": 0
+  },
+  {
+    "Id": 20203,
+    "Name": "科研所3",
+    "Level": 3,
+    "Type": 3,
+    "UnlockArmy": [],
+    "UnlockArmyType": [],
+    "CityRecovery": 0,
+    "ArmyRecovery": 0,
+    "ProduceMoney": 0,
+    "ProduceGear": 0,
+    "ProduceAtomic": 8,
+    "CostMoney": 1,
+    "CostGear": 0,
+    "CostAtomic": 0,
+    "Only": 0
+  },
+  {
+    "Id": 20204,
+    "Name": "航天中心",
+    "Level": 4,
+    "Type": 3,
+    "UnlockArmy": [],
+    "UnlockArmyType": [],
+    "CityRecovery": 0,
+    "ArmyRecovery": 0,
+    "ProduceMoney": 0,
+    "ProduceGear": 0,
+    "ProduceAtomic": 14,
+    "CostMoney": 1,
+    "CostGear": 0,
+    "CostAtomic": 0,
+    "Only": 1
+  },
+  {
+    "Id": 20301,
+    "Name": "补给站1",
+    "Level": 1,
+    "Type": 4,
+    "UnlockArmy": [],
+    "UnlockArmyType": [],
+    "CityRecovery": 0,
+    "ArmyRecovery": 4,
+    "ProduceMoney": 0,
+    "ProduceGear": 0,
+    "ProduceAtomic": 0,
+    "CostMoney": 1,
+    "CostGear": 0,
+    "CostAtomic": 0,
+    "Only": 0
+  },
+  {
+    "Id": 20302,
+    "Name": "补给站2",
+    "Level": 2,
+    "Type": 4,
+    "UnlockArmy": [],
+    "UnlockArmyType": [],
+    "CityRecovery": 0,
+    "ArmyRecovery": 8,
+    "ProduceMoney": 0,
+    "ProduceGear": 0,
+    "ProduceAtomic": 0,
+    "CostMoney": 1,
+    "CostGear": 0,
+    "CostAtomic": 0,
+    "Only": 0
+  },
+  {
+    "Id": 20303,
+    "Name": "补给站3",
+    "Level": 3,
+    "Type": 4,
+    "UnlockArmy": [],
+    "UnlockArmyType": [],
+    "CityRecovery": 0,
+    "ArmyRecovery": 12,
+    "ProduceMoney": 0,
+    "ProduceGear": 0,
+    "ProduceAtomic": 0,
+    "CostMoney": 1,
+    "CostGear": 0,
+    "CostAtomic": 0,
+    "Only": 0
+  },
+  {
+    "Id": 20304,
+    "Name": "补给站4",
+    "Level": 4,
+    "Type": 4,
+    "UnlockArmy": [],
+    "UnlockArmyType": [],
+    "CityRecovery": 0,
+    "ArmyRecovery": 16,
+    "ProduceMoney": 0,
+    "ProduceGear": 0,
+    "ProduceAtomic": 0,
+    "CostMoney": 1,
+    "CostGear": 0,
+    "CostAtomic": 0,
+    "Only": 0
+  },
+  {
+    "Id": 20401,
+    "Name": "机场1",
+    "Level": 1,
+    "Type": 5,
+    "UnlockArmy": [
+      20,
+      22
+    ],
+    "UnlockArmyType": [
+      5
+    ],
+    "CityRecovery": 0,
+    "ArmyRecovery": 0,
+    "ProduceMoney": 0,
+    "ProduceGear": 0,
+    "ProduceAtomic": 0,
+    "CostMoney": 1,
+    "CostGear": 0,
+    "CostAtomic": 0,
+    "Only": 0
+  },
+  {
+    "Id": 20402,
+    "Name": "机场2",
+    "Level": 2,
+    "Type": 5,
+    "UnlockArmy": [
+      21
+    ],
+    "UnlockArmyType": [
+      5
+    ],
+    "CityRecovery": 0,
+    "ArmyRecovery": 0,
+    "ProduceMoney": 0,
+    "ProduceGear": 0,
+    "ProduceAtomic": 0,
+    "CostMoney": 1,
+    "CostGear": 0,
+    "CostAtomic": 0,
+    "Only": 0
+  },
+  {
+    "Id": 20403,
+    "Name": "机场3",
+    "Level": 3,
+    "Type": 5,
+    "UnlockArmy": [
+      23
+    ],
+    "UnlockArmyType": [
+      5
+    ],
+    "CityRecovery": 0,
+    "ArmyRecovery": 0,
+    "ProduceMoney": 0,
+    "ProduceGear": 0,
+    "ProduceAtomic": 0,
+    "CostMoney": 1,
+    "CostGear": 0,
+    "CostAtomic": 0,
+    "Only": 0
+  },
+  {
+    "Id": 20404,
+    "Name": "机场4",
+    "Level": 4,
+    "Type": 5,
+    "UnlockArmy": [
+      24
+    ],
+    "UnlockArmyType": [
+      5
+    ],
+    "CityRecovery": 0,
+    "ArmyRecovery": 0,
+    "ProduceMoney": 0,
+    "ProduceGear": 0,
+    "ProduceAtomic": 0,
+    "CostMoney": 1,
+    "CostGear": 0,
+    "CostAtomic": 0,
+    "Only": 0
+  },
+  {
+    "Id": 20501,
+    "Name": "导弹基地1",
+    "Level": 1,
+    "Type": 6,
+    "UnlockArmy": [
+      25,
+      26
+    ],
+    "UnlockArmyType": [
+      6
+    ],
+    "CityRecovery": 0,
+    "ArmyRecovery": 0,
+    "ProduceMoney": 0,
+    "ProduceGear": 0,
+    "ProduceAtomic": 0,
+    "CostMoney": 1,
+    "CostGear": 0,
+    "CostAtomic": 0,
+    "Only": 0
+  },
+  {
+    "Id": 20502,
+    "Name": "导弹基地2",
+    "Level": 2,
+    "Type": 6,
+    "UnlockArmy": [
+      27,
+      28
+    ],
+    "UnlockArmyType": [
+      6
+    ],
+    "CityRecovery": 0,
+    "ArmyRecovery": 0,
+    "ProduceMoney": 0,
+    "ProduceGear": 0,
+    "ProduceAtomic": 0,
+    "CostMoney": 1,
+    "CostGear": 0,
+    "CostAtomic": 0,
+    "Only": 0
+  },
+  {
+    "Id": 20601,
+    "Name": "核弹工厂1",
+    "Level": 1,
+    "Type": 7,
+    "UnlockArmy": [
+      29,
+      30
+    ],
+    "UnlockArmyType": [
+      7
+    ],
+    "CityRecovery": 0,
+    "ArmyRecovery": 0,
+    "ProduceMoney": 0,
+    "ProduceGear": 0,
+    "ProduceAtomic": 0,
+    "CostMoney": 1,
+    "CostGear": 0,
+    "CostAtomic": 0,
+    "Only": 0
+  },
+  {
+    "Id": 20602,
+    "Name": "核弹工厂2",
+    "Level": 2,
+    "Type": 7,
+    "UnlockArmy": [
+      31,
+      32
+    ],
+    "UnlockArmyType": [
+      7
+    ],
+    "CityRecovery": 0,
+    "ArmyRecovery": 0,
+    "ProduceMoney": 0,
+    "ProduceGear": 0,
+    "ProduceAtomic": 0,
+    "CostMoney": 1,
+    "CostGear": 0,
+    "CostAtomic": 0,
+    "Only": 0
+  },
+  {
+    "Id": 20701,
+    "Name": "军港1",
+    "Level": 1,
+    "Type": 8,
+    "UnlockArmy": [
+      15,
+      16
+    ],
+    "UnlockArmyType": [
+      4
+    ],
+    "CityRecovery": 0,
+    "ArmyRecovery": 0,
+    "ProduceMoney": 0,
+    "ProduceGear": 0,
+    "ProduceAtomic": 0,
+    "CostMoney": 0,
+    "CostGear": 0,
+    "CostAtomic": 0,
+    "Only": 0
+  },
+  {
+    "Id": 20702,
+    "Name": "军港2",
+    "Level": 2,
+    "Type": 8,
+    "UnlockArmy": [
+      17
+    ],
+    "UnlockArmyType": [
+      4
+    ],
+    "CityRecovery": 0,
+    "ArmyRecovery": 0,
+    "ProduceMoney": 0,
+    "ProduceGear": 0,
+    "ProduceAtomic": 0,
+    "CostMoney": 1,
+    "CostGear": 0,
+    "CostAtomic": 0,
+    "Only": 0
+  },
+  {
+    "Id": 20703,
+    "Name": "军港3",
+    "Level": 3,
+    "Type": 8,
+    "UnlockArmy": [
+      18
+    ],
+    "UnlockArmyType": [
+      4
+    ],
+    "CityRecovery": 0,
+    "ArmyRecovery": 0,
+    "ProduceMoney": 0,
+    "ProduceGear": 0,
+    "ProduceAtomic": 0,
+    "CostMoney": 1,
+    "CostGear": 0,
+    "CostAtomic": 0,
+    "Only": 0
+  },
+  {
+    "Id": 20704,
+    "Name": "军港4",
+    "Level": 4,
+    "Type": 8,
+    "UnlockArmy": [
+      19
+    ],
+    "UnlockArmyType": [
+      4
+    ],
+    "CityRecovery": 0,
+    "ArmyRecovery": 0,
+    "ProduceMoney": 0,
+    "ProduceGear": 0,
+    "ProduceAtomic": 0,
+    "CostMoney": 1,
+    "CostGear": 0,
+    "CostAtomic": 0,
+    "Only": 0
+  }
+]

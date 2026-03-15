@@ -1,0 +1,30 @@
+[
+  {
+    "Id": 1,
+    "CostGold": 0,
+    "CostMedal": 0,
+    "Score": 0,
+    "RibbonNum": 3
+  },
+  {
+    "Id": 2,
+    "CostGold": 0,
+    "CostMedal": 0,
+    "Score": 150,
+    "RibbonNum": 3
+  },
+  {
+    "Id": 3,
+    "CostGold": 0,
+    "CostMedal": 0,
+    "Score": 300,
+    "RibbonNum": 3
+  },
+  {
+    "Id": 4,
+    "CostGold": 0,
+    "CostMedal": 1,
+    "Score": 500,
+    "RibbonNum": 3
+  }
+]

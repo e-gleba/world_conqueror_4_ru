@@ -1,5 +1,0 @@
-<Texture name="anim_glow.png" />
-<Images>
-    <Image name="1.png" x="1" y="1" w="364" h="222" refx="0" refy="0" />
-    <Image name="2.png" x="1" y="224" w="385" h="62" refx="0" refy="0" />
-</Images>

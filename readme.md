@@ -1,247 +1,201 @@
-# cxx-skeleton
+# world_conqueror_4_ru
 
 <p align="center">
-  <img src=".github/logo.png" alt="cxx-skeleton logo" width="200"/>
+  <img src=".github/logo.png" alt="logo"/>
 </p>
 
-<p align="center">
-  <a href="https://isocpp.org/"><img src="https://img.shields.io/badge/C%2B%2B-23%2F26-00599C?style=for-the-badge&logo=cplusplus&logoColor=white&labelColor=1C1C1C" alt="C++ Standard"/></a>
-  <a href="https://cmake.org"><img src="https://img.shields.io/badge/CMake-3.31%2B-064F8C?style=for-the-badge&logo=cmake&logoColor=white&labelColor=1C1C1C" alt="CMake"/></a>
-  <a href="license"><img src="https://img.shields.io/badge/License-MIT-blue?style=for-the-badge&labelColor=1C1C1C" alt="License"/></a>
-</p>
+Russian localization and full-unlock patch pipeline for **World Conqueror 4** (EasyTech).  
+Decompile the APK → edit string tables + data JSON → recompile → sign → sideload on Waydroid.
 
-Modern C++ project template. Ninja Multi-Config, CPM, CPack, cross-compilation, code quality tooling — zero friction from clone to package.
+## Prerequisites
+
+| Tool | Version | Install |
+|---|---|---|
+| Java | 11+ | `sudo apt install default-jdk` |
+| Python | 3.12+ | system |
+| `cryptography` | any | `pip install cryptography` |
+| CMake | 3.31+ | cmake.org |
+| apktool | 2.10.0 | auto-downloaded |
+| uber-apk-signer | 1.3.0 | auto-downloaded |
+| Waydroid | any | for deploy target only |
 
 ## Quick Start
 
 ```bash
-cmake --preset=gcc
-cmake --build --preset=gcc-release
-ctest --preset=gcc-release
+# 1. configure (downloads apktool + uber-apk-signer JARs on first run)
+cmake --preset default -Dapk_input=/path/to/wc4.apk -Dapk_pkg=com.easytech.wc4
+
+# 2. decompile + decrypt all assets/data/*.json into src/
+cmake --build build --target update
+
+# 3. patch string tables and data
+#    edit src/ freely here — JSON is plaintext after update
+
+# 4. recompile + encrypt + sign
+cmake --build build --target build
+#    => build/work/patched-aligned-debugSigned.apk
+
+# 5. (optional) push to Waydroid
+cmake --build build --target deploy
 ```
 
-Full pipeline (configure → build → test → package):
+## CMake Targets
+
+| Target | What it does |
+|---|---|
+| `update` | `apktool d` → `src/`; then batch-decrypt `assets/data/*.json` in-place |
+| `build` | stage `src/` → batch-encrypt JSON → `apktool b` → sign |
+| `deploy` | runs `build` then installs via `waydroid app install` |
+| `info` | print all configured paths |
+
+## CMake Cache Variables
+
+| Variable | Default | Description |
+|---|---|---|
+| `apk_input` | `` | Path to the original `.apk` |
+| `apk_pkg` | `` | Android package name (e.g. `com.easytech.wc4`) |
+| `java_bin` | `java` | Java executable |
+| `python3_bin` | `python3` | Python 3 executable |
+| `apktool_version` | `2.10.0` | apktool JAR version to download |
+| `uber_signer_version` | `1.3.0` | uber-apk-signer JAR version |
+| `wc4_crypt` | `scripts/wc4_crypt.py` | Encryption script path |
+| `wc4_header` | `MD5_SIZE` | Header format used when re-encrypting |
+| `src_dir` | `src/` | Decompiled smali + assets tree |
+
+Override at configure time:
 
 ```bash
-cmake --workflow --preset=gcc-full
+cmake --preset default \
+  -Dapk_input=~/Downloads/wc4.apk \
+  -Dapk_pkg=com.easytech.wc4
 ```
 
-## Prerequisites
+## Encryption (`scripts/wc4_crypt.py`)
 
-```
-cmake 3.31+
-ninja 1.11+
-C++23-capable compiler (clang 16+, gcc 13+, msvc 19.35+)
-```
+AES-256-CBC, key/IV extracted from `libworld-conqueror-4.so`.  
+All `assets/data/*.json` are encrypted blobs. The script handles five header formats:
 
-### macOS
+| Format | Layout |
+|---|---|
+| `EASY_MD5_SIZE` | `EASY(4) + ver(4) + len(4) + md5(16) + origsize(4) + ct` |
+| `EASY_MD5` | `EASY(4) + ver(4) + len(4) + md5(16) + ct` |
+| `MD5_SIZE` | `md5(16) + origsize(4) + ct` ← default for re-encrypt |
+| `MD5` | `md5(16) + ct` |
+| `RAW` | `ct` only |
+
+Auto-detection probes each format and validates UTF-8/JSON output.
+
+### Standalone usage
 
 ```bash
-brew install cmake llvm ninja doxygen
+# inspect a file
+python3 scripts/wc4_crypt.py info ArmySettings.json
+
+# decrypt to plaintext
+python3 scripts/wc4_crypt.py decrypt ArmySettings.json -o army.json --pretty
+
+# re-encrypt (auto-detects original header format)
+python3 scripts/wc4_crypt.py encrypt army.json -o ArmySettings.json --ref ArmySettings.json.orig
+
+# batch decrypt a directory
+python3 scripts/wc4_crypt.py decrypt assets/data/ -o decrypted/
+
+# query a JSON path (works on encrypted files directly)
+python3 scripts/wc4_crypt.py query ArmySettings.json 'units.0.name'
+python3 scripts/wc4_crypt.py query ArmySettings.json 'units.*.attack'
+
+# in-place field edit + re-encrypt
+python3 scripts/wc4_crypt.py edit ArmySettings.json \
+  --set 'units.0.hp=9999' --encrypt -o ArmySettings.json
+
+# regex substitution
+python3 scripts/wc4_crypt.py edit plain.json \
+  --regex '/OldText/NewText/' -o patched.json
+
+# search across all data files
+python3 scripts/wc4_crypt.py grep assets/data/ -p 'tank' --glob '*.json'
+
+# verify md5 integrity of all files
+python3 scripts/wc4_crypt.py verify assets/data/
+
+# roundtrip test (encrypt → decrypt → compare)
+python3 scripts/wc4_crypt.py roundtrip ArmySettings.json
 ```
 
-### Linux (Fedora)
+## Full Unlock (`scripts/wc4_unlock.py`)
+
+Patches **all JSON data files in-place** (plaintext `src/assets/data/`) to unlock everything.  
+Does **not** touch stat/combat values. Does **not** modify `ScenarioSettings.json`.
 
 ```bash
-sudo dnf install cmake gcc-c++ ninja-build doxygen llvm clang-tools-extra
+python3 scripts/wc4_unlock.py src/assets/data/
 ```
 
-### Linux (Ubuntu/Debian)
+What gets patched (25 categories):
+
+- **Generals** — all stats capped at 6, skills at 5, `CostMedal=1`, `CostGold=0`, all shops unlocked, all set legendary (orange)
+- **General promotions** — promotion chain costs zeroed; `AdvanceID` linked-list preserved
+- **Skills** — `CostMedal=1`, all unlocked by default, stage/scenario gates removed
+- **Technology** — all costs zeroed, HQ requirements removed
+- **Stages / Campaigns** — all opened, HQ locks removed; tutorial mission (Id=10001) grants 10M exp + 1M medals + unlocks all stages
+- **Conquests** — all visible and open, country costs zeroed
+- **Army purchase** — `CostMoney=1`, gear/atomic costs zeroed, build time/CD zeroed
+- **Buildings, Wonders, Legion, Corps, Elite Army, Frontier, Decorations, HQ, Shop** — costs minimized, locks cleared
+
+## Font Patch (`scripts/patch_lang_notosans.py`)
+
+Replaces the in-APK font with **Noto Sans** to fix Cyrillic rendering after localization.
 
 ```bash
-sudo apt install cmake g++ ninja-build doxygen llvm clang-tools
+python3 scripts/patch_lang_notosans.py src/
 ```
 
-### Windows
+Run after `update`, before `build`.
 
-```powershell
-choco install cmake llvm ninja doxygen visualstudio2022buildtools
-```
+## Spec Dump (`scripts/wc_spec_dump.py`)
 
-## Presets
-
-All presets use **Ninja Multi-Config** (except `msvc` → Visual Studio 17 2022).
-
-### Configure
-
-| Preset | Compiler | Platform | Notes |
-| :-- | :-- | :-- | :-- |
-| `gcc` | GCC/G++ | Native | — |
-| `clang` | Clang/Clang++ | Native | — |
-| `msvc` | MSVC (VS 2022) | Windows | x64 arch, x64 host toolset |
-| `android-arm64` | NDK | Android | arm64-v8a, API 24 |
-| `android-arm32` | NDK | Android | armeabi-v7a, API 24 |
-| `android-x64` | NDK | Android | x86_64 (emulator) |
-| `android-x86` | NDK | Android | x86 (emulator) |
-| `llvm-mingw-x86_64` | LLVM-MinGW | Linux → Windows | 64-bit cross-compilation |
-| `llvm-mingw-i686` | LLVM-MinGW | Linux → Windows | 32-bit cross-compilation |
-| `llvm-mingw-aarch64` | LLVM-MinGW | Linux → Windows | ARM64 cross-compilation |
-
-### Build
+Dumps unit/general stats from decrypted JSON into human-readable tables for analysis.
 
 ```bash
-cmake --build --preset=<name>-release
-cmake --build --preset=<name>-debug
+python3 scripts/wc_spec_dump.py src/assets/data/ -o specs.md
 ```
 
-Available: `gcc-release`, `gcc-debug`, `clang-release`, `clang-debug`, `msvc-release`, `msvc-debug`, `android-arm64`, `android-arm32`, `android-x64`, `android-x86`, `llvm-mingw-x86_64`, `llvm-mingw-i686`, `llvm-mingw-aarch64`.
-
-### Test
+## Typical Patch Workflow
 
 ```bash
-ctest --preset=<name>-release
-```
-
-Available: `gcc-release`, `gcc-debug`, `clang-release`, `clang-debug`, `msvc-release`, `msvc-debug`. Tests are disabled for cross-compiled targets.
-
-### Package (CPack)
-
-```bash
-cpack --preset=<name>-package
-```
-
-| Preset | Format |
-| :-- | :-- |
-| `gcc-package` | `.tar.gz` |
-| `clang-package` | `.tar.gz` |
-| `msvc-package` | `.zip` |
-| `llvm-mingw-*-package` | `.tar.xz` |
-
-### Workflows
-
-Full pipelines (configure → build → test → package) in a single command:
-
-```bash
-cmake --workflow --preset=gcc-full
-cmake --workflow --preset=clang-full
-cmake --workflow --preset=msvc-full
-cmake --workflow --preset=android-arm64-full    # configure + build only
-cmake --workflow --preset=llvm-mingw-x86_64-full # configure + build + package (no test)
+cmake --preset default -Dapk_input=~/wc4.apk -Dapk_pkg=com.easytech.wc4
+cmake --build build --target update          # decompile + decrypt
+python3 scripts/wc4_unlock.py src/assets/data/  # unlock everything
+python3 scripts/patch_lang_notosans.py src/     # fix Cyrillic font
+# edit src/assets/strings/strings.xml for RU strings
+cmake --build build --target build           # encrypt + recompile + sign
+cmake --build build --target deploy          # push to Waydroid
 ```
 
 ## Project Structure
 
 ```
 .
-├── CMakeLists.txt
-├── CMakePresets.json
-├── cmake/                  # find_package modules (warnings, cpm, code quality)
-├── src/                    # application sources
-├── tests/                  # doctest + CTest
-├── tools/                  # helper scripts
-├── docker/                 # Dockerfiles for reproducible builds
-├── android-project/        # Android project scaffolding
-├── .clang-format           # clang-format config
-├── .clang-tidy             # clang-tidy config
-├── .cmake-format.yaml      # cmake-format config
-├── .editorconfig           # editor defaults
-├── .pre-commit-config.yaml # pre-commit hooks
-└── license                 # MIT
+├── CMakeLists.txt               # build pipeline (LANGUAGES NONE)
+├── CMakePresets.json            # default configure/build presets
+├── scripts/
+│   ├── wc4_crypt.py             # AES-256-CBC encrypt/decrypt toolkit
+│   ├── wc4_unlock.py            # full-unlock patcher (25 categories)
+│   ├── patch_lang_notosans.py   # Cyrillic font patch
+│   └── wc_spec_dump.py          # unit/general stat extractor
+├── src/                         # decompiled APK tree (after `update`)
+│   └── assets/data/             # encrypted *.json game data
+└── schemas/                     # JSON schemas for data files
 ```
 
-## Code Quality
+## CI
 
-Format sources and CMake files:
+GitHub Actions workflow (`.github/workflows/apk-pipeline.yml`) runs on push/PR to `main`.  
+Runs `cmake --preset default` + `cmake --build build --target build` on `ubuntu-latest`.  
+Uploads `build/work/patched-aligned-debugSigned.apk` as artifact.
 
-```bash
-cmake --build build/gcc --target format
-```
+Required secrets / env: none (apk_input is left empty in CI; use for validation only).
 
-Static analysis:
+## License
 
-```bash
-cmake --build build/gcc --target tidy
-```
-
-Lint:
-
-```bash
-cmake --build build/gcc --target cpplint
-```
-
-Pre-commit hooks enforce formatting on every commit. Install once:
-
-```bash
-pre-commit install
-```
-
-## Documentation
-
-```bash
-cmake --build build/gcc --target doxygen
-```
-
-Output: `build/gcc/docs/doxygen/html`.
-
-## Docker
-
-```bash
-docker build -t cxx-skeleton -f docker/fedora.Dockerfile .
-docker run --rm -v "$(pwd):/src" cxx-skeleton cmake --workflow --preset=gcc-full
-```
-
-## Android
-
-Set `ANDROID_NDK_HOME` and run:
-
-```bash
-export ANDROID_NDK_HOME=/path/to/ndk
-cmake --workflow --preset=android-arm64-full
-```
-
-## Cross-Compilation (Linux → Windows)
-
-Requires [llvm-mingw](https://github.com/mstorsjo/llvm-mingw) on `PATH`:
-
-```bash
-cmake --workflow --preset=llvm-mingw-x86_64-full
-```
-
-## Dependencies
-
-Managed via [CPM](https://github.com/cpm-cmake/CPM.cmake). Add packages in CMakeLists.txt:
-
-```cmake
-CPMAddPackage("gh:fmtlib/fmt#11.1.4")
-```
-
-CPM downloads are verbose (`FETCHCONTENT_QUIET=OFF`) for CI visibility.
-
-## IDE Support
-
-The project generates `compile_commands.json` and is compatible with CLion, Visual Studio, QtCreator, KDevelop, and any LSP-based editor.
-
-## References
-
-### Standards
-
-- [C++ Core Guidelines](https://isocpp.github.io/CppCoreGuidelines/) — Stroustrup \& Sutter
-- [cppreference.com](https://en.cppreference.com/) — Language reference
-- [C++ Draft Standard](https://eel.is/c++draft) — Latest working draft
-- [WG21 Link](https://wg21.link) — Proposal shortener
-- [C++ Evolution](https://cppevo.dev) — Feature tracker
-
-### Tools
-
-- [Compiler Explorer](https://godbolt.org/) — Live assembly
-- [C++ Insights](https://cppinsights.io/) — Compiler transformations
-- [Quick Bench](https://quick-bench.com/) — Micro-benchmarks
-- [IWYU](https://include-what-you-use.org/) — Header analysis
-- [Perfetto UI](https://ui.perfetto.dev) — Build profiling
-
-### Performance
-
-- [Performance-Aware Programming](https://www.computerenhance.com/) — Casey Muratori
-- [Agner Fog](https://agner.org/optimize) — Optimization manuals
-- [uops.info](https://uops.info/) — Instruction latencies
-
-### Compiler Docs
-
-- [Clang](https://clang.llvm.org/docs) · [GCC](https://gcc.gnu.org/onlinedocs) · [MSVC](https://learn.microsoft.com/cpp)
-
-### Learning
-
-- [C++ Weekly](https://youtube.com/@cppweekly) — Jason Turner
-- [C++ Stories](https://www.cppstories.com) — Bartek Filipek
-- [CppCon](https://youtube.com/@CppCon) — Conference talks
-- [Handmade Hero](https://handmadehero.org) — Casey Muratori
+MIT — see [`license`](license).

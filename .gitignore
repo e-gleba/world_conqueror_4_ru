@@ -106,5 +106,5 @@ cmake/toolchains/.osxcross-src/
 cmake/toolchains/.macos-toolchain-deps/
 cmake/toolchains/.macos-sdk-cache/
 
-!src/**
-!src/
+decompiled/
+decompiled_mod/

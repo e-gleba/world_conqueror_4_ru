@@ -1,7 +1,0 @@
-<Texture name="image_wonders_hd6.png" />
-<Images>
-    <Image name="wonder_121.png" x="1" y="1" w="400" h="500" refx="0" refy="0" />
-    <Image name="wonder_122.png" x="1" y="502" w="400" h="500" refx="0" refy="0" />
-    <Image name="wonder_123.png" x="402" y="1" w="400" h="500" refx="0" refy="0" />
-    <Image name="wonder_124.png" x="402" y="502" w="400" h="500" refx="0" refy="0" />
-</Images>

@@ -1,0 +1,578 @@
+[
+  {
+    "Id": 10101,
+    "UnlockId": 0,
+    "Chapter": 1,
+    "Seat": 10,
+    "Difficulty": 1,
+    "PrizeGold": 12000,
+    "PrizeIndustry": 0,
+    "PrizeEnergy": 0,
+    "PrizeTech": 0,
+    "PrizeMedals": 60,
+    "PrizeItem": [
+      103,
+      1
+    ]
+  },
+  {
+    "Id": 10102,
+    "UnlockId": 0,
+    "Chapter": 1,
+    "Seat": 10,
+    "Difficulty": 1,
+    "PrizeGold": 0,
+    "PrizeIndustry": 1000,
+    "PrizeEnergy": 0,
+    "PrizeTech": 0,
+    "PrizeMedals": 60,
+    "PrizeItem": [
+      103,
+      2
+    ]
+  },
+  {
+    "Id": 10103,
+    "UnlockId": 0,
+    "Chapter": 1,
+    "Seat": 10,
+    "Difficulty": 1,
+    "PrizeGold": 0,
+    "PrizeIndustry": 1000,
+    "PrizeEnergy": 0,
+    "PrizeTech": 0,
+    "PrizeMedals": 60,
+    "PrizeItem": [
+      103,
+      3
+    ]
+  },
+  {
+    "Id": 10104,
+    "UnlockId": 0,
+    "Chapter": 1,
+    "Seat": 10,
+    "Difficulty": 1,
+    "PrizeGold": 0,
+    "PrizeIndustry": 0,
+    "PrizeEnergy": 400,
+    "PrizeTech": 0,
+    "PrizeMedals": 60,
+    "PrizeItem": [
+      101,
+      1
+    ]
+  },
+  {
+    "Id": 10105,
+    "UnlockId": 0,
+    "Chapter": 1,
+    "Seat": 10,
+    "Difficulty": 1,
+    "PrizeGold": 0,
+    "PrizeIndustry": 0,
+    "PrizeEnergy": 400,
+    "PrizeTech": 0,
+    "PrizeMedals": 60,
+    "PrizeItem": [
+      101,
+      2
+    ]
+  },
+  {
+    "Id": 10106,
+    "UnlockId": 0,
+    "Chapter": 1,
+    "Seat": 10,
+    "Difficulty": 1,
+    "PrizeGold": 0,
+    "PrizeIndustry": 0,
+    "PrizeEnergy": 0,
+    "PrizeTech": 30,
+    "PrizeMedals": 60,
+    "PrizeItem": [
+      101,
+      3
+    ]
+  },
+  {
+    "Id": 20101,
+    "UnlockId": 0,
+    "Chapter": 2,
+    "Seat": 10,
+    "Difficulty": 1,
+    "PrizeGold": 12000,
+    "PrizeIndustry": 0,
+    "PrizeEnergy": 0,
+    "PrizeTech": 0,
+    "PrizeMedals": 60,
+    "PrizeItem": [
+      107,
+      1
+    ]
+  },
+  {
+    "Id": 20102,
+    "UnlockId": 0,
+    "Chapter": 2,
+    "Seat": 10,
+    "Difficulty": 1,
+    "PrizeGold": 0,
+    "PrizeIndustry": 1000,
+    "PrizeEnergy": 0,
+    "PrizeTech": 0,
+    "PrizeMedals": 60,
+    "PrizeItem": [
+      107,
+      2
+    ]
+  },
+  {
+    "Id": 20103,
+    "UnlockId": 0,
+    "Chapter": 2,
+    "Seat": 10,
+    "Difficulty": 1,
+    "PrizeGold": 0,
+    "PrizeIndustry": 1000,
+    "PrizeEnergy": 0,
+    "PrizeTech": 0,
+    "PrizeMedals": 60,
+    "PrizeItem": [
+      107,
+      3
+    ]
+  },
+  {
+    "Id": 20104,
+    "UnlockId": 0,
+    "Chapter": 2,
+    "Seat": 10,
+    "Difficulty": 1,
+    "PrizeGold": 0,
+    "PrizeIndustry": 0,
+    "PrizeEnergy": 400,
+    "PrizeTech": 0,
+    "PrizeMedals": 60,
+    "PrizeItem": [
+      105,
+      1
+    ]
+  },
+  {
+    "Id": 20105,
+    "UnlockId": 0,
+    "Chapter": 2,
+    "Seat": 10,
+    "Difficulty": 1,
+    "PrizeGold": 0,
+    "PrizeIndustry": 0,
+    "PrizeEnergy": 400,
+    "PrizeTech": 0,
+    "PrizeMedals": 60,
+    "PrizeItem": [
+      105,
+      2
+    ]
+  },
+  {
+    "Id": 20106,
+    "UnlockId": 0,
+    "Chapter": 2,
+    "Seat": 10,
+    "Difficulty": 1,
+    "PrizeGold": 0,
+    "PrizeIndustry": 0,
+    "PrizeEnergy": 0,
+    "PrizeTech": 30,
+    "PrizeMedals": 60,
+    "PrizeItem": [
+      105,
+      3
+    ]
+  },
+  {
+    "Id": 30101,
+    "UnlockId": 0,
+    "Chapter": 3,
+    "Seat": 10,
+    "Difficulty": 1,
+    "PrizeGold": 12000,
+    "PrizeIndustry": 0,
+    "PrizeEnergy": 0,
+    "PrizeTech": 0,
+    "PrizeMedals": 60,
+    "PrizeItem": [
+      102,
+      1
+    ]
+  },
+  {
+    "Id": 30102,
+    "UnlockId": 0,
+    "Chapter": 3,
+    "Seat": 10,
+    "Difficulty": 1,
+    "PrizeGold": 0,
+    "PrizeIndustry": 1000,
+    "PrizeEnergy": 0,
+    "PrizeTech": 0,
+    "PrizeMedals": 60,
+    "PrizeItem": [
+      102,
+      2
+    ]
+  },
+  {
+    "Id": 30103,
+    "UnlockId": 0,
+    "Chapter": 3,
+    "Seat": 10,
+    "Difficulty": 1,
+    "PrizeGold": 0,
+    "PrizeIndustry": 1000,
+    "PrizeEnergy": 0,
+    "PrizeTech": 0,
+    "PrizeMedals": 60,
+    "PrizeItem": [
+      102,
+      3
+    ]
+  },
+  {
+    "Id": 30104,
+    "UnlockId": 0,
+    "Chapter": 3,
+    "Seat": 10,
+    "Difficulty": 1,
+    "PrizeGold": 0,
+    "PrizeIndustry": 0,
+    "PrizeEnergy": 400,
+    "PrizeTech": 0,
+    "PrizeMedals": 60,
+    "PrizeItem": [
+      116,
+      1
+    ]
+  },
+  {
+    "Id": 30105,
+    "UnlockId": 0,
+    "Chapter": 3,
+    "Seat": 10,
+    "Difficulty": 1,
+    "PrizeGold": 0,
+    "PrizeIndustry": 0,
+    "PrizeEnergy": 400,
+    "PrizeTech": 0,
+    "PrizeMedals": 60,
+    "PrizeItem": [
+      116,
+      2
+    ]
+  },
+  {
+    "Id": 30106,
+    "UnlockId": 0,
+    "Chapter": 3,
+    "Seat": 10,
+    "Difficulty": 1,
+    "PrizeGold": 0,
+    "PrizeIndustry": 0,
+    "PrizeEnergy": 0,
+    "PrizeTech": 30,
+    "PrizeMedals": 60,
+    "PrizeItem": [
+      116,
+      3
+    ]
+  },
+  {
+    "Id": 40101,
+    "UnlockId": 0,
+    "Chapter": 4,
+    "Seat": 10,
+    "Difficulty": 1,
+    "PrizeGold": 12000,
+    "PrizeIndustry": 0,
+    "PrizeEnergy": 0,
+    "PrizeTech": 0,
+    "PrizeMedals": 60,
+    "PrizeItem": [
+      107,
+      1
+    ]
+  },
+  {
+    "Id": 40102,
+    "UnlockId": 0,
+    "Chapter": 4,
+    "Seat": 10,
+    "Difficulty": 1,
+    "PrizeGold": 0,
+    "PrizeIndustry": 1000,
+    "PrizeEnergy": 0,
+    "PrizeTech": 0,
+    "PrizeMedals": 60,
+    "PrizeItem": [
+      107,
+      2
+    ]
+  },
+  {
+    "Id": 40103,
+    "UnlockId": 0,
+    "Chapter": 4,
+    "Seat": 10,
+    "Difficulty": 1,
+    "PrizeGold": 0,
+    "PrizeIndustry": 1000,
+    "PrizeEnergy": 0,
+    "PrizeTech": 0,
+    "PrizeMedals": 60,
+    "PrizeItem": [
+      107,
+      3
+    ]
+  },
+  {
+    "Id": 40104,
+    "UnlockId": 0,
+    "Chapter": 4,
+    "Seat": 10,
+    "Difficulty": 1,
+    "PrizeGold": 0,
+    "PrizeIndustry": 0,
+    "PrizeEnergy": 400,
+    "PrizeTech": 0,
+    "PrizeMedals": 60,
+    "PrizeItem": [
+      124,
+      1
+    ]
+  },
+  {
+    "Id": 40105,
+    "UnlockId": 0,
+    "Chapter": 4,
+    "Seat": 10,
+    "Difficulty": 1,
+    "PrizeGold": 0,
+    "PrizeIndustry": 0,
+    "PrizeEnergy": 400,
+    "PrizeTech": 0,
+    "PrizeMedals": 60,
+    "PrizeItem": [
+      124,
+      2
+    ]
+  },
+  {
+    "Id": 40106,
+    "UnlockId": 0,
+    "Chapter": 4,
+    "Seat": 10,
+    "Difficulty": 1,
+    "PrizeGold": 0,
+    "PrizeIndustry": 0,
+    "PrizeEnergy": 0,
+    "PrizeTech": 30,
+    "PrizeMedals": 60,
+    "PrizeItem": [
+      124,
+      3
+    ]
+  },
+  {
+    "Id": 50101,
+    "UnlockId": 0,
+    "Chapter": 5,
+    "Seat": 10,
+    "Difficulty": 1,
+    "PrizeGold": 12000,
+    "PrizeIndustry": 0,
+    "PrizeEnergy": 0,
+    "PrizeTech": 0,
+    "PrizeMedals": 60,
+    "PrizeItem": [
+      103,
+      1
+    ]
+  },
+  {
+    "Id": 50102,
+    "UnlockId": 0,
+    "Chapter": 5,
+    "Seat": 10,
+    "Difficulty": 1,
+    "PrizeGold": 0,
+    "PrizeIndustry": 1000,
+    "PrizeEnergy": 0,
+    "PrizeTech": 0,
+    "PrizeMedals": 60,
+    "PrizeItem": [
+      103,
+      2
+    ]
+  },
+  {
+    "Id": 50103,
+    "UnlockId": 0,
+    "Chapter": 5,
+    "Seat": 10,
+    "Difficulty": 1,
+    "PrizeGold": 0,
+    "PrizeIndustry": 1000,
+    "PrizeEnergy": 0,
+    "PrizeTech": 0,
+    "PrizeMedals": 60,
+    "PrizeItem": [
+      103,
+      3
+    ]
+  },
+  {
+    "Id": 50104,
+    "UnlockId": 0,
+    "Chapter": 5,
+    "Seat": 10,
+    "Difficulty": 1,
+    "PrizeGold": 0,
+    "PrizeIndustry": 0,
+    "PrizeEnergy": 400,
+    "PrizeTech": 0,
+    "PrizeMedals": 60,
+    "PrizeItem": [
+      105,
+      1
+    ]
+  },
+  {
+    "Id": 50105,
+    "UnlockId": 0,
+    "Chapter": 5,
+    "Seat": 10,
+    "Difficulty": 1,
+    "PrizeGold": 0,
+    "PrizeIndustry": 0,
+    "PrizeEnergy": 400,
+    "PrizeTech": 0,
+    "PrizeMedals": 60,
+    "PrizeItem": [
+      105,
+      2
+    ]
+  },
+  {
+    "Id": 50106,
+    "UnlockId": 0,
+    "Chapter": 5,
+    "Seat": 10,
+    "Difficulty": 1,
+    "PrizeGold": 0,
+    "PrizeIndustry": 0,
+    "PrizeEnergy": 0,
+    "PrizeTech": 30,
+    "PrizeMedals": 60,
+    "PrizeItem": [
+      105,
+      3
+    ]
+  },
+  {
+    "Id": 60101,
+    "UnlockId": 0,
+    "Chapter": 6,
+    "Seat": 10,
+    "Difficulty": 1,
+    "PrizeGold": 12000,
+    "PrizeIndustry": 0,
+    "PrizeEnergy": 0,
+    "PrizeTech": 0,
+    "PrizeMedals": 60,
+    "PrizeItem": [
+      103,
+      1
+    ]
+  },
+  {
+    "Id": 60102,
+    "UnlockId": 0,
+    "Chapter": 6,
+    "Seat": 10,
+    "Difficulty": 1,
+    "PrizeGold": 0,
+    "PrizeIndustry": 1000,
+    "PrizeEnergy": 0,
+    "PrizeTech": 0,
+    "PrizeMedals": 60,
+    "PrizeItem": [
+      103,
+      2
+    ]
+  },
+  {
+    "Id": 60103,
+    "UnlockId": 0,
+    "Chapter": 6,
+    "Seat": 10,
+    "Difficulty": 1,
+    "PrizeGold": 0,
+    "PrizeIndustry": 1000,
+    "PrizeEnergy": 0,
+    "PrizeTech": 0,
+    "PrizeMedals": 60,
+    "PrizeItem": [
+      103,
+      3
+    ]
+  },
+  {
+    "Id": 60104,
+    "UnlockId": 0,
+    "Chapter": 6,
+    "Seat": 10,
+    "Difficulty": 1,
+    "PrizeGold": 0,
+    "PrizeIndustry": 0,
+    "PrizeEnergy": 400,
+    "PrizeTech": 0,
+    "PrizeMedals": 60,
+    "PrizeItem": [
+      115,
+      1
+    ]
+  },
+  {
+    "Id": 60105,
+    "UnlockId": 0,
+    "Chapter": 6,
+    "Seat": 10,
+    "Difficulty": 1,
+    "PrizeGold": 0,
+    "PrizeIndustry": 0,
+    "PrizeEnergy": 400,
+    "PrizeTech": 0,
+    "PrizeMedals": 60,
+    "PrizeItem": [
+      115,
+      2
+    ]
+  },
+  {
+    "Id": 60106,
+    "UnlockId": 0,
+    "Chapter": 6,
+    "Seat": 10,
+    "Difficulty": 1,
+    "PrizeGold": 0,
+    "PrizeIndustry": 0,
+    "PrizeEnergy": 0,
+    "PrizeTech": 30,
+    "PrizeMedals": 60,
+    "PrizeItem": [
+      115,
+      3
+    ]
+  }
+]
