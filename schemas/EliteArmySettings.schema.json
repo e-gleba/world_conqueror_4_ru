@@ -1,0 +1,202 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "EliteArmySettings.json",
+  "title": "EliteArmySettings",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "Id": {
+        "type": "integer",
+        "minimum": 11001,
+        "maximum": 51712
+      },
+      "ArmyType": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 13,
+        "enum": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          13
+        ]
+      },
+      "ArmyId": {
+        "type": "integer",
+        "minimum": 301001,
+        "maximum": 351012
+      },
+      "EliteLevel": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 12,
+        "enum": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12
+        ]
+      },
+      "NeedHQLv": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 0,
+        "enum": [
+          0
+        ]
+      },
+      "CostGold": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 85550,
+        "enum": [
+          0,
+          3000,
+          3750,
+          6000,
+          12000,
+          13200,
+          20700,
+          24000,
+          28800,
+          34560,
+          41250,
+          41450,
+          49500,
+          49750,
+          59400,
+          71280,
+          85550
+        ]
+      },
+      "CostIndustry": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 68400
+      },
+      "CostEnergy": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 68400,
+        "enum": [
+          0,
+          1500,
+          1800,
+          7125,
+          7150,
+          7200,
+          12375,
+          12400,
+          13500,
+          30000,
+          33000,
+          36000,
+          39600,
+          43200,
+          47520,
+          51840,
+          57000,
+          62200,
+          68400
+        ]
+      },
+      "CostTech": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 1970,
+        "enum": [
+          0,
+          60,
+          90,
+          180,
+          270,
+          340,
+          500,
+          650,
+          780,
+          930,
+          950,
+          1120,
+          1140,
+          1340,
+          1368,
+          1370,
+          1640,
+          1642,
+          1970
+        ]
+      },
+      "CostItem": {
+        "type": "integer",
+        "minimum": 5,
+        "maximum": 100,
+        "enum": [
+          5,
+          15,
+          30,
+          60,
+          70,
+          80,
+          90,
+          100
+        ]
+      },
+      "CostBadge": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 30,
+        "enum": [
+          0,
+          5,
+          10,
+          15,
+          20,
+          25,
+          30
+        ]
+      },
+      "RequireCityType": {
+        "type": "integer",
+        "minimum": 20001,
+        "maximum": 20703,
+        "enum": [
+          20001,
+          20003,
+          20101,
+          20102,
+          20103,
+          20401,
+          20403,
+          20701,
+          20703
+        ]
+      }
+    },
+    "required": [
+      "Id",
+      "ArmyType",
+      "ArmyId",
+      "EliteLevel",
+      "NeedHQLv",
+      "CostGold",
+      "CostIndustry",
+      "CostEnergy",
+      "CostTech",
+      "CostItem",
+      "CostBadge",
+      "RequireCityType"
+    ],
+    "additionalProperties": false
+  }
+}

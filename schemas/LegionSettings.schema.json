@@ -1,0 +1,208 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "LegionSettings.json",
+  "title": "LegionSettings",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "Id": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 19,
+        "enum": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19
+        ]
+      },
+      "Name": {
+        "type": "string",
+        "minLength": 2,
+        "maxLength": 4,
+        "enum": [
+          "中型坦克",
+          "巡洋舰",
+          "机动步兵",
+          "榴弹炮",
+          "潜艇",
+          "火箭炮",
+          "特种兵",
+          "突击步兵",
+          "航母",
+          "装甲步兵",
+          "装甲车",
+          "超级坦克",
+          "超级火炮",
+          "超级舰船",
+          "轻型坦克",
+          "轻型步兵",
+          "重型坦克",
+          "野战炮",
+          "驱逐舰"
+        ]
+      },
+      "Type": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 4,
+        "enum": [
+          1,
+          2,
+          3,
+          4
+        ]
+      },
+      "Army": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 19,
+        "enum": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19
+        ]
+      },
+      "CostGold": {
+        "type": "integer",
+        "minimum": 160,
+        "maximum": 1920,
+        "enum": [
+          160,
+          200,
+          240,
+          360,
+          400,
+          480,
+          800,
+          960,
+          1160,
+          1200,
+          1440,
+          1600,
+          1920
+        ]
+      },
+      "CostIndustry": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 210,
+        "enum": [
+          0,
+          24,
+          30,
+          45,
+          60,
+          108,
+          120,
+          140,
+          150,
+          180,
+          210
+        ]
+      },
+      "CostEnergy": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 60,
+        "enum": [
+          0,
+          6,
+          9,
+          12,
+          15,
+          18,
+          24,
+          27,
+          30,
+          36,
+          48,
+          60
+        ]
+      },
+      "CostTech": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 0,
+        "enum": [
+          0
+        ]
+      },
+      "LegionMax": {
+        "type": "integer",
+        "minimum": 3,
+        "maximum": 16,
+        "enum": [
+          3,
+          4,
+          5,
+          8,
+          10,
+          12,
+          14,
+          15,
+          16
+        ]
+      },
+      "UnlockHqLv": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 30,
+        "enum": [
+          1,
+          5,
+          10,
+          15,
+          20,
+          25,
+          30
+        ]
+      }
+    },
+    "required": [
+      "Id",
+      "Name",
+      "Type",
+      "Army",
+      "CostGold",
+      "CostIndustry",
+      "CostEnergy",
+      "CostTech",
+      "LegionMax",
+      "UnlockHqLv"
+    ],
+    "additionalProperties": false
+  }
+}

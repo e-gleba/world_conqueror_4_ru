@@ -1,0 +1,196 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "CountryTechSettings.json",
+  "title": "CountryTechSettings",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "Id": {
+        "type": "integer",
+        "minimum": 10101,
+        "maximum": 52123
+      },
+      "NeedId": {
+        "type": "array",
+        "minItems": 0,
+        "maxItems": 2
+      },
+      "CategoryId": {
+        "type": "integer",
+        "minimum": 101,
+        "maximum": 521,
+        "enum": [
+          101,
+          111,
+          121,
+          201,
+          211,
+          221,
+          301,
+          311,
+          321,
+          401,
+          411,
+          421,
+          501,
+          511,
+          521
+        ]
+      },
+      "Categorys": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 4,
+        "enum": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ]
+      },
+      "Type": {
+        "type": "integer",
+        "minimum": 101,
+        "maximum": 523
+      },
+      "ResearchLv": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 9,
+        "enum": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ]
+      },
+      "CostMoney": {
+        "type": "integer",
+        "minimum": 96,
+        "maximum": 240,
+        "enum": [
+          96,
+          168,
+          240
+        ]
+      },
+      "CostGear": {
+        "type": "integer",
+        "minimum": 48,
+        "maximum": 120,
+        "enum": [
+          48,
+          84,
+          120
+        ]
+      },
+      "CostAtomic": {
+        "type": "integer",
+        "minimum": 24,
+        "maximum": 60,
+        "enum": [
+          24,
+          42,
+          60
+        ]
+      },
+      "Position": {
+        "type": "integer",
+        "minimum": -4,
+        "maximum": 3,
+        "enum": [
+          -4,
+          -3,
+          -2,
+          -1,
+          0,
+          1,
+          2,
+          3
+        ]
+      },
+      "Chance": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 150,
+        "enum": [
+          0,
+          5,
+          10,
+          15,
+          20,
+          25,
+          30,
+          40,
+          50,
+          60,
+          100,
+          150
+        ]
+      },
+      "Value": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 1261,
+        "enum": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          60,
+          1161,
+          1261
+        ]
+      },
+      "Lines": {
+        "type": "array",
+        "minItems": 2,
+        "maxItems": 6
+      },
+      "Lines2": {
+        "type": "array",
+        "minItems": 0,
+        "maxItems": 4
+      },
+      "CostMerit": {
+        "type": "integer",
+        "minimum": 2,
+        "maximum": 6,
+        "enum": [
+          2,
+          3,
+          4,
+          5,
+          6
+        ]
+      }
+    },
+    "required": [
+      "Id",
+      "NeedId",
+      "CategoryId",
+      "Categorys",
+      "Type",
+      "ResearchLv",
+      "CostMoney",
+      "CostGear",
+      "CostAtomic",
+      "Position",
+      "Chance",
+      "Value",
+      "Lines",
+      "Lines2",
+      "CostMerit"
+    ],
+    "additionalProperties": false
+  }
+}

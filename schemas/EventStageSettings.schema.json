@@ -1,0 +1,206 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "EventStageSettings.json",
+  "title": "EventStageSettings",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "Id": {
+        "type": "integer",
+        "minimum": 10101,
+        "maximum": 80601
+      },
+      "EventId": {
+        "type": "integer",
+        "minimum": 101,
+        "maximum": 4119
+      },
+      "Type": {
+        "type": "integer",
+        "minimum": 2,
+        "maximum": 15,
+        "enum": [
+          2,
+          3,
+          4,
+          5,
+          13,
+          14,
+          15
+        ]
+      },
+      "CountryId": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 48,
+        "enum": [
+          0,
+          1,
+          2,
+          3,
+          5,
+          6,
+          7,
+          10,
+          11,
+          12,
+          14,
+          15,
+          18,
+          20,
+          37,
+          48
+        ]
+      },
+      "UnlockStageId": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 70807
+      },
+      "RefStageId": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 51410
+      },
+      "Difficulty": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 1,
+        "enum": [
+          0,
+          1
+        ]
+      },
+      "Seat": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 20,
+        "enum": [
+          0,
+          10,
+          12,
+          16,
+          20
+        ]
+      },
+      "GeneralID": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 29043
+      },
+      "X": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 5400
+      },
+      "Y": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 1853
+      },
+      "PrizeMedals": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 500,
+        "enum": [
+          0,
+          10,
+          20,
+          25,
+          30,
+          40,
+          45,
+          55,
+          60,
+          70,
+          75,
+          100,
+          500
+        ]
+      },
+      "PrizeTicket": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 4,
+        "enum": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ]
+      },
+      "PrizeItem": {
+        "type": "array",
+        "minItems": 0,
+        "maxItems": 2
+      },
+      "PrizeGold": {
+        "type": "array",
+        "minItems": 0,
+        "maxItems": 1
+      },
+      "PrizeIndustry": {
+        "type": "array",
+        "minItems": 0,
+        "maxItems": 1
+      },
+      "PrizeEnergy": {
+        "type": "array",
+        "minItems": 0,
+        "maxItems": 1
+      },
+      "PrizeTech": {
+        "type": "array",
+        "minItems": 0,
+        "maxItems": 1
+      },
+      "PrizeMerit": {
+        "type": "array",
+        "minItems": 0,
+        "maxItems": 0
+      },
+      "EnableRoundEvent": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 1,
+        "enum": [
+          0,
+          1
+        ]
+      },
+      "RoundPhoto": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "minLength": 15,
+        "maxLength": 20
+      }
+    },
+    "required": [
+      "Id",
+      "EventId",
+      "Type",
+      "CountryId",
+      "UnlockStageId",
+      "RefStageId",
+      "Difficulty",
+      "Seat",
+      "GeneralID",
+      "X",
+      "Y",
+      "PrizeMedals",
+      "PrizeTicket",
+      "PrizeItem",
+      "PrizeGold",
+      "PrizeIndustry",
+      "PrizeEnergy",
+      "PrizeTech",
+      "PrizeMerit",
+      "EnableRoundEvent"
+    ],
+    "additionalProperties": false
+  }
+}

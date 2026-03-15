@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "QuestRewardSettings.json",
+  "title": "QuestRewardSettings",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "Id": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 4,
+        "enum": [
+          1,
+          2,
+          3,
+          4
+        ]
+      },
+      "Probability": {
+        "type": "integer",
+        "minimum": 15,
+        "maximum": 40,
+        "enum": [
+          15,
+          30,
+          40
+        ]
+      },
+      "RewardType": {
+        "type": "array",
+        "minItems": 2,
+        "maxItems": 2
+      }
+    },
+    "required": [
+      "Id",
+      "Probability",
+      "RewardType"
+    ],
+    "additionalProperties": false
+  }
+}

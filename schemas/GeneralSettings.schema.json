@@ -1,0 +1,371 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "GeneralSettings.json",
+  "title": "GeneralSettings",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "Id": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 29169
+      },
+      "Name": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "minLength": 1,
+        "maxLength": 14
+      },
+      "EName": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "minLength": 2,
+        "maxLength": 14
+      },
+      "InShop": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 1,
+        "enum": [
+          0,
+          1
+        ]
+      },
+      "Type": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 3,
+        "enum": [
+          0,
+          1,
+          3
+        ]
+      },
+      "Evaluate": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 3,
+        "enum": [
+          0,
+          1,
+          2,
+          3
+        ]
+      },
+      "Sequence": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 31
+      },
+      "UnlockHQLv": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 22,
+        "enum": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          20,
+          22
+        ]
+      },
+      "CostMedal": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 6985
+      },
+      "CostGold": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 0,
+        "enum": [
+          0
+        ]
+      },
+      "MilitaryRank": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 11,
+        "enum": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11
+        ]
+      },
+      "Infantry": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 6,
+        "enum": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ]
+      },
+      "Artillery": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 6,
+        "enum": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ]
+      },
+      "Armor": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 6,
+        "enum": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ]
+      },
+      "Navy": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 6,
+        "enum": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ]
+      },
+      "AirForce": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 6,
+        "enum": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ]
+      },
+      "March": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 6,
+        "enum": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ]
+      },
+      "Skills": {
+        "type": "array",
+        "minItems": 0,
+        "maxItems": 5
+      },
+      "Hp": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 2,
+        "enum": [
+          0,
+          1,
+          2
+        ]
+      },
+      "Medals": {
+        "type": "array",
+        "minItems": 0,
+        "maxItems": 0
+      },
+      "Photo": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "minLength": 2,
+        "maxLength": 14
+      },
+      "InfantryMax": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 6,
+        "enum": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ]
+      },
+      "ArtilleryMax": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 6,
+        "enum": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ]
+      },
+      "ArmorMax": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 6,
+        "enum": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ]
+      },
+      "NavyMax": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 6,
+        "enum": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ]
+      },
+      "AirForceMax": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 6,
+        "enum": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ]
+      },
+      "MarchMax": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 6,
+        "enum": [
+          0,
+          2,
+          3,
+          4,
+          5,
+          6
+        ]
+      },
+      "SkillsMax": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 5,
+        "enum": [
+          0,
+          3,
+          4,
+          5
+        ]
+      },
+      "ResetSkills": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 2,
+        "enum": [
+          0,
+          2
+        ]
+      }
+    },
+    "required": [
+      "Id",
+      "InShop",
+      "Type",
+      "Evaluate",
+      "Sequence",
+      "UnlockHQLv",
+      "CostMedal",
+      "CostGold",
+      "MilitaryRank",
+      "Infantry",
+      "Artillery",
+      "Armor",
+      "Navy",
+      "AirForce",
+      "March",
+      "Skills",
+      "Hp",
+      "Medals",
+      "InfantryMax",
+      "ArtilleryMax",
+      "ArmorMax",
+      "NavyMax",
+      "AirForceMax",
+      "MarchMax",
+      "SkillsMax",
+      "ResetSkills"
+    ],
+    "additionalProperties": false
+  }
+}

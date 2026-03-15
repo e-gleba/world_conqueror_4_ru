@@ -1,0 +1,234 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "GeneralPromotionSettings.json",
+  "title": "GeneralPromotionSettings",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "Id": {
+        "type": "integer",
+        "minimum": 10101,
+        "maximum": 10621
+      },
+      "AdvanceID": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 10522,
+        "enum": [
+          0,
+          10102,
+          10103,
+          10112,
+          10113,
+          10152,
+          10172,
+          10173,
+          10202,
+          10292,
+          10293,
+          10332,
+          10362,
+          10412,
+          10413,
+          10432,
+          10433,
+          10522
+        ]
+      },
+      "BaseID": {
+        "type": "integer",
+        "minimum": 1010,
+        "maximum": 1062,
+        "enum": [
+          1010,
+          1011,
+          1015,
+          1017,
+          1018,
+          1020,
+          1021,
+          1029,
+          1031,
+          1032,
+          1033,
+          1036,
+          1037,
+          1041,
+          1043,
+          1045,
+          1050,
+          1052,
+          1062
+        ]
+      },
+      "Evaluate": {
+        "type": "integer",
+        "minimum": 2,
+        "maximum": 3,
+        "enum": [
+          2,
+          3
+        ]
+      },
+      "CostSword": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 16,
+        "enum": [
+          0,
+          8,
+          16
+        ]
+      },
+      "CostSceptre": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 10,
+        "enum": [
+          0,
+          8,
+          10
+        ]
+      },
+      "CostMedal": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 500,
+        "enum": [
+          0,
+          300,
+          500
+        ]
+      },
+      "CostMerit": {
+        "type": "integer",
+        "minimum": 40,
+        "maximum": 200,
+        "enum": [
+          40,
+          60,
+          100,
+          200
+        ]
+      },
+      "Skills": {
+        "type": "array",
+        "minItems": 3,
+        "maxItems": 3
+      },
+      "Photo": {
+        "type": "string",
+        "minLength": 4,
+        "maxLength": 12
+      },
+      "InfantryMax": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 6,
+        "enum": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ]
+      },
+      "ArtilleryMax": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 6,
+        "enum": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ]
+      },
+      "ArmorMax": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 6,
+        "enum": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ]
+      },
+      "NavyMax": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 6,
+        "enum": [
+          0,
+          2,
+          3,
+          4,
+          5,
+          6
+        ]
+      },
+      "AirForceMax": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 6,
+        "enum": [
+          0,
+          3,
+          4,
+          5,
+          6
+        ]
+      },
+      "MarchMax": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 6,
+        "enum": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ]
+      },
+      "SkillsMax": {
+        "type": "integer",
+        "minimum": 4,
+        "maximum": 5,
+        "enum": [
+          4,
+          5
+        ]
+      }
+    },
+    "required": [
+      "Id",
+      "AdvanceID",
+      "BaseID",
+      "Evaluate",
+      "CostSword",
+      "CostSceptre",
+      "CostMedal",
+      "CostMerit",
+      "Skills",
+      "Photo",
+      "InfantryMax",
+      "ArtilleryMax",
+      "ArmorMax",
+      "NavyMax",
+      "AirForceMax",
+      "MarchMax",
+      "SkillsMax"
+    ],
+    "additionalProperties": false
+  }
+}

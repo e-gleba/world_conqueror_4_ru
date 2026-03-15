@@ -1,0 +1,84 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "ArmyGroupReinforcementSettings.json",
+  "title": "ArmyGroupReinforcementSettings",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "Id": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 906
+      },
+      "MapId": {
+        "type": "integer",
+        "minimum": 80101,
+        "maximum": 80601,
+        "enum": [
+          80101,
+          80201,
+          80301,
+          80401,
+          80501,
+          80601
+        ]
+      },
+      "ArmyId": {
+        "type": "integer",
+        "minimum": 301005,
+        "maximum": 351012
+      },
+      "ArmyGroupId": {
+        "type": "integer",
+        "minimum": 101,
+        "maximum": 622
+      },
+      "CostPoint": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 15,
+        "enum": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          15
+        ]
+      },
+      "Num": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 10,
+        "enum": [
+          0,
+          2,
+          3,
+          4,
+          5,
+          6,
+          8,
+          10
+        ]
+      }
+    },
+    "required": [
+      "Id",
+      "MapId",
+      "ArmyId",
+      "ArmyGroupId",
+      "CostPoint",
+      "Num"
+    ],
+    "additionalProperties": false
+  }
+}

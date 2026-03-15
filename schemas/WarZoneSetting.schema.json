@@ -1,0 +1,83 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "WarZoneSetting.json",
+  "title": "WarZoneSetting",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "Id": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 5,
+        "enum": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ]
+      },
+      "Photo": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 0,
+        "enum": [
+          0
+        ]
+      },
+      "X": {
+        "type": "integer",
+        "minimum": 2070,
+        "maximum": 5040,
+        "enum": [
+          2070,
+          2880,
+          3422,
+          3700,
+          5040
+        ]
+      },
+      "Y": {
+        "type": "integer",
+        "minimum": 270,
+        "maximum": 1400,
+        "enum": [
+          270,
+          500,
+          800,
+          1400
+        ]
+      },
+      "PrizeNum": {
+        "type": "array",
+        "minItems": 6,
+        "maxItems": 6
+      },
+      "PrizeList": {
+        "type": "array",
+        "minItems": 6,
+        "maxItems": 7
+      },
+      "CostTicket": {
+        "type": "integer",
+        "minimum": 2,
+        "maximum": 3,
+        "enum": [
+          2,
+          3
+        ]
+      }
+    },
+    "required": [
+      "Id",
+      "Photo",
+      "X",
+      "Y",
+      "PrizeNum",
+      "PrizeList",
+      "CostTicket"
+    ],
+    "additionalProperties": false
+  }
+}

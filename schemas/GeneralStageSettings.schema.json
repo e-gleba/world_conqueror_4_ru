@@ -1,0 +1,80 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "GeneralStageSettings.json",
+  "title": "GeneralStageSettings",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "Id": {
+        "type": "integer",
+        "minimum": 101,
+        "maximum": 175
+      },
+      "GeneralId": {
+        "type": "integer",
+        "minimum": 1009,
+        "maximum": 1062,
+        "enum": [
+          1009,
+          1018,
+          1019,
+          1031,
+          1049,
+          1050,
+          1051,
+          1062
+        ]
+      },
+      "Open": {
+        "type": "boolean"
+      },
+      "UnlockStageId": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 175
+      },
+      "PrizeMedals": {
+        "type": "integer",
+        "minimum": 30,
+        "maximum": 45,
+        "enum": [
+          30,
+          45
+        ]
+      },
+      "GeneralMedal": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 1
+      },
+      "Item": {
+        "type": "array",
+        "minItems": 2,
+        "maxItems": 2
+      },
+      "X": {
+        "type": "integer",
+        "minimum": 2780,
+        "maximum": 4770
+      },
+      "Y": {
+        "type": "integer",
+        "minimum": 270,
+        "maximum": 1010
+      }
+    },
+    "required": [
+      "Id",
+      "GeneralId",
+      "Open",
+      "UnlockStageId",
+      "PrizeMedals",
+      "GeneralMedal",
+      "Item",
+      "X",
+      "Y"
+    ],
+    "additionalProperties": false
+  }
+}

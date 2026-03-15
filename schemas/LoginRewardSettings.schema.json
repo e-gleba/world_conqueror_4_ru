@@ -1,0 +1,137 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "LoginRewardSettings.json",
+  "title": "LoginRewardSettings",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "Id": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 14,
+        "enum": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14
+        ]
+      },
+      "Medals": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 600,
+        "enum": [
+          0,
+          500,
+          600
+        ]
+      },
+      "PrizeGeneralId": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 1072,
+        "enum": [
+          0,
+          1072
+        ]
+      },
+      "PrizeGold": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 60000,
+        "enum": [
+          0,
+          60000
+        ]
+      },
+      "PrizeIndustry": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 15000,
+        "enum": [
+          0,
+          15000
+        ]
+      },
+      "PrizeEnergy": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 5000,
+        "enum": [
+          0,
+          5000
+        ]
+      },
+      "PrizeTech": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 500,
+        "enum": [
+          0,
+          500
+        ]
+      },
+      "PrizeMerit": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 50,
+        "enum": [
+          0,
+          50
+        ]
+      },
+      "PrizeDecoration": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 0,
+        "enum": [
+          0
+        ]
+      },
+      "GeneralMedal": {
+        "type": "array",
+        "minItems": 0,
+        "maxItems": 2
+      },
+      "Elite": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 0,
+        "enum": [
+          0
+        ]
+      },
+      "Item": {
+        "type": "array",
+        "minItems": 0,
+        "maxItems": 2
+      }
+    },
+    "required": [
+      "Id",
+      "Medals",
+      "PrizeGeneralId",
+      "PrizeGold",
+      "PrizeIndustry",
+      "PrizeEnergy",
+      "PrizeTech",
+      "PrizeMerit",
+      "PrizeDecoration",
+      "GeneralMedal",
+      "Elite",
+      "Item"
+    ],
+    "additionalProperties": false
+  }
+}

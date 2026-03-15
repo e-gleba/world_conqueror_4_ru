@@ -1,0 +1,169 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "WonderSettings.json",
+  "title": "WonderSettings",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "Id": {
+        "type": "integer",
+        "minimum": 101,
+        "maximum": 131
+      },
+      "Name": {
+        "type": "string",
+        "minLength": 2,
+        "maxLength": 8
+      },
+      "Type": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 21,
+        "enum": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21
+        ]
+      },
+      "IfPercent": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 1,
+        "enum": [
+          0,
+          1
+        ]
+      },
+      "FunctionEffect": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 20000,
+        "enum": [
+          1,
+          2,
+          5,
+          10,
+          15,
+          20,
+          50,
+          100,
+          250,
+          500,
+          1000,
+          10000,
+          16000,
+          20000
+        ]
+      },
+      "PrizeExp": {
+        "type": "integer",
+        "minimum": 150,
+        "maximum": 4500
+      },
+      "CostGold": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 500000,
+        "enum": [
+          0,
+          2500,
+          5000,
+          7500,
+          10000,
+          15000,
+          25000,
+          35000,
+          50000,
+          75000,
+          80000,
+          100000,
+          150000,
+          200000,
+          250000,
+          350000,
+          500000
+        ]
+      },
+      "CostIndustry": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 50000,
+        "enum": [
+          0,
+          20000,
+          50000
+        ]
+      },
+      "CostEnergy": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 4000,
+        "enum": [
+          0,
+          2000,
+          4000
+        ]
+      },
+      "CostTech": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 1000,
+        "enum": [
+          0,
+          500,
+          1000
+        ]
+      },
+      "CostMedals": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 500,
+        "enum": [
+          0,
+          150,
+          300,
+          500
+        ]
+      },
+      "Pic": {
+        "type": [
+          "null",
+          "null"
+        ]
+      }
+    },
+    "required": [
+      "Id",
+      "Name",
+      "Type",
+      "IfPercent",
+      "FunctionEffect",
+      "PrizeExp",
+      "CostGold",
+      "CostIndustry",
+      "CostEnergy",
+      "CostTech",
+      "CostMedals"
+    ],
+    "additionalProperties": false
+  }
+}

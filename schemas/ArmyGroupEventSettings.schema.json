@@ -1,0 +1,148 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "ArmyGroupEventSettings.json",
+  "title": "ArmyGroupEventSettings",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "Id": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 152
+      },
+      "EventId": {
+        "type": "integer",
+        "minimum": 801,
+        "maximum": 806,
+        "enum": [
+          801,
+          802,
+          803,
+          804,
+          805,
+          806
+        ]
+      },
+      "EventBuffId1": {
+        "type": "integer",
+        "minimum": 2011,
+        "maximum": 2511
+      },
+      "Round1": {
+        "type": "integer",
+        "minimum": -1,
+        "maximum": 6,
+        "enum": [
+          -1,
+          1,
+          2,
+          3,
+          4,
+          6
+        ]
+      },
+      "CountryId1": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 13
+      },
+      "EventBuffId2": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 2491
+      },
+      "Round2": {
+        "type": "integer",
+        "minimum": -1,
+        "maximum": 5,
+        "enum": [
+          -1,
+          0,
+          1,
+          2,
+          3,
+          5
+        ]
+      },
+      "CountryId2": {
+        "type": "array",
+        "minItems": 0,
+        "maxItems": 11
+      },
+      "Trigger": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 11,
+        "enum": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          8,
+          9,
+          10,
+          11
+        ]
+      },
+      "TriggerValue": {
+        "type": "array",
+        "minItems": 0,
+        "maxItems": 14
+      },
+      "Location": {
+        "type": "array",
+        "minItems": 0,
+        "maxItems": 5
+      },
+      "Chance": {
+        "type": "integer",
+        "minimum": 10,
+        "maximum": 100,
+        "enum": [
+          10,
+          20,
+          30,
+          40,
+          50,
+          60,
+          65,
+          70,
+          80,
+          90,
+          95,
+          100
+        ]
+      },
+      "PlayerCountry": {
+        "type": "array",
+        "minItems": 0,
+        "maxItems": 14
+      },
+      "DisableEvents": {
+        "type": "array",
+        "minItems": 0,
+        "maxItems": 5
+      }
+    },
+    "required": [
+      "Id",
+      "EventId",
+      "EventBuffId1",
+      "Round1",
+      "CountryId1",
+      "EventBuffId2",
+      "Round2",
+      "CountryId2",
+      "Trigger",
+      "TriggerValue",
+      "Location",
+      "Chance",
+      "PlayerCountry",
+      "DisableEvents"
+    ],
+    "additionalProperties": false
+  }
+}

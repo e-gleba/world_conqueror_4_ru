@@ -1,0 +1,280 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "ConquerCountrySettings.json",
+  "title": "ConquerCountrySettings",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "Id": {
+        "type": "integer",
+        "minimum": 101,
+        "maximum": 842
+      },
+      "ConquerId": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 8,
+        "enum": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8
+        ]
+      },
+      "Seat": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 30,
+        "enum": [
+          0,
+          8,
+          30
+        ]
+      },
+      "Star": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 3,
+        "enum": [
+          0,
+          1,
+          2,
+          3
+        ]
+      },
+      "Camp": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 6,
+        "enum": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ]
+      },
+      "CountryId": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 55
+      },
+      "WarTurn": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 10,
+        "enum": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          10
+        ]
+      },
+      "PrizeExp": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 75000,
+        "enum": [
+          0,
+          1000,
+          1250,
+          1500,
+          3000,
+          3750,
+          4500,
+          15000,
+          18750,
+          22500,
+          50000,
+          62500,
+          75000
+        ]
+      },
+      "PrizeGold": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 67500,
+        "enum": [
+          0,
+          10000,
+          12500,
+          15000,
+          18750,
+          22500,
+          25000,
+          31250,
+          37500,
+          45000,
+          56250,
+          67500
+        ]
+      },
+      "PrizeIndustry": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 4000,
+        "enum": [
+          0,
+          500,
+          750,
+          1000,
+          1500,
+          2000,
+          2500,
+          3000,
+          4000
+        ]
+      },
+      "PrizeEnergy": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 2000,
+        "enum": [
+          0,
+          200,
+          300,
+          400,
+          600,
+          800,
+          900,
+          1000,
+          1200,
+          1500,
+          2000
+        ]
+      },
+      "PrizeTech": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 120,
+        "enum": [
+          0,
+          10,
+          20,
+          30,
+          40,
+          60,
+          80,
+          90,
+          120
+        ]
+      },
+      "Photo": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "minLength": 15,
+        "maxLength": 19,
+        "enum": [
+          "campaign_airforce_6",
+          "conquest_1001_1",
+          "conquest_1001_2",
+          "conquest_1002_1",
+          "conquest_1002_2",
+          "conquest_1003_1",
+          "conquest_1003_2",
+          null
+        ]
+      },
+      "TechCategoryIds": {
+        "type": "array",
+        "minItems": 0,
+        "maxItems": 5
+      },
+      "CloseTechTypes": {
+        "type": "array",
+        "minItems": 0,
+        "maxItems": 29
+      },
+      "CostMoney": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 1800,
+        "enum": [
+          0,
+          360,
+          540,
+          720,
+          960,
+          1800
+        ]
+      },
+      "CostGear": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 1200,
+        "enum": [
+          0,
+          240,
+          480,
+          600,
+          1200
+        ]
+      },
+      "CostAtomic": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 300,
+        "enum": [
+          0,
+          60,
+          120,
+          180,
+          300
+        ]
+      },
+      "Coefficient": {
+        "type": "number",
+        "minimum": 0.0,
+        "maximum": 1.0,
+        "enum": [
+          0.0,
+          0.5,
+          0.6,
+          0.7,
+          0.8,
+          0.9,
+          1.0
+        ]
+      },
+      "Surrender": {
+        "type": "boolean"
+      }
+    },
+    "required": [
+      "Id",
+      "ConquerId",
+      "Seat",
+      "Star",
+      "Camp",
+      "CountryId",
+      "WarTurn",
+      "PrizeExp",
+      "PrizeGold",
+      "PrizeIndustry",
+      "PrizeEnergy",
+      "PrizeTech",
+      "TechCategoryIds",
+      "CloseTechTypes",
+      "CostMoney",
+      "CostGear",
+      "CostAtomic",
+      "Coefficient",
+      "Surrender"
+    ],
+    "additionalProperties": false
+  }
+}

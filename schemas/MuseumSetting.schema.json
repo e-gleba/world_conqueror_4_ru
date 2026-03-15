@@ -1,0 +1,91 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "MuseumSetting.json",
+  "title": "MuseumSetting",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "Id": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 3,
+        "enum": [
+          1,
+          2,
+          3
+        ]
+      },
+      "Evaluate": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 3,
+        "enum": [
+          1,
+          2,
+          3
+        ]
+      },
+      "Kills": {
+        "type": "integer",
+        "minimum": 50,
+        "maximum": 100,
+        "enum": [
+          50,
+          70,
+          100
+        ]
+      },
+      "Stages": {
+        "type": "integer",
+        "minimum": 5,
+        "maximum": 10,
+        "enum": [
+          5,
+          7,
+          10
+        ]
+      },
+      "Conquests": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 4,
+        "enum": [
+          1,
+          2,
+          4
+        ]
+      },
+      "MaxDamage": {
+        "type": "integer",
+        "minimum": 100,
+        "maximum": 200,
+        "enum": [
+          100,
+          150,
+          200
+        ]
+      },
+      "Medals": {
+        "type": "integer",
+        "minimum": 20,
+        "maximum": 50,
+        "enum": [
+          20,
+          30,
+          50
+        ]
+      }
+    },
+    "required": [
+      "Id",
+      "Evaluate",
+      "Kills",
+      "Stages",
+      "Conquests",
+      "MaxDamage",
+      "Medals"
+    ],
+    "additionalProperties": false
+  }
+}

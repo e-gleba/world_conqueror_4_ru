@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "EliteBoxSettings.json",
+  "title": "EliteBoxSettings",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "Id": {
+        "type": "integer",
+        "minimum": 191,
+        "maximum": 424
+      },
+      "Type": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 2,
+        "enum": [
+          1,
+          2
+        ]
+      },
+      "EliteType": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 5,
+        "enum": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ]
+      },
+      "EliteItem": {
+        "type": "array",
+        "minItems": 0,
+        "maxItems": 6
+      }
+    },
+    "required": [
+      "Id",
+      "Type",
+      "EliteType",
+      "EliteItem"
+    ],
+    "additionalProperties": false
+  }
+}

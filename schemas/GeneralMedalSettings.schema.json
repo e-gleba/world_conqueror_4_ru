@@ -1,0 +1,141 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "GeneralMedalSettings.json",
+  "title": "GeneralMedalSettings",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "Id": {
+        "type": "integer",
+        "minimum": 1001,
+        "maximum": 2345
+      },
+      "Name": {
+        "type": "string",
+        "minLength": 4,
+        "maxLength": 5
+      },
+      "Type": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 43
+      },
+      "Level": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 10,
+        "enum": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10
+        ]
+      },
+      "EffectSkillType": {
+        "type": "array",
+        "minItems": 0,
+        "maxItems": 3
+      },
+      "FeatureEffect": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 100,
+        "enum": [
+          0,
+          30,
+          50,
+          60,
+          100
+        ]
+      },
+      "Skill": {
+        "type": "array",
+        "minItems": 0,
+        "maxItems": 2
+      },
+      "Cost": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 270,
+        "enum": [
+          0,
+          15,
+          20,
+          25,
+          35,
+          45,
+          50,
+          55,
+          65,
+          75,
+          80,
+          85,
+          95,
+          105,
+          110,
+          125,
+          145,
+          165,
+          180,
+          220,
+          270
+        ]
+      },
+      "Score": {
+        "type": "integer",
+        "minimum": 150,
+        "maximum": 700,
+        "enum": [
+          150,
+          200,
+          225,
+          250,
+          275,
+          300,
+          325,
+          350,
+          375,
+          400,
+          450,
+          500,
+          550,
+          600,
+          650,
+          700
+        ]
+      },
+      "Pic": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 4,
+        "enum": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ]
+      }
+    },
+    "required": [
+      "Id",
+      "Name",
+      "Type",
+      "Level",
+      "EffectSkillType",
+      "FeatureEffect",
+      "Skill",
+      "Cost",
+      "Score",
+      "Pic"
+    ],
+    "additionalProperties": false
+  }
+}

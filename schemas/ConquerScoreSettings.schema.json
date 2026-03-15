@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "ConquerScoreSettings.json",
+  "title": "ConquerScoreSettings",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "Id": {
+        "type": "integer",
+        "minimum": 101,
+        "maximum": 103,
+        "enum": [
+          101,
+          102,
+          103
+        ]
+      },
+      "Type": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 1,
+        "enum": [
+          1
+        ]
+      },
+      "Num": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 3,
+        "enum": [
+          1,
+          2,
+          3
+        ]
+      },
+      "Override": {
+        "type": "number",
+        "minimum": 1.0,
+        "maximum": 1.45,
+        "enum": [
+          1.0,
+          1.25,
+          1.45
+        ]
+      }
+    },
+    "required": [
+      "Id",
+      "Type",
+      "Num",
+      "Override"
+    ],
+    "additionalProperties": false
+  }
+}

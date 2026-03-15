@@ -1,0 +1,201 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "AirDefenceSettings.json",
+  "title": "AirDefenceSettings",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "Id": {
+        "type": "integer",
+        "minimum": 11,
+        "maximum": 34,
+        "enum": [
+          11,
+          12,
+          13,
+          14,
+          21,
+          22,
+          23,
+          24,
+          31,
+          32,
+          33,
+          34
+        ]
+      },
+      "Name": {
+        "type": "string",
+        "minLength": 4,
+        "maxLength": 5,
+        "enum": [
+          "对空导弹1",
+          "对空导弹2",
+          "对空导弹3",
+          "对空导弹4",
+          "防空炮1",
+          "防空炮2",
+          "防空炮3",
+          "防空炮4",
+          "高射机枪1",
+          "高射机枪2",
+          "高射机枪3",
+          "高射机枪4"
+        ]
+      },
+      "Type": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 3,
+        "enum": [
+          1,
+          2,
+          3
+        ]
+      },
+      "Level": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 4,
+        "enum": [
+          1,
+          2,
+          3,
+          4
+        ]
+      },
+      "Feature": {
+        "type": "integer",
+        "minimum": 28,
+        "maximum": 30,
+        "enum": [
+          28,
+          29,
+          30
+        ]
+      },
+      "VsFighter": {
+        "type": "integer",
+        "minimum": 25,
+        "maximum": 65,
+        "enum": [
+          25,
+          30,
+          35,
+          40,
+          45,
+          50,
+          55,
+          60,
+          65
+        ]
+      },
+      "VsBomber": {
+        "type": "integer",
+        "minimum": 20,
+        "maximum": 60,
+        "enum": [
+          20,
+          25,
+          30,
+          35,
+          40,
+          45,
+          50,
+          55,
+          60
+        ]
+      },
+      "VsParatrooper": {
+        "type": "integer",
+        "minimum": 10,
+        "maximum": 65,
+        "enum": [
+          10,
+          15,
+          20,
+          25,
+          30,
+          35,
+          40,
+          45,
+          50,
+          55,
+          60,
+          65
+        ]
+      },
+      "VsStrategic": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 50,
+        "enum": [
+          0,
+          10,
+          20,
+          30,
+          40,
+          50
+        ]
+      },
+      "VsMissile": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 40,
+        "enum": [
+          0,
+          10,
+          20,
+          30,
+          40
+        ]
+      },
+      "CostMoney": {
+        "type": "integer",
+        "minimum": 100,
+        "maximum": 200,
+        "enum": [
+          100,
+          150,
+          200
+        ]
+      },
+      "CostGear": {
+        "type": "integer",
+        "minimum": 10,
+        "maximum": 30,
+        "enum": [
+          10,
+          20,
+          30
+        ]
+      },
+      "CostAtomic": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 8,
+        "enum": [
+          0,
+          8
+        ]
+      }
+    },
+    "required": [
+      "Id",
+      "Name",
+      "Type",
+      "Level",
+      "Feature",
+      "VsFighter",
+      "VsBomber",
+      "VsParatrooper",
+      "VsStrategic",
+      "VsMissile",
+      "CostMoney",
+      "CostGear",
+      "CostAtomic"
+    ],
+    "additionalProperties": false
+  }
+}

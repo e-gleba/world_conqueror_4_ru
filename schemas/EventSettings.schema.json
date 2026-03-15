@@ -1,0 +1,102 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "EventSettings.json",
+  "title": "EventSettings",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "Id": {
+        "type": "integer",
+        "minimum": 101,
+        "maximum": 4119
+      },
+      "Type": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 8,
+        "enum": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          8
+        ]
+      },
+      "NormalId": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 208,
+        "enum": [
+          0,
+          101,
+          102,
+          103,
+          201,
+          202,
+          203,
+          204,
+          205,
+          206,
+          207,
+          208
+        ]
+      },
+      "NeedHQLv": {
+        "type": "integer",
+        "minimum": 10,
+        "maximum": 40,
+        "enum": [
+          10,
+          20,
+          30,
+          40
+        ]
+      },
+      "Points": {
+        "type": "array",
+        "minItems": 0,
+        "maxItems": 5
+      },
+      "GeneralId": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 1062,
+        "enum": [
+          0,
+          1009,
+          1018,
+          1019,
+          1031,
+          1049,
+          1050,
+          1051,
+          1062
+        ]
+      },
+      "DifficultStar": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 4,
+        "enum": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ]
+      }
+    },
+    "required": [
+      "Id",
+      "Type",
+      "NormalId",
+      "NeedHQLv",
+      "Points",
+      "GeneralId",
+      "DifficultStar"
+    ],
+    "additionalProperties": false
+  }
+}

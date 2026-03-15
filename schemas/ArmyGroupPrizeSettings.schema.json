@@ -1,0 +1,124 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "ArmyGroupPrizeSettings.json",
+  "title": "ArmyGroupPrizeSettings",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "Id": {
+        "type": "integer",
+        "minimum": 101,
+        "maximum": 616
+      },
+      "EventId": {
+        "type": "integer",
+        "minimum": 801,
+        "maximum": 806,
+        "enum": [
+          801,
+          802,
+          803,
+          804,
+          805,
+          806
+        ]
+      },
+      "GeneralMedal": {
+        "type": "array",
+        "minItems": 0,
+        "maxItems": 6
+      },
+      "PrizeItem": {
+        "type": "array",
+        "minItems": 0,
+        "maxItems": 7
+      },
+      "PrizeNum": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 400,
+        "enum": [
+          0,
+          6,
+          8,
+          10,
+          14,
+          20,
+          28,
+          250,
+          400
+        ]
+      },
+      "BestQualityLimit": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 20,
+        "enum": [
+          0,
+          5,
+          7,
+          12,
+          20
+        ]
+      },
+      "Medals": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 500,
+        "enum": [
+          0,
+          200,
+          300,
+          400,
+          500
+        ]
+      },
+      "PrizeTicket": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 9,
+        "enum": [
+          0,
+          6,
+          9
+        ]
+      },
+      "Point": {
+        "type": "integer",
+        "minimum": 5,
+        "maximum": 80,
+        "enum": [
+          5,
+          10,
+          15,
+          20,
+          25,
+          30,
+          35,
+          40,
+          45,
+          50,
+          55,
+          60,
+          65,
+          70,
+          75,
+          80
+        ]
+      }
+    },
+    "required": [
+      "Id",
+      "EventId",
+      "GeneralMedal",
+      "PrizeItem",
+      "PrizeNum",
+      "BestQualityLimit",
+      "Medals",
+      "PrizeTicket",
+      "Point"
+    ],
+    "additionalProperties": false
+  }
+}

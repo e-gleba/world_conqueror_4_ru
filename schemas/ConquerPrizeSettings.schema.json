@@ -1,0 +1,98 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "ConquerPrizeSettings.json",
+  "title": "ConquerPrizeSettings",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "Id": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 6,
+        "enum": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ]
+      },
+      "Min": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 135001,
+        "enum": [
+          1,
+          70001,
+          80001,
+          90001,
+          110001,
+          135001
+        ]
+      },
+      "Max": {
+        "type": "integer",
+        "minimum": 70000,
+        "maximum": 999999,
+        "enum": [
+          70000,
+          80000,
+          90000,
+          110000,
+          135000,
+          999999
+        ]
+      },
+      "ChallengeMin": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 210001,
+        "enum": [
+          1,
+          70001,
+          90001,
+          110001,
+          160001,
+          210001
+        ]
+      },
+      "ChallengeMax": {
+        "type": "integer",
+        "minimum": 70000,
+        "maximum": 999999,
+        "enum": [
+          70000,
+          90000,
+          110000,
+          160000,
+          210000,
+          999999
+        ]
+      },
+      "Override": {
+        "type": "number",
+        "minimum": 0.65,
+        "maximum": 2.0,
+        "enum": [
+          0.65,
+          0.75,
+          0.85,
+          1.0,
+          1.5,
+          2.0
+        ]
+      }
+    },
+    "required": [
+      "Id",
+      "Min",
+      "Max",
+      "ChallengeMin",
+      "ChallengeMax",
+      "Override"
+    ],
+    "additionalProperties": false
+  }
+}

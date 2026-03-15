@@ -1,0 +1,129 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "FrontierReinforcementSetting.json",
+  "title": "FrontierReinforcementSetting",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "Id": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 4914
+      },
+      "StageId": {
+        "type": "integer",
+        "minimum": 10101,
+        "maximum": 100109
+      },
+      "Army": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 38
+      },
+      "Country": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 48,
+        "enum": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          10,
+          11,
+          12,
+          14,
+          15,
+          23,
+          24,
+          30,
+          31,
+          48
+        ]
+      },
+      "Star": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 4,
+        "enum": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ]
+      },
+      "Team": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 4,
+        "enum": [
+          1,
+          2,
+          3,
+          4
+        ]
+      },
+      "Number": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 25,
+        "enum": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          18,
+          20,
+          24,
+          25
+        ]
+      },
+      "CostMoney": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 5265
+      },
+      "CostGear": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 1458
+      },
+      "CostAtomic": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 292
+      }
+    },
+    "required": [
+      "Id",
+      "StageId",
+      "Army",
+      "Country",
+      "Star",
+      "Team",
+      "Number",
+      "CostMoney",
+      "CostGear",
+      "CostAtomic"
+    ],
+    "additionalProperties": false
+  }
+}

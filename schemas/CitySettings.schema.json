@@ -1,0 +1,154 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "CitySettings.json",
+  "title": "CitySettings",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "Id": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 151
+      },
+      "Visible": {
+        "type": "boolean"
+      },
+      "NextId": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 150
+      },
+      "Type": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 3,
+        "enum": [
+          1,
+          2,
+          3
+        ]
+      },
+      "FunctionType": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 162,
+        "enum": [
+          0,
+          120,
+          130,
+          140,
+          151,
+          161,
+          162
+        ]
+      },
+      "Passive": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 7,
+        "enum": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          7
+        ]
+      },
+      "WonderId": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 131
+      },
+      "GeneralId": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 1051,
+        "enum": [
+          0,
+          1007,
+          1019,
+          1032,
+          1045,
+          1051
+        ]
+      },
+      "X": {
+        "type": "integer",
+        "minimum": 153,
+        "maximum": 5423
+      },
+      "Y": {
+        "type": "integer",
+        "minimum": 157,
+        "maximum": 1864
+      },
+      "StageId": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 80401
+      },
+      "CountryId": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 39,
+        "enum": [
+          0,
+          1,
+          2,
+          3,
+          5,
+          6,
+          10,
+          12,
+          14,
+          15,
+          17,
+          27,
+          31,
+          32,
+          34,
+          36,
+          38,
+          39
+        ]
+      },
+      "InvasionCountryId": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 7,
+        "enum": [
+          0,
+          1,
+          3,
+          5,
+          6,
+          7
+        ]
+      },
+      "InvasionMaps": {
+        "type": "array",
+        "minItems": 0,
+        "maxItems": 4
+      }
+    },
+    "required": [
+      "Id",
+      "Visible",
+      "NextId",
+      "Type",
+      "FunctionType",
+      "Passive",
+      "WonderId",
+      "GeneralId",
+      "X",
+      "Y",
+      "StageId",
+      "CountryId",
+      "InvasionCountryId",
+      "InvasionMaps"
+    ],
+    "additionalProperties": false
+  }
+}

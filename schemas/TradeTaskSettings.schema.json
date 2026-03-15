@@ -1,0 +1,109 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "TradeTaskSettings.json",
+  "title": "TradeTaskSettings",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "Id": {
+        "type": "integer",
+        "minimum": 101,
+        "maximum": 604,
+        "enum": [
+          101,
+          102,
+          103,
+          201,
+          202,
+          203,
+          301,
+          302,
+          303,
+          401,
+          402,
+          403,
+          501,
+          502,
+          503,
+          504,
+          601,
+          602,
+          603,
+          604
+        ]
+      },
+      "Active": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 6,
+        "enum": [
+          1,
+          2,
+          3,
+          4,
+          6
+        ]
+      },
+      "Passive": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 7,
+        "enum": [
+          1,
+          2,
+          3,
+          4,
+          7
+        ]
+      },
+      "Base": {
+        "type": "integer",
+        "minimum": 50,
+        "maximum": 10000,
+        "enum": [
+          50,
+          90,
+          100,
+          170,
+          320,
+          500,
+          2500,
+          10000
+        ]
+      },
+      "Get": {
+        "type": "integer",
+        "minimum": 5,
+        "maximum": 37500,
+        "enum": [
+          5,
+          10,
+          20,
+          25,
+          40,
+          150,
+          200,
+          250,
+          500,
+          1000,
+          1250,
+          1500,
+          2500,
+          6250,
+          7500,
+          12500,
+          37500
+        ]
+      }
+    },
+    "required": [
+      "Id",
+      "Active",
+      "Passive",
+      "Base",
+      "Get"
+    ],
+    "additionalProperties": false
+  }
+}

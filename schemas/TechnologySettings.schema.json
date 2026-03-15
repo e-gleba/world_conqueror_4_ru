@@ -1,0 +1,326 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "TechnologySettings.json",
+  "title": "TechnologySettings",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "Id": {
+        "type": "integer",
+        "minimum": 301001,
+        "maximum": 311001
+      },
+      "Level": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 8,
+        "enum": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8
+        ]
+      },
+      "Type": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 57
+      },
+      "Categorys": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 7,
+        "enum": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ]
+      },
+      "CostGold": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 225000
+      },
+      "CostIndustry": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 87500
+      },
+      "CostEnergy": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 15000
+      },
+      "CostTech": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 1500
+      },
+      "UpgradeID": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 308053
+      },
+      "NeedID": {
+        "type": "array",
+        "minItems": 0,
+        "maxItems": 2
+      },
+      "Position": {
+        "type": "array",
+        "minItems": 2,
+        "maxItems": 2
+      },
+      "NeedHQLv": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 20,
+        "enum": [
+          0,
+          1,
+          3,
+          5,
+          6,
+          8,
+          10,
+          12,
+          14,
+          15,
+          16,
+          20
+        ]
+      },
+      "NeedScenarioId": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 3,
+        "enum": [
+          1,
+          2,
+          3
+        ]
+      },
+      "EffectArmy": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 8,
+        "enum": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8
+        ]
+      },
+      "AddAttack": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 200
+      },
+      "AddDefence": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 12,
+        "enum": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          8,
+          10,
+          12
+        ]
+      },
+      "AddHP": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 160,
+        "enum": [
+          0,
+          10,
+          20,
+          30,
+          35,
+          40,
+          45,
+          55,
+          60,
+          65,
+          70,
+          75,
+          80,
+          90,
+          100,
+          120,
+          140,
+          160
+        ]
+      },
+      "AddMobility": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 6,
+        "enum": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ]
+      },
+      "AddMRange": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 4,
+        "enum": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ]
+      },
+      "ReduceBuildTime": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 2,
+        "enum": [
+          0,
+          1,
+          2
+        ]
+      },
+      "ReduceDefence": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 30,
+        "enum": [
+          0,
+          3,
+          5,
+          6,
+          10,
+          15,
+          20,
+          25,
+          30
+        ]
+      },
+      "UpgradeFeature": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 201243
+      },
+      "AddFeature": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 201361,
+        "enum": [
+          0,
+          201301,
+          201351,
+          201361
+        ]
+      },
+      "AntiairId": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 34,
+        "enum": [
+          0,
+          12,
+          13,
+          14,
+          22,
+          23,
+          24,
+          32,
+          33,
+          34
+        ]
+      },
+      "ReduceCostMoney": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 15,
+        "enum": [
+          0,
+          5,
+          10,
+          15
+        ]
+      },
+      "ReduceCostGear": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 30,
+        "enum": [
+          0,
+          10,
+          20,
+          30
+        ]
+      },
+      "TechDesc": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 5
+      },
+      "TechValue": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 5
+      }
+    },
+    "required": [
+      "Id",
+      "Level",
+      "Type",
+      "Categorys",
+      "CostGold",
+      "CostIndustry",
+      "CostEnergy",
+      "CostTech",
+      "UpgradeID",
+      "NeedID",
+      "Position",
+      "NeedHQLv",
+      "NeedScenarioId",
+      "EffectArmy",
+      "AddAttack",
+      "AddDefence",
+      "AddHP",
+      "AddMobility",
+      "AddMRange",
+      "ReduceBuildTime",
+      "ReduceDefence",
+      "UpgradeFeature",
+      "AddFeature",
+      "AntiairId",
+      "ReduceCostMoney",
+      "ReduceCostGear",
+      "TechDesc",
+      "TechValue"
+    ],
+    "additionalProperties": false
+  }
+}

@@ -1,0 +1,95 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "FeaturedPackSettings.json",
+  "title": "FeaturedPackSettings",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "Id": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 4,
+        "enum": [
+          1,
+          2,
+          3,
+          4
+        ]
+      },
+      "Type": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 2,
+        "enum": [
+          1,
+          2
+        ]
+      },
+      "InStock": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 2,
+        "enum": [
+          1,
+          2
+        ]
+      },
+      "LastingDays": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 2,
+        "enum": [
+          1,
+          2
+        ]
+      },
+      "ProductIds": {
+        "type": "array",
+        "minItems": 2,
+        "maxItems": 4
+      },
+      "Condition": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 2,
+        "enum": [
+          1,
+          2
+        ]
+      },
+      "Parameter1": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 7,
+        "enum": [
+          0,
+          3,
+          5,
+          7
+        ]
+      },
+      "Parameter2": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 14,
+        "enum": [
+          0,
+          7,
+          14
+        ]
+      }
+    },
+    "required": [
+      "Id",
+      "Type",
+      "InStock",
+      "LastingDays",
+      "ProductIds",
+      "Condition",
+      "Parameter1",
+      "Parameter2"
+    ],
+    "additionalProperties": false
+  }
+}

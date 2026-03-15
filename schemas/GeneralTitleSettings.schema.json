@@ -1,0 +1,130 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "GeneralTitleSettings.json",
+  "title": "GeneralTitleSettings",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "Id": {
+        "type": "integer",
+        "minimum": 1009,
+        "maximum": 1062,
+        "enum": [
+          1009,
+          1018,
+          1019,
+          1031,
+          1049,
+          1050,
+          1051,
+          1062
+        ]
+      },
+      "GeneralId": {
+        "type": "integer",
+        "minimum": 1009,
+        "maximum": 1062,
+        "enum": [
+          1009,
+          1018,
+          1019,
+          1031,
+          1049,
+          1050,
+          1051,
+          1062
+        ]
+      },
+      "EliteType": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 4,
+        "enum": [
+          1,
+          2,
+          3,
+          4
+        ]
+      },
+      "AddHpPercent": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 20,
+        "enum": [
+          0,
+          20
+        ]
+      },
+      "AddAttack": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 18,
+        "enum": [
+          0,
+          12,
+          18
+        ]
+      },
+      "AddDefense": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 12,
+        "enum": [
+          0,
+          12
+        ]
+      },
+      "AddMRange": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 1,
+        "enum": [
+          0,
+          1
+        ]
+      },
+      "AddMobility": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 2,
+        "enum": [
+          0,
+          2
+        ]
+      },
+      "AddCriChange": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 10,
+        "enum": [
+          0,
+          10
+        ]
+      },
+      "AddCriDamage": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 35,
+        "enum": [
+          0,
+          25,
+          35
+        ]
+      }
+    },
+    "required": [
+      "Id",
+      "GeneralId",
+      "EliteType",
+      "AddHpPercent",
+      "AddAttack",
+      "AddDefense",
+      "AddMRange",
+      "AddMobility",
+      "AddCriChange",
+      "AddCriDamage"
+    ],
+    "additionalProperties": false
+  }
+}

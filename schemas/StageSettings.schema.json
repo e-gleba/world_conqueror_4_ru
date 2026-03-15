@@ -1,0 +1,371 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "StageSettings.json",
+  "title": "StageSettings",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "Id": {
+        "type": "integer",
+        "minimum": 10001,
+        "maximum": 90003
+      },
+      "Open": {
+        "type": "boolean"
+      },
+      "Type": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 8,
+        "enum": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8
+        ]
+      },
+      "Seat": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 12,
+        "enum": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          8,
+          10,
+          12
+        ]
+      },
+      "Camp": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 5,
+        "enum": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ]
+      },
+      "CountryId": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 10,
+        "enum": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          10
+        ]
+      },
+      "GeneralId": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 1051,
+        "enum": [
+          0,
+          1006,
+          1007,
+          1009,
+          1013,
+          1018,
+          1024,
+          1025,
+          1027,
+          1030,
+          1031,
+          1032,
+          1037,
+          1041,
+          1046,
+          1049,
+          1050,
+          1051
+        ]
+      },
+      "DialoguesID": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 10709
+      },
+      "UnlockHQ": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 0,
+        "enum": [
+          0
+        ]
+      },
+      "UnlockedStageIds": {
+        "type": "array",
+        "minItems": 0,
+        "maxItems": 2
+      },
+      "ScenarioId": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 5,
+        "enum": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ]
+      },
+      "Difficult": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 2,
+        "enum": [
+          0,
+          1,
+          2
+        ]
+      },
+      "NeedFormation": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 1,
+        "enum": [
+          0,
+          1
+        ]
+      },
+      "ArmyType": {
+        "type": "array",
+        "minItems": 0,
+        "maxItems": 4
+      },
+      "RanksMax": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 60
+      },
+      "PrizeMedals": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 275
+      },
+      "PrizeGold": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 42000,
+        "enum": [
+          0,
+          1500,
+          2000,
+          3000,
+          4000,
+          4500,
+          7500,
+          12000,
+          15000,
+          21000,
+          42000
+        ]
+      },
+      "PrizeIndustry": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 7500,
+        "enum": [
+          0,
+          400,
+          450,
+          500,
+          600,
+          750,
+          800,
+          900,
+          1000,
+          1200,
+          1600,
+          1800,
+          2000,
+          2100,
+          2400,
+          3000,
+          3500,
+          4000,
+          4500,
+          6000,
+          7500
+        ]
+      },
+      "PrizeEnergy": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 1800,
+        "enum": [
+          0,
+          50,
+          90,
+          100,
+          150,
+          200,
+          240,
+          300,
+          400,
+          450,
+          480,
+          500,
+          600,
+          700,
+          750,
+          800,
+          900,
+          1800
+        ]
+      },
+      "PrizeTech": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 60,
+        "enum": [
+          0,
+          6,
+          15,
+          20,
+          25,
+          30,
+          35,
+          40,
+          45,
+          50,
+          55,
+          60
+        ]
+      },
+      "PrizeGeneralId": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 1093,
+        "enum": [
+          0,
+          1091,
+          1092,
+          1093
+        ]
+      },
+      "PrizeExp": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 50000
+      },
+      "UnlockedWonderId": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 130
+      },
+      "UnlockedBuilding": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 16,
+        "enum": [
+          0,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16
+        ]
+      },
+      "UnlockedGeneralId": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 1051,
+        "enum": [
+          0,
+          1007,
+          1019,
+          1032,
+          1045,
+          1051
+        ]
+      },
+      "X": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 5546
+      },
+      "Y": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 1951
+      },
+      "Photo": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "minLength": 15,
+        "maxLength": 20
+      },
+      "OName": {
+        "type": "string",
+        "minLength": 2,
+        "maxLength": 17
+      }
+    },
+    "required": [
+      "Id",
+      "Open",
+      "Type",
+      "Seat",
+      "Camp",
+      "CountryId",
+      "GeneralId",
+      "DialoguesID",
+      "UnlockHQ",
+      "UnlockedStageIds",
+      "ScenarioId",
+      "Difficult",
+      "NeedFormation",
+      "ArmyType",
+      "RanksMax",
+      "PrizeMedals",
+      "PrizeGold",
+      "PrizeIndustry",
+      "PrizeEnergy",
+      "PrizeTech",
+      "PrizeGeneralId",
+      "PrizeExp",
+      "UnlockedWonderId",
+      "UnlockedBuilding",
+      "UnlockedGeneralId",
+      "X",
+      "Y",
+      "OName"
+    ],
+    "additionalProperties": false
+  }
+}

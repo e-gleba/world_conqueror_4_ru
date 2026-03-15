@@ -1,0 +1,423 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "PaySettings.json",
+  "title": "PaySettings",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "Id": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 300
+      },
+      "Type": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 10,
+        "enum": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10
+        ]
+      },
+      "Dollars": {
+        "type": "number",
+        "minimum": 0.0,
+        "maximum": 49.99,
+        "enum": [
+          0.0,
+          0.99,
+          1.99,
+          2.99,
+          3.99,
+          4.99,
+          5.99,
+          6.99,
+          7.99,
+          8.99,
+          9.99,
+          10.99,
+          11.99,
+          13.99,
+          14.99,
+          19.99,
+          24.99,
+          25.99,
+          29.99,
+          49.99
+        ]
+      },
+      "Rmb": {
+        "type": "number",
+        "minimum": 0.0,
+        "maximum": 328.0,
+        "enum": [
+          0.0,
+          6.0,
+          12.0,
+          18.0,
+          24.0,
+          30.0,
+          36.0,
+          42.0,
+          48.0,
+          54.0,
+          60.0,
+          66.0,
+          72.0,
+          84.0,
+          90.0,
+          128.0,
+          168.0,
+          176.0,
+          198.0,
+          328.0
+        ]
+      },
+      "CostMedals": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 3000,
+        "enum": [
+          0,
+          1000,
+          1500,
+          2000,
+          2500,
+          3000
+        ]
+      },
+      "Medals": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 43000,
+        "enum": [
+          0,
+          320,
+          500,
+          680,
+          750,
+          1000,
+          1370,
+          1400,
+          1500,
+          2400,
+          2500,
+          4000,
+          4800,
+          5500,
+          8000,
+          8750,
+          9500,
+          12000,
+          17000,
+          25000,
+          26000,
+          43000
+        ]
+      },
+      "PrizeGeneralId": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 1114
+      },
+      "PrizeGeneralId2": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 1076,
+        "enum": [
+          0,
+          1074,
+          1076
+        ]
+      },
+      "Icon": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "minLength": 1,
+        "maxLength": 17
+      },
+      "PrizeGold": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 80000,
+        "enum": [
+          0,
+          60000,
+          80000
+        ]
+      },
+      "PrizeIndustry": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 200000,
+        "enum": [
+          0,
+          4000,
+          8000,
+          10000,
+          15000,
+          16000,
+          20000,
+          24000,
+          35000,
+          40000,
+          60000,
+          120000,
+          200000
+        ]
+      },
+      "PrizeEnergy": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 40000,
+        "enum": [
+          0,
+          800,
+          1600,
+          2000,
+          3200,
+          4000,
+          4800,
+          5000,
+          7000,
+          8000,
+          14000,
+          24000,
+          35000,
+          40000
+        ]
+      },
+      "PrizeMerit": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 400,
+        "enum": [
+          0,
+          50,
+          100,
+          200,
+          250,
+          400
+        ]
+      },
+      "PrizeDecoration": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 1071,
+        "enum": [
+          0,
+          1031,
+          1041,
+          1071
+        ]
+      },
+      "PrizeTech": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 4700,
+        "enum": [
+          0,
+          100,
+          200,
+          400,
+          500,
+          600,
+          700,
+          800,
+          1700,
+          2400,
+          4000,
+          4700
+        ]
+      },
+      "PrizeSword": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 12,
+        "enum": [
+          0,
+          4,
+          12
+        ]
+      },
+      "PrizeSceptre": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 8,
+        "enum": [
+          0,
+          2,
+          8
+        ]
+      },
+      "GeneralMedal": {
+        "type": "array",
+        "minItems": 0,
+        "maxItems": 4
+      },
+      "Item": {
+        "type": "array",
+        "minItems": 0,
+        "maxItems": 6
+      },
+      "GroupId": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 1,
+        "enum": [
+          0,
+          1
+        ]
+      },
+      "Visible": {
+        "type": "boolean"
+      },
+      "Discount": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 80,
+        "enum": [
+          0,
+          70,
+          80
+        ]
+      },
+      "BuyingLtd": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 1,
+        "enum": [
+          0,
+          1
+        ]
+      },
+      "InStock": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 6,
+        "enum": [
+          0,
+          1,
+          2,
+          3,
+          5,
+          6
+        ]
+      },
+      "ReceiveDays": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 0,
+        "enum": [
+          0
+        ]
+      },
+      "StartDate": {
+        "type": "array",
+        "minItems": 0,
+        "maxItems": 3
+      },
+      "LastingDays": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 28,
+        "enum": [
+          0,
+          1,
+          2,
+          3,
+          7,
+          28
+        ]
+      },
+      "PeriodDays": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 56,
+        "enum": [
+          0,
+          56
+        ]
+      },
+      "DayIndexs": {
+        "type": "array",
+        "minItems": 0,
+        "maxItems": 7
+      },
+      "DayIndexsNC": {
+        "type": "array",
+        "minItems": 0,
+        "maxItems": 1
+      },
+      "BG": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "minLength": 10,
+        "maxLength": 18,
+        "enum": [
+          "frame_elite1",
+          "frame_elite2",
+          "frame_elite3",
+          "frame_elite4",
+          "frame_elite5",
+          "frame_energy",
+          "frame_general1",
+          "frame_generalmedal",
+          "frame_gift",
+          "frame_gift2",
+          "frame_industry",
+          "frame_medal1",
+          "frame_medal2",
+          "frame_merit",
+          "frame_tech",
+          null
+        ]
+      }
+    },
+    "required": [
+      "Id",
+      "Type",
+      "Dollars",
+      "Rmb",
+      "CostMedals",
+      "Medals",
+      "PrizeGeneralId",
+      "PrizeGeneralId2",
+      "PrizeGold",
+      "PrizeIndustry",
+      "PrizeEnergy",
+      "PrizeMerit",
+      "PrizeDecoration",
+      "PrizeTech",
+      "PrizeSword",
+      "PrizeSceptre",
+      "GeneralMedal",
+      "Item",
+      "GroupId",
+      "Visible",
+      "Discount",
+      "BuyingLtd",
+      "InStock",
+      "ReceiveDays",
+      "StartDate",
+      "LastingDays",
+      "PeriodDays",
+      "DayIndexs",
+      "DayIndexsNC"
+    ],
+    "additionalProperties": false
+  }
+}

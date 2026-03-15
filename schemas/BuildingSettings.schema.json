@@ -1,0 +1,176 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "BuildingSettings.json",
+  "title": "BuildingSettings",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "Id": {
+        "type": "integer",
+        "minimum": 2,
+        "maximum": 34,
+        "enum": [
+          2,
+          3,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          21,
+          22,
+          23,
+          31,
+          32,
+          33,
+          34
+        ]
+      },
+      "Name": {
+        "type": "string",
+        "minLength": 2,
+        "maxLength": 3,
+        "enum": [
+          "中城市",
+          "军港1",
+          "军港2",
+          "军港3",
+          "军港4",
+          "大城市",
+          "大工厂",
+          "大都市",
+          "小城市",
+          "小镇",
+          "核电站",
+          "炼油厂",
+          "风车",
+          "首都1",
+          "首都2",
+          "首都3",
+          "首都4",
+          "首都5"
+        ]
+      },
+      "Type": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 4,
+        "enum": [
+          1,
+          2,
+          3,
+          4
+        ]
+      },
+      "ProduceMoney": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 12,
+        "enum": [
+          0,
+          10,
+          12
+        ]
+      },
+      "ProduceGear": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 28,
+        "enum": [
+          0,
+          6,
+          12,
+          28
+        ]
+      },
+      "ProduceAtomic": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 5,
+        "enum": [
+          0,
+          5
+        ]
+      },
+      "ArmyId": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 109005,
+        "enum": [
+          0,
+          109001,
+          109002,
+          109003,
+          109004,
+          109005
+        ]
+      },
+      "FacilityId": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 20704,
+        "enum": [
+          0,
+          20001,
+          20002,
+          20003,
+          20004,
+          20005,
+          20006,
+          20007,
+          20008,
+          20009,
+          20701,
+          20702,
+          20703,
+          20704
+        ]
+      },
+      "ResName": {
+        "type": [
+          "null",
+          "null"
+        ]
+      },
+      "StyleCount": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 0,
+        "enum": [
+          0
+        ]
+      },
+      "MeritExp": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 60,
+        "enum": [
+          0,
+          20,
+          30,
+          40,
+          50,
+          60
+        ]
+      }
+    },
+    "required": [
+      "Id",
+      "Name",
+      "Type",
+      "ProduceMoney",
+      "ProduceGear",
+      "ProduceAtomic",
+      "ArmyId",
+      "FacilityId",
+      "StyleCount",
+      "MeritExp"
+    ],
+    "additionalProperties": false
+  }
+}

@@ -1,0 +1,149 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "InvasionSettings.json",
+  "title": "InvasionSettings",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "Id": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 10,
+        "enum": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10
+        ]
+      },
+      "PrizeMedals": {
+        "type": "integer",
+        "minimum": 2,
+        "maximum": 12,
+        "enum": [
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          12
+        ]
+      },
+      "PrizeExp": {
+        "type": "integer",
+        "minimum": 50,
+        "maximum": 2000,
+        "enum": [
+          50,
+          75,
+          100,
+          150,
+          250,
+          500,
+          750,
+          1000,
+          1500,
+          2000
+        ]
+      },
+      "Ranks": {
+        "type": "array",
+        "minItems": 2,
+        "maxItems": 3
+      },
+      "RanksProbability": {
+        "type": "array",
+        "minItems": 2,
+        "maxItems": 3
+      },
+      "Seat": {
+        "type": "integer",
+        "minimum": 5,
+        "maximum": 5,
+        "enum": [
+          5
+        ]
+      },
+      "GeneralIdScore": {
+        "type": "array",
+        "minItems": 2,
+        "maxItems": 2
+      },
+      "Infantry": {
+        "type": "array",
+        "minItems": 3,
+        "maxItems": 3
+      },
+      "InfantryProbability": {
+        "type": "array",
+        "minItems": 3,
+        "maxItems": 3
+      },
+      "Armor": {
+        "type": "array",
+        "minItems": 3,
+        "maxItems": 3
+      },
+      "ArmorProbability": {
+        "type": "array",
+        "minItems": 3,
+        "maxItems": 3
+      },
+      "Artillery": {
+        "type": "array",
+        "minItems": 2,
+        "maxItems": 3
+      },
+      "ArtilleryProbability": {
+        "type": "array",
+        "minItems": 2,
+        "maxItems": 3
+      },
+      "Navy": {
+        "type": "array",
+        "minItems": 4,
+        "maxItems": 4
+      },
+      "NavyProbability": {
+        "type": "array",
+        "minItems": 4,
+        "maxItems": 4
+      },
+      "TechLv": {
+        "type": "array",
+        "minItems": 32,
+        "maxItems": 32
+      }
+    },
+    "required": [
+      "Id",
+      "PrizeMedals",
+      "PrizeExp",
+      "Ranks",
+      "RanksProbability",
+      "Seat",
+      "GeneralIdScore",
+      "Infantry",
+      "InfantryProbability",
+      "Armor",
+      "ArmorProbability",
+      "Artillery",
+      "ArtilleryProbability",
+      "Navy",
+      "NavyProbability",
+      "TechLv"
+    ],
+    "additionalProperties": false
+  }
+}

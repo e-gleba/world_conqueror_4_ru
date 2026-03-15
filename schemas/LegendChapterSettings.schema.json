@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "LegendChapterSettings.json",
+  "title": "LegendChapterSettings",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "Id": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 6,
+        "enum": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ]
+      },
+      "NeedHQLv": {
+        "type": "integer",
+        "minimum": 15,
+        "maximum": 20,
+        "enum": [
+          15,
+          20
+        ]
+      },
+      "LegU": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 6,
+        "enum": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ]
+      },
+      "X": {
+        "type": "integer",
+        "minimum": 2892,
+        "maximum": 3575,
+        "enum": [
+          2892,
+          3060,
+          3175,
+          3325,
+          3575
+        ]
+      },
+      "Y": {
+        "type": "integer",
+        "minimum": 450,
+        "maximum": 955,
+        "enum": [
+          450,
+          530,
+          565,
+          685,
+          835,
+          955
+        ]
+      }
+    },
+    "required": [
+      "Id",
+      "NeedHQLv",
+      "LegU",
+      "X",
+      "Y"
+    ],
+    "additionalProperties": false
+  }
+}

@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "ScenarioSettings.json",
+  "title": "ScenarioSettings",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "Id": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 5,
+        "enum": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ]
+      },
+      "UnlockRequirements": {
+        "type": "array",
+        "minItems": 0,
+        "maxItems": 2
+      },
+      "UnlockedConquerId": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 4,
+        "enum": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ]
+      },
+      "GeneralId": {
+        "type": "array",
+        "minItems": 0,
+        "maxItems": 2
+      },
+      "DialoguesID": {
+        "type": "array",
+        "minItems": 0,
+        "maxItems": 6
+      },
+      "Open": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 1,
+        "enum": [
+          0,
+          1
+        ]
+      },
+      "Visible": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 1,
+        "enum": [
+          0,
+          1
+        ]
+      }
+    },
+    "required": [
+      "Id",
+      "UnlockRequirements",
+      "UnlockedConquerId",
+      "GeneralId",
+      "DialoguesID",
+      "Open",
+      "Visible"
+    ],
+    "additionalProperties": false
+  }
+}

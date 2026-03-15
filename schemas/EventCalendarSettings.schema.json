@@ -1,0 +1,127 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "EventCalendarSettings.json",
+  "title": "EventCalendarSettings",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "Id": {
+        "type": "integer",
+        "minimum": 234,
+        "maximum": 1626
+      },
+      "EventId": {
+        "type": "integer",
+        "minimum": 101,
+        "maximum": 4119
+      },
+      "StartDate": {
+        "type": "array",
+        "minItems": 3,
+        "maxItems": 3
+      },
+      "LastingDays": {
+        "type": "integer",
+        "minimum": 3,
+        "maximum": 40,
+        "enum": [
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          10,
+          11,
+          12,
+          13,
+          14,
+          16,
+          18,
+          19,
+          21,
+          28,
+          31,
+          32,
+          33,
+          35,
+          40
+        ]
+      },
+      "NoticeDays": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 7,
+        "enum": [
+          0,
+          3,
+          7
+        ]
+      },
+      "PeriodDays": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 365,
+        "enum": [
+          0,
+          365
+        ]
+      },
+      "PrizeIds": {
+        "type": "array",
+        "minItems": 0,
+        "maxItems": 5
+      },
+      "HardBuffs": {
+        "type": "array",
+        "minItems": 0,
+        "maxItems": 4
+      },
+      "MyBuffPool": {
+        "type": "array",
+        "minItems": 0,
+        "maxItems": 3
+      },
+      "HardPrizeIds": {
+        "type": "array",
+        "minItems": 0,
+        "maxItems": 5
+      },
+      "NeedHQLv": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 30,
+        "enum": [
+          0,
+          20,
+          30
+        ]
+      },
+      "Version": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 1,
+        "enum": [
+          0,
+          1
+        ]
+      }
+    },
+    "required": [
+      "Id",
+      "EventId",
+      "StartDate",
+      "LastingDays",
+      "NoticeDays",
+      "PeriodDays",
+      "PrizeIds",
+      "HardBuffs",
+      "MyBuffPool",
+      "HardPrizeIds",
+      "NeedHQLv",
+      "Version"
+    ],
+    "additionalProperties": false
+  }
+}

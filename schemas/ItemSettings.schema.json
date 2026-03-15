@@ -1,0 +1,71 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "ItemSettings.json",
+  "title": "ItemSettings",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "Id": {
+        "type": "integer",
+        "minimum": 101,
+        "maximum": 315
+      },
+      "Type": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 3,
+        "enum": [
+          1,
+          2,
+          3
+        ]
+      },
+      "Army": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 98
+      },
+      "Quality": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 4,
+        "enum": [
+          1,
+          2,
+          3,
+          4
+        ]
+      },
+      "Limit": {
+        "type": "integer",
+        "minimum": 9999,
+        "maximum": 99999,
+        "enum": [
+          9999,
+          99999
+        ]
+      },
+      "SplitItem": {
+        "type": "array",
+        "minItems": 0,
+        "maxItems": 2
+      },
+      "CostItem": {
+        "type": "array",
+        "minItems": 0,
+        "maxItems": 2
+      }
+    },
+    "required": [
+      "Id",
+      "Type",
+      "Army",
+      "Quality",
+      "Limit",
+      "SplitItem",
+      "CostItem"
+    ],
+    "additionalProperties": false
+  }
+}

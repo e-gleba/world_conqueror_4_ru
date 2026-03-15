@@ -1,0 +1,135 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "StarterPassSettings.json",
+  "title": "StarterPassSettings",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "Id": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 18,
+        "enum": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18
+        ]
+      },
+      "Point": {
+        "type": "integer",
+        "minimum": 2,
+        "maximum": 18,
+        "enum": [
+          2,
+          4,
+          6,
+          8,
+          10,
+          12,
+          14,
+          16,
+          18
+        ]
+      },
+      "Premium": {
+        "type": "boolean"
+      },
+      "Medals": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 800,
+        "enum": [
+          0,
+          100,
+          200,
+          400,
+          800
+        ]
+      },
+      "GeneralId": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 1088,
+        "enum": [
+          0,
+          1087,
+          1088
+        ]
+      },
+      "PrizeGold": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 80000,
+        "enum": [
+          0,
+          40000,
+          80000
+        ]
+      },
+      "PrizeIndustry": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 20000,
+        "enum": [
+          0,
+          10000,
+          20000
+        ]
+      },
+      "PrizeEnergy": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 6000,
+        "enum": [
+          0,
+          3000,
+          6000
+        ]
+      },
+      "PrizeTech": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 600,
+        "enum": [
+          0,
+          300,
+          600
+        ]
+      },
+      "GeneralMedal": {
+        "type": "array",
+        "minItems": 0,
+        "maxItems": 2
+      }
+    },
+    "required": [
+      "Id",
+      "Point",
+      "Premium",
+      "Medals",
+      "GeneralId",
+      "PrizeGold",
+      "PrizeIndustry",
+      "PrizeEnergy",
+      "PrizeTech",
+      "GeneralMedal"
+    ],
+    "additionalProperties": false
+  }
+}

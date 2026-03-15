@@ -1,0 +1,184 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "AchievementSettings.json",
+  "title": "AchievementSettings",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "Id": {
+        "type": "integer",
+        "minimum": 101,
+        "maximum": 4105
+      },
+      "UnlockId": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 4105
+      },
+      "InitVisible": {
+        "type": "boolean"
+      },
+      "Type": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 41
+      },
+      "Parameter": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 100109,
+        "enum": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          10307,
+          20307,
+          30507,
+          40409,
+          50407,
+          60308,
+          70407,
+          80407,
+          90305,
+          100109
+        ]
+      },
+      "Parameter2": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 6,
+        "enum": [
+          0,
+          1,
+          2,
+          3,
+          5,
+          6
+        ]
+      },
+      "Num": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 8600
+      },
+      "PrizeMedals": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 500,
+        "enum": [
+          0,
+          25,
+          50,
+          100,
+          150,
+          300,
+          350,
+          500
+        ]
+      },
+      "PrizeDecoration": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 2121,
+        "enum": [
+          0,
+          1001,
+          1002,
+          1003,
+          1004,
+          1005,
+          1006,
+          1007,
+          1008,
+          1009,
+          1010,
+          1011,
+          1012,
+          1013,
+          1014,
+          1015,
+          1016,
+          2011,
+          2021,
+          2031,
+          2111,
+          2121
+        ]
+      },
+      "Pic": {
+        "type": [
+          "null",
+          "null"
+        ]
+      },
+      "PrizeMerit": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 100,
+        "enum": [
+          0,
+          60,
+          75,
+          100
+        ]
+      },
+      "PrizePoint": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 15,
+        "enum": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          15
+        ]
+      },
+      "Item": {
+        "type": "array",
+        "minItems": 0,
+        "maxItems": 2
+      },
+      "PriorityTag": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 5,
+        "enum": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ]
+      }
+    },
+    "required": [
+      "Id",
+      "UnlockId",
+      "InitVisible",
+      "Type",
+      "Parameter",
+      "Parameter2",
+      "Num",
+      "PrizeMedals",
+      "PrizeDecoration",
+      "PrizeMerit",
+      "PrizePoint",
+      "Item",
+      "PriorityTag"
+    ],
+    "additionalProperties": false
+  }
+}

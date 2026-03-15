@@ -1,0 +1,123 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "EventPrizeSettings.json",
+  "title": "EventPrizeSettings",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "Id": {
+        "type": "integer",
+        "minimum": 10101,
+        "maximum": 70805
+      },
+      "GeneralMedal": {
+        "type": "array",
+        "minItems": 0,
+        "maxItems": 6
+      },
+      "PrizeItem": {
+        "type": "array",
+        "minItems": 0,
+        "maxItems": 9
+      },
+      "PrizeNum": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 120,
+        "enum": [
+          0,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          10,
+          12,
+          50,
+          100,
+          120
+        ]
+      },
+      "BestQualityLimit": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 5,
+        "enum": [
+          0,
+          1,
+          2,
+          4,
+          5
+        ]
+      },
+      "Medals": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 150,
+        "enum": [
+          0,
+          50,
+          100,
+          150
+        ]
+      },
+      "Gold": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 50000,
+        "enum": [
+          0,
+          15000,
+          25000,
+          50000
+        ]
+      },
+      "Industry": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 10000,
+        "enum": [
+          0,
+          8000,
+          10000
+        ]
+      },
+      "Energy": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 5000,
+        "enum": [
+          0,
+          3000,
+          5000
+        ]
+      },
+      "Tech": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 200,
+        "enum": [
+          0,
+          100,
+          200
+        ]
+      }
+    },
+    "required": [
+      "Id",
+      "GeneralMedal",
+      "PrizeItem",
+      "PrizeNum",
+      "BestQualityLimit",
+      "Medals",
+      "Gold",
+      "Industry",
+      "Energy",
+      "Tech"
+    ],
+    "additionalProperties": false
+  }
+}

@@ -1,0 +1,151 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "CityFeatureSettings.json",
+  "title": "CityFeatureSettings",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "Id": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 16,
+        "enum": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16
+        ]
+      },
+      "Name": {
+        "type": "string",
+        "minLength": 3,
+        "maxLength": 5,
+        "enum": [
+          "军事学院",
+          "军工厂",
+          "发电站",
+          "国家纪念碑",
+          "国防部",
+          "地下堡垒",
+          "工业中心",
+          "广播塔",
+          "战地医院",
+          "指挥中心",
+          "消防局",
+          "激光雷达",
+          "科技中心",
+          "航天中心",
+          "贸易市场",
+          "金融中心"
+        ]
+      },
+      "Type": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 12,
+        "enum": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12
+        ]
+      },
+      "CostMoney": {
+        "type": "integer",
+        "minimum": 50,
+        "maximum": 320,
+        "enum": [
+          50,
+          60,
+          80,
+          100,
+          120,
+          150,
+          160,
+          180,
+          220,
+          250,
+          260,
+          320
+        ]
+      },
+      "CostGear": {
+        "type": "integer",
+        "minimum": 10,
+        "maximum": 120,
+        "enum": [
+          10,
+          15,
+          20,
+          25,
+          30,
+          40,
+          50,
+          60,
+          80,
+          90,
+          100,
+          120
+        ]
+      },
+      "FeatureEffect": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 100,
+        "enum": [
+          0,
+          1,
+          2,
+          15,
+          20,
+          25,
+          35,
+          45,
+          50,
+          100
+        ]
+      },
+      "Color": {
+        "type": "string",
+        "minLength": 3,
+        "maxLength": 5,
+        "enum": [
+          "blue",
+          "green",
+          "red"
+        ]
+      }
+    },
+    "required": [
+      "Id",
+      "Name",
+      "Type",
+      "CostMoney",
+      "CostGear",
+      "FeatureEffect",
+      "Color"
+    ],
+    "additionalProperties": false
+  }
+}

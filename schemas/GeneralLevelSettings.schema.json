@@ -1,0 +1,143 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "GeneralLevelSettings.json",
+  "title": "GeneralLevelSettings",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "Id": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 11,
+        "enum": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11
+        ]
+      },
+      "Name": {
+        "type": "string",
+        "minLength": 2,
+        "maxLength": 2,
+        "enum": [
+          "上将",
+          "上尉",
+          "上校",
+          "中将",
+          "中尉",
+          "中校",
+          "元帅",
+          "士官",
+          "少将",
+          "少尉",
+          "少校"
+        ]
+      },
+      "Level": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 11,
+        "enum": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11
+        ]
+      },
+      "CostMedal": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 1000,
+        "enum": [
+          0,
+          40,
+          50,
+          100,
+          150,
+          200,
+          300,
+          400,
+          500,
+          750,
+          1000
+        ]
+      },
+      "NeedHQLv": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 1,
+        "enum": [
+          1
+        ]
+      },
+      "Leadship": {
+        "type": "integer",
+        "minimum": 3,
+        "maximum": 30,
+        "enum": [
+          3,
+          4,
+          5,
+          7,
+          9,
+          11,
+          14,
+          17,
+          21,
+          25,
+          30
+        ]
+      },
+      "HP": {
+        "type": "array",
+        "minItems": 4,
+        "maxItems": 4
+      },
+      "Score": {
+        "type": "integer",
+        "minimum": 25,
+        "maximum": 1000,
+        "enum": [
+          25,
+          40,
+          50,
+          100,
+          150,
+          200,
+          300,
+          400,
+          500,
+          750,
+          1000
+        ]
+      }
+    },
+    "required": [
+      "Id",
+      "Name",
+      "Level",
+      "CostMedal",
+      "NeedHQLv",
+      "Leadship",
+      "HP",
+      "Score"
+    ],
+    "additionalProperties": false
+  }
+}

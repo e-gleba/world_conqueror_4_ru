@@ -1,0 +1,172 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "InvasionGeneralSettings.json",
+  "title": "InvasionGeneralSettings",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "Id": {
+        "type": "integer",
+        "minimum": 1000,
+        "maximum": 3754
+      },
+      "ArmySeries": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 5,
+        "enum": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ]
+      },
+      "MilitaryRank": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 11,
+        "enum": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11
+        ]
+      },
+      "Hp": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 4,
+        "enum": [
+          1,
+          2,
+          3,
+          4
+        ]
+      },
+      "Infantry": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 6,
+        "enum": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ]
+      },
+      "Artillery": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 6,
+        "enum": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ]
+      },
+      "Armor": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 6,
+        "enum": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ]
+      },
+      "Navy": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 6,
+        "enum": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ]
+      },
+      "AirForce": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 6,
+        "enum": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ]
+      },
+      "March": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 6,
+        "enum": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ]
+      },
+      "Skills": {
+        "type": "array",
+        "minItems": 5,
+        "maxItems": 5
+      },
+      "Medals": {
+        "type": "array",
+        "minItems": 3,
+        "maxItems": 3
+      },
+      "Score": {
+        "type": "integer",
+        "minimum": 380,
+        "maximum": 14620
+      }
+    },
+    "required": [
+      "Id",
+      "ArmySeries",
+      "MilitaryRank",
+      "Hp",
+      "Infantry",
+      "Artillery",
+      "Armor",
+      "Navy",
+      "AirForce",
+      "March",
+      "Skills",
+      "Medals",
+      "Score"
+    ],
+    "additionalProperties": false
+  }
+}

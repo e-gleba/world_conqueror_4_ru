@@ -1,0 +1,198 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "ArmyFeatureSettings.json",
+  "title": "ArmyFeatureSettings",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "Id": {
+        "type": "integer",
+        "minimum": 201001,
+        "maximum": 221004
+      },
+      "Name": {
+        "type": "string",
+        "minLength": 2,
+        "maxLength": 6
+      },
+      "Type": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 157
+      },
+      "Level": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 4,
+        "enum": [
+          1,
+          2,
+          3,
+          4
+        ]
+      },
+      "ActivatesChance": {
+        "type": "integer",
+        "minimum": 5,
+        "maximum": 100,
+        "enum": [
+          5,
+          10,
+          15,
+          20,
+          30,
+          40,
+          50,
+          60,
+          65,
+          70,
+          75,
+          80,
+          100
+        ]
+      },
+      "FeatureEffect": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 300
+      },
+      "SecondEffect": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 150
+      },
+      "AgainstArmy": {
+        "type": "array",
+        "minItems": 0,
+        "maxItems": 3
+      },
+      "RelatedArmyId": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 107021,
+        "enum": [
+          0,
+          101011,
+          101021,
+          101031,
+          106001,
+          106011,
+          106021,
+          106031,
+          107001,
+          107011,
+          107021
+        ]
+      },
+      "AntiairId": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 31,
+        "enum": [
+          0,
+          11,
+          21,
+          31
+        ]
+      },
+      "Condition": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 1,
+        "enum": [
+          0,
+          1
+        ]
+      },
+      "CD": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 3,
+        "enum": [
+          0,
+          1,
+          2,
+          3
+        ]
+      },
+      "Range": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 16,
+        "enum": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          12,
+          14,
+          16
+        ]
+      },
+      "Round": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 3,
+        "enum": [
+          0,
+          1,
+          2,
+          3
+        ]
+      },
+      "ArmyBuff": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 1664
+      },
+      "ArmyBuffRound": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 2,
+        "enum": [
+          0,
+          1,
+          2
+        ]
+      },
+      "Auras": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 2,
+        "enum": [
+          0,
+          1,
+          2
+        ]
+      }
+    },
+    "required": [
+      "Id",
+      "Name",
+      "Type",
+      "Level",
+      "ActivatesChance",
+      "FeatureEffect",
+      "SecondEffect",
+      "AgainstArmy",
+      "RelatedArmyId",
+      "AntiairId",
+      "Condition",
+      "CD",
+      "Range",
+      "Round",
+      "ArmyBuff",
+      "ArmyBuffRound",
+      "Auras"
+    ],
+    "additionalProperties": false
+  }
+}

@@ -1,0 +1,62 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "ArmyNumberSettings.json",
+  "title": "ArmyNumberSettings",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "Id": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 4,
+        "enum": [
+          1,
+          2,
+          3,
+          4
+        ]
+      },
+      "AttackPercent": {
+        "type": "integer",
+        "minimum": 100,
+        "maximum": 175,
+        "enum": [
+          100,
+          125,
+          150,
+          175
+        ]
+      },
+      "HpPercent": {
+        "type": "integer",
+        "minimum": 100,
+        "maximum": 250,
+        "enum": [
+          100,
+          160,
+          210,
+          250
+        ]
+      },
+      "Rate": {
+        "type": "integer",
+        "minimum": 100,
+        "maximum": 340,
+        "enum": [
+          100,
+          180,
+          260,
+          340
+        ]
+      }
+    },
+    "required": [
+      "Id",
+      "AttackPercent",
+      "HpPercent",
+      "Rate"
+    ],
+    "additionalProperties": false
+  }
+}

@@ -1,0 +1,161 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "QuestSettings.json",
+  "title": "QuestSettings",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "Id": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 10,
+        "enum": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10
+        ]
+      },
+      "Nature": {
+        "type": "array",
+        "minItems": 2,
+        "maxItems": 2
+      },
+      "Skill": {
+        "type": "array",
+        "minItems": 2,
+        "maxItems": 2
+      },
+      "Military": {
+        "type": "array",
+        "minItems": 2,
+        "maxItems": 2
+      },
+      "Num": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 4,
+        "enum": [
+          1,
+          2,
+          3,
+          4
+        ]
+      },
+      "Time": {
+        "type": "integer",
+        "minimum": 8,
+        "maximum": 8,
+        "enum": [
+          8
+        ]
+      },
+      "PrizeGold": {
+        "type": "integer",
+        "minimum": 1000,
+        "maximum": 15000,
+        "enum": [
+          1000,
+          1500,
+          2000,
+          2500,
+          3500,
+          5000,
+          7500,
+          10000,
+          12500,
+          15000
+        ]
+      },
+      "PrizeIndustry": {
+        "type": "integer",
+        "minimum": 200,
+        "maximum": 2700,
+        "enum": [
+          200,
+          300,
+          400,
+          500,
+          750,
+          900,
+          1400,
+          1800,
+          2300,
+          2700
+        ]
+      },
+      "PrizeEnergy": {
+        "type": "integer",
+        "minimum": 30,
+        "maximum": 450,
+        "enum": [
+          30,
+          50,
+          60,
+          80,
+          100,
+          150,
+          230,
+          300,
+          380,
+          450
+        ]
+      },
+      "PrizeTech": {
+        "type": "integer",
+        "minimum": 2,
+        "maximum": 20,
+        "enum": [
+          2,
+          3,
+          4,
+          6,
+          8,
+          10,
+          12,
+          14,
+          16,
+          20
+        ]
+      },
+      "PrizeExp": {
+        "type": "integer",
+        "minimum": 25,
+        "maximum": 1250,
+        "enum": [
+          25,
+          50,
+          100,
+          150,
+          200,
+          250,
+          500,
+          750,
+          1000,
+          1250
+        ]
+      }
+    },
+    "required": [
+      "Id",
+      "Nature",
+      "Skill",
+      "Military",
+      "Num",
+      "Time",
+      "PrizeGold",
+      "PrizeIndustry",
+      "PrizeEnergy",
+      "PrizeTech",
+      "PrizeExp"
+    ],
+    "additionalProperties": false
+  }
+}

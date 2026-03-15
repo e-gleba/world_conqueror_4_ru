@@ -1,0 +1,131 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "CorpsSettings.json",
+  "title": "CorpsSettings",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "Lv": {
+        "type": "integer",
+        "minimum": -1,
+        "maximum": 50
+      },
+      "NeedExp": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 100000,
+        "enum": [
+          0,
+          1000,
+          2000,
+          5000,
+          25000,
+          100000
+        ]
+      },
+      "UnlockLegionLv": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 11,
+        "enum": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11
+        ]
+      },
+      "ExchangeTimes": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 6,
+        "enum": [
+          0,
+          1,
+          2,
+          3,
+          6
+        ]
+      },
+      "SeniorSeat": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 31
+      },
+      "JuniorSeat": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 6,
+        "enum": [
+          0,
+          2,
+          3,
+          4,
+          5,
+          6
+        ]
+      },
+      "QuestQuantity": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 3,
+        "enum": [
+          0,
+          3
+        ]
+      },
+      "QuestLv": {
+        "type": "array",
+        "minItems": 0,
+        "maxItems": 3
+      },
+      "QuestProbability": {
+        "type": "array",
+        "minItems": 0,
+        "maxItems": 3
+      },
+      "InvasionQuantity": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 3,
+        "enum": [
+          0,
+          3
+        ]
+      },
+      "InvasionLv": {
+        "type": "array",
+        "minItems": 0,
+        "maxItems": 3
+      },
+      "InvasionProbability": {
+        "type": "array",
+        "minItems": 0,
+        "maxItems": 3
+      }
+    },
+    "required": [
+      "Lv",
+      "NeedExp",
+      "UnlockLegionLv",
+      "ExchangeTimes",
+      "SeniorSeat",
+      "JuniorSeat",
+      "QuestQuantity",
+      "QuestLv",
+      "QuestProbability",
+      "InvasionQuantity",
+      "InvasionLv",
+      "InvasionProbability"
+    ],
+    "additionalProperties": false
+  }
+}

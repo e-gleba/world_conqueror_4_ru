@@ -1,0 +1,129 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "ArmyGroupChallengeSettings.json",
+  "title": "ArmyGroupChallengeSettings",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "Id": {
+        "type": "integer",
+        "minimum": 1001,
+        "maximum": 6601
+      },
+      "UnlockId": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 6405
+      },
+      "Level": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 5,
+        "enum": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ]
+      },
+      "Type": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 15,
+        "enum": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15
+        ]
+      },
+      "EventId": {
+        "type": "integer",
+        "minimum": 801,
+        "maximum": 806,
+        "enum": [
+          801,
+          802,
+          803,
+          804,
+          805,
+          806
+        ]
+      },
+      "Parameter": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 65,
+        "enum": [
+          1,
+          2,
+          3,
+          4,
+          6,
+          8,
+          10,
+          12,
+          15,
+          20,
+          25,
+          30,
+          35,
+          40,
+          45,
+          50,
+          55,
+          60,
+          65
+        ]
+      },
+      "Parameters": {
+        "type": "array",
+        "minItems": 0,
+        "maxItems": 4
+      },
+      "PrizePoint": {
+        "type": "integer",
+        "minimum": 2,
+        "maximum": 16,
+        "enum": [
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          12,
+          15,
+          16
+        ]
+      }
+    },
+    "required": [
+      "Id",
+      "UnlockId",
+      "Level",
+      "Type",
+      "EventId",
+      "Parameter",
+      "Parameters",
+      "PrizePoint"
+    ],
+    "additionalProperties": false
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "FrontierBuffSetting.json",
+  "title": "FrontierBuffSetting",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "Id": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 15,
+        "enum": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15
+        ]
+      },
+      "BuffValue": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 45,
+        "enum": [
+          1,
+          4,
+          10,
+          20,
+          45
+        ]
+      }
+    },
+    "required": [
+      "Id",
+      "BuffValue"
+    ],
+    "additionalProperties": false
+  }
+}

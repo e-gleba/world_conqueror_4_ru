@@ -1,0 +1,125 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "WarZoneStageSetting.json",
+  "title": "WarZoneStageSetting",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "Id": {
+        "type": "integer",
+        "minimum": 101,
+        "maximum": 506
+      },
+      "ZoneId": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 5,
+        "enum": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ]
+      },
+      "Stageid": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 0,
+        "enum": [
+          0
+        ]
+      },
+      "Photo": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 6,
+        "enum": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ]
+      },
+      "X": {
+        "type": "integer",
+        "minimum": 1730,
+        "maximum": 5290
+      },
+      "Y": {
+        "type": "integer",
+        "minimum": 166,
+        "maximum": 1639,
+        "enum": [
+          166,
+          200,
+          300,
+          383,
+          437,
+          450,
+          456,
+          575,
+          665,
+          700,
+          728,
+          789,
+          900,
+          990,
+          1040,
+          1313,
+          1320,
+          1322,
+          1390,
+          1452,
+          1490,
+          1600,
+          1637,
+          1639
+        ]
+      },
+      "Seat": {
+        "type": "integer",
+        "minimum": 6,
+        "maximum": 6,
+        "enum": [
+          6
+        ]
+      },
+      "UnlockStageId": {
+        "type": "array",
+        "minItems": 0,
+        "maxItems": 5
+      },
+      "RoundPhoto": {
+        "type": "string",
+        "minLength": 17,
+        "maxLength": 20,
+        "enum": [
+          "campaign_artillery_1",
+          "campaign_artillery_2",
+          "campaign_artillery_3",
+          "campaign_artillery_4",
+          "campaign_defense_2",
+          "campaign_infantry_3",
+          "campaign_panzer_11",
+          "campaign_panzer_4"
+        ]
+      }
+    },
+    "required": [
+      "Id",
+      "ZoneId",
+      "Stageid",
+      "Photo",
+      "X",
+      "Y",
+      "Seat",
+      "UnlockStageId",
+      "RoundPhoto"
+    ],
+    "additionalProperties": false
+  }
+}

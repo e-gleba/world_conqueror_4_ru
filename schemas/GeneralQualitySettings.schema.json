@@ -1,0 +1,71 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "GeneralQualitySettings.json",
+  "title": "GeneralQualitySettings",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "Id": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 4,
+        "enum": [
+          1,
+          2,
+          3,
+          4
+        ]
+      },
+      "CostGold": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 50000,
+        "enum": [
+          0,
+          10000,
+          50000
+        ]
+      },
+      "CostMedal": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 500,
+        "enum": [
+          0,
+          500
+        ]
+      },
+      "Score": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 500,
+        "enum": [
+          0,
+          150,
+          300,
+          500
+        ]
+      },
+      "RibbonNum": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 3,
+        "enum": [
+          0,
+          1,
+          2,
+          3
+        ]
+      }
+    },
+    "required": [
+      "Id",
+      "CostGold",
+      "CostMedal",
+      "Score",
+      "RibbonNum"
+    ],
+    "additionalProperties": false
+  }
+}

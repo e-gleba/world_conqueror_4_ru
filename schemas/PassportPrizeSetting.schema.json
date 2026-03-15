@@ -1,0 +1,62 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "PassportPrizeSetting.json",
+  "title": "PassportPrizeSetting",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "Id": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 31
+      },
+      "Point": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 250
+      },
+      "PrizeMedals": {
+        "type": "array",
+        "minItems": 0,
+        "maxItems": 2
+      },
+      "PrizeGold": {
+        "type": "array",
+        "minItems": 0,
+        "maxItems": 2
+      },
+      "PrizeIndustry": {
+        "type": "array",
+        "minItems": 0,
+        "maxItems": 2
+      },
+      "PrizeEnergy": {
+        "type": "array",
+        "minItems": 0,
+        "maxItems": 2
+      },
+      "PrizeTech": {
+        "type": "array",
+        "minItems": 0,
+        "maxItems": 2
+      },
+      "PrizeMerit": {
+        "type": "array",
+        "minItems": 0,
+        "maxItems": 2
+      }
+    },
+    "required": [
+      "Id",
+      "Point",
+      "PrizeMedals",
+      "PrizeGold",
+      "PrizeIndustry",
+      "PrizeEnergy",
+      "PrizeTech",
+      "PrizeMerit"
+    ],
+    "additionalProperties": false
+  }
+}

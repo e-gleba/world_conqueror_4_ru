@@ -1,0 +1,129 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "ConquerEventSettings.json",
+  "title": "ConquerEventSettings",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "Id": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 129
+      },
+      "ConquerId": {
+        "type": "integer",
+        "minimum": 5,
+        "maximum": 8,
+        "enum": [
+          5,
+          6,
+          7,
+          8
+        ]
+      },
+      "EventBuffId1": {
+        "type": "integer",
+        "minimum": 2011,
+        "maximum": 2371
+      },
+      "Round1": {
+        "type": "integer",
+        "minimum": -1,
+        "maximum": 5,
+        "enum": [
+          -1,
+          2,
+          3,
+          5
+        ]
+      },
+      "CountryId1": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 20
+      },
+      "EventBuffId2": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 2361
+      },
+      "Round2": {
+        "type": "integer",
+        "minimum": -1,
+        "maximum": 10,
+        "enum": [
+          -1,
+          0,
+          2,
+          3,
+          4,
+          5,
+          10
+        ]
+      },
+      "CountryId2": {
+        "type": "array",
+        "minItems": 0,
+        "maxItems": 17
+      },
+      "Trigger": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 9,
+        "enum": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ]
+      },
+      "TriggerValue": {
+        "type": "array",
+        "minItems": 0,
+        "maxItems": 4
+      },
+      "Location": {
+        "type": "array",
+        "minItems": 0,
+        "maxItems": 4
+      },
+      "Chance": {
+        "type": "integer",
+        "minimum": 20,
+        "maximum": 100,
+        "enum": [
+          20,
+          30,
+          40,
+          50,
+          60,
+          70,
+          80,
+          90,
+          100
+        ]
+      }
+    },
+    "required": [
+      "Id",
+      "ConquerId",
+      "EventBuffId1",
+      "Round1",
+      "CountryId1",
+      "EventBuffId2",
+      "Round2",
+      "CountryId2",
+      "Trigger",
+      "TriggerValue",
+      "Location",
+      "Chance"
+    ],
+    "additionalProperties": false
+  }
+}

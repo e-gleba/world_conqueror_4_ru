@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "ArmySubTypeSettings.json",
+  "title": "ArmySubTypeSettings",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "Id": {
+        "type": "integer",
+        "minimum": 101,
+        "maximum": 136
+      },
+      "Army": {
+        "type": "integer",
+        "minimum": 51,
+        "maximum": 96
+      },
+      "SubType": {
+        "type": "integer",
+        "minimum": 201,
+        "maximum": 504,
+        "enum": [
+          201,
+          202,
+          203,
+          301,
+          302,
+          303,
+          401,
+          402,
+          403,
+          404,
+          501,
+          502,
+          503,
+          504
+        ]
+      },
+      "AirTransportation": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 1,
+        "enum": [
+          0,
+          1
+        ]
+      },
+      "Tunnelling": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 1,
+        "enum": [
+          0,
+          1
+        ]
+      }
+    },
+    "required": [
+      "Id",
+      "Army",
+      "SubType",
+      "AirTransportation",
+      "Tunnelling"
+    ],
+    "additionalProperties": false
+  }
+}

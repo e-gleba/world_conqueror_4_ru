@@ -1,0 +1,102 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "ConquerPassSettings.json",
+  "title": "ConquerPassSettings",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "Id": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 63
+      },
+      "Point": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 310
+      },
+      "Medals": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 950,
+        "enum": [
+          0,
+          150,
+          200,
+          250,
+          300,
+          350,
+          500,
+          650,
+          800,
+          950
+        ]
+      },
+      "GeneralMedal": {
+        "type": "array",
+        "minItems": 0,
+        "maxItems": 2
+      },
+      "GeneralId": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 1109,
+        "enum": [
+          0,
+          1084,
+          1086,
+          1090,
+          1109
+        ]
+      },
+      "Item": {
+        "type": [
+          "array",
+          "null"
+        ],
+        "minItems": 2,
+        "maxItems": 2
+      },
+      "UnlockSkillID": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 3311,
+        "enum": [
+          0,
+          3311
+        ]
+      },
+      "Sword": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 12,
+        "enum": [
+          0,
+          8,
+          12
+        ]
+      },
+      "Sceptre": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 2,
+        "enum": [
+          0,
+          2
+        ]
+      }
+    },
+    "required": [
+      "Id",
+      "Point",
+      "Medals",
+      "GeneralMedal",
+      "GeneralId",
+      "UnlockSkillID",
+      "Sword",
+      "Sceptre"
+    ],
+    "additionalProperties": false
+  }
+}
