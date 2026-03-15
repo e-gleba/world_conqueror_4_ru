@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+package gateway.v1;
+
+option swift_prefix = "Gateway";
+
+message PrivacyUpdateResponse {
+  int32 version = 1;
+  bytes content = 2;
+}

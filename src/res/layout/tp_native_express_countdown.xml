@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout android:orientation="vertical" android:layout_width="fill_parent" android:layout_height="fill_parent"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <LinearLayout android:gravity="center" android:orientation="vertical" android:id="@id/tp_layout_render" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_centerInParent="true" />
+    <LinearLayout android:gravity="center_vertical" android:orientation="horizontal" android:id="@id/tp_layout_skip" android:background="@drawable/tp_bg_countdown" android:layout_width="wrap_content" android:layout_height="30.0dip" android:layout_marginTop="20.0dip" android:layout_marginRight="20.0dip" android:layout_alignParentRight="true">
+        <com.tradplus.ads.mgr.nativead.views.CountDownAnimiView android:textSize="13.0sp" android:textColor="@android:color/white" android:gravity="center" android:layout_gravity="center" android:id="@id/tp_tv_countdown" android:layout_width="25.0dip" android:layout_height="25.0dip" android:layout_marginLeft="5.0dip" android:text="5" />
+        <TextView android:textSize="13.0sp" android:textColor="@android:color/white" android:gravity="center" android:id="@id/tp_tv_skip" android:visibility="gone" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginLeft="10.0dip" android:layout_marginRight="10.0dip" android:text="Skip" android:layout_weight="1.0" />
+    </LinearLayout>
+</RelativeLayout>

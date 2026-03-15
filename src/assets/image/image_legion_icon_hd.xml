@@ -1,0 +1,22 @@
+<Texture name="image_legion_icon_hd.png" />
+<Images>
+    <Image name="legion_icon_1.png" x="1" y="1" w="112" h="112" refx="0" refy="0" />
+    <Image name="legion_icon_10.png" x="114" y="1" w="112" h="112" refx="0" refy="0" />
+    <Image name="legion_icon_11.png" x="1" y="114" w="112" h="112" refx="0" refy="0" />
+    <Image name="legion_icon_12.png" x="114" y="114" w="112" h="112" refx="0" refy="0" />
+    <Image name="legion_icon_13.png" x="227" y="1" w="112" h="112" refx="0" refy="0" />
+    <Image name="legion_icon_14.png" x="227" y="114" w="112" h="112" refx="0" refy="0" />
+    <Image name="legion_icon_15.png" x="340" y="1" w="112" h="112" refx="0" refy="0" />
+    <Image name="legion_icon_16.png" x="340" y="114" w="112" h="112" refx="0" refy="0" />
+    <Image name="legion_icon_17.png" x="1" y="227" w="112" h="112" refx="0" refy="0" />
+    <Image name="legion_icon_18.png" x="114" y="227" w="112" h="112" refx="0" refy="0" />
+    <Image name="legion_icon_19.png" x="227" y="227" w="112" h="112" refx="0" refy="0" />
+    <Image name="legion_icon_2.png" x="1" y="340" w="112" h="112" refx="0" refy="0" />
+    <Image name="legion_icon_3.png" x="340" y="227" w="112" h="112" refx="0" refy="0" />
+    <Image name="legion_icon_4.png" x="114" y="340" w="112" h="112" refx="0" refy="0" />
+    <Image name="legion_icon_5.png" x="227" y="340" w="112" h="112" refx="0" refy="0" />
+    <Image name="legion_icon_6.png" x="340" y="340" w="112" h="112" refx="0" refy="0" />
+    <Image name="legion_icon_7.png" x="1" y="453" w="112" h="112" refx="0" refy="0" />
+    <Image name="legion_icon_8.png" x="114" y="453" w="112" h="112" refx="0" refy="0" />
+    <Image name="legion_icon_9.png" x="227" y="453" w="112" h="112" refx="0" refy="0" />
+</Images>

@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package gateway.v1;
+
+import "google/protobuf/timestamp.proto";
+
+option swift_prefix = "Gateway";
+
+// Message which contains timestamps of the request or event
+message Timestamps {
+  // Current UTC timestamp in milliseconds
+  google.protobuf.Timestamp timestamp = 1;
+  // Milliseconds since SDK was initialized using monotonic timer
+  int64 session_timestamp = 2;
+}

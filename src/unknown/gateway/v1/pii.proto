@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package gateway.v1;
+
+option swift_prefix = "Gateway";
+
+// Personal Identifiable Information
+message Pii {
+  // Advertising ID provided by Apple and Google Play
+  bytes advertising_id = 1;
+  // Vendor ID provided by Apple
+  bytes vendor_id = 2;
+  // Open Advertising ID provided by HUAWEI
+  bytes open_advertising_tracking_id = 3;
+}

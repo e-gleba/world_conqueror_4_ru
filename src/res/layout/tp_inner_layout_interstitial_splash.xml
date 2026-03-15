@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout android:orientation="vertical" android:layout_width="fill_parent" android:layout_height="fill_parent"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <ImageView android:id="@id/tp_img_blur" android:layout_width="fill_parent" android:layout_height="fill_parent" android:scaleType="fitXY" />
+    <ImageView android:id="@id/tp_innernative_main_image" android:layout_width="fill_parent" android:layout_height="fill_parent" android:scaleType="fitCenter" />
+    <com.tp.adx.open.TPInnerMediaView android:id="@id/tp_inner_mediaview" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_centerInParent="true" />
+    <LinearLayout android:orientation="vertical" android:id="@id/tp_layout_intersittial_webview" android:layout_width="fill_parent" android:layout_height="fill_parent" />
+    <LinearLayout android:gravity="center_vertical" android:id="@id/tp_layout_ad" android:background="#ff7d7d7d" android:padding="2.0dip" android:layout_width="wrap_content" android:layout_height="20.0dip" android:layout_alignParentRight="true" android:layout_alignParentBottom="true">
+        <ImageView android:id="@id/tp_tv_tips" android:background="@drawable/tp_inner_ad_tips" android:layout_width="20.0dip" android:layout_height="20.0dip" />
+        <TextView android:textSize="12.0sp" android:textColor="@android:color/white" android:gravity="center" android:id="@id/tp_tv_ad" android:layout_width="wrap_content" android:layout_height="20.0dip" android:text="@string/tp_ad" />
+    </LinearLayout>
+    <LinearLayout android:gravity="center_vertical" android:orientation="horizontal" android:id="@id/tp_layout_countdown" android:padding="5.0dip" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="20.0dip" android:layout_marginRight="10.0dip" android:layout_alignParentRight="true">
+        <TextView android:textSize="13.0sp" android:textColor="@android:color/white" android:gravity="center" android:layout_gravity="center" android:id="@id/tp_tv_countdown" android:background="@drawable/tp_inner_bg_countdown" android:paddingLeft="10.0dip" android:paddingTop="5.0dip" android:paddingRight="10.0dip" android:paddingBottom="5.0dip" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+        <ImageView android:id="@id/tp_inner_skip" android:background="@drawable/tp_inner_video_skip" android:visibility="gone" android:layout_width="23.0dip" android:layout_height="23.0dip" />
+    </LinearLayout>
+</RelativeLayout>

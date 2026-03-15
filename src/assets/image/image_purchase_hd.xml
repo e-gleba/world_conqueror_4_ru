@@ -1,0 +1,8 @@
+<Texture name="image_purchase_hd.png" />
+<Images>
+    <Image name="ali_pay.png" x="1" y="1" w="216" h="70" refx="0" refy="0" />
+    <Image name="wx_pay.png" x="1" y="72" w="216" h="70" refx="0" refy="0" />
+    <Image name="back_ground.png" x="1" y="143" w="64" h="64" refx="0" refy="0" />
+    <Image name="close.png" x="218" y="1" w="30" h="30" refx="0" refy="0" />
+    <Image name="top_background.png" x="66" y="143" w="30" h="30" refx="0" refy="0" />
+</Images>

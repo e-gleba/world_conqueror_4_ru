@@ -1,0 +1,9 @@
+[
+{"Level":1,"AddHP":0,"AddAttack":0,"AddDefense":0,"NeedExp":250},
+{"Level":2,"AddHP":20,"AddAttack":4,"AddDefense":2,"NeedExp":450},
+{"Level":3,"AddHP":40,"AddAttack":8,"AddDefense":4,"NeedExp":800},
+{"Level":4,"AddHP":60,"AddAttack":12,"AddDefense":6,"NeedExp":1200},
+{"Level":5,"AddHP":80,"AddAttack":16,"AddDefense":8,"NeedExp":1600},
+{"Level":6,"AddHP":100,"AddAttack":20,"AddDefense":10,"NeedExp":0},
+{"Level":-1,"AddHP":0,"AddAttack":0,"AddDefense":0,"NeedExp":0}
+]

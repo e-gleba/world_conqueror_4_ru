@@ -1,0 +1,82 @@
+syntax = "proto3";
+
+package gateway.v1;
+
+option swift_prefix = "Gateway";
+
+enum ConnectionType {
+  CONNECTION_TYPE_UNSPECIFIED = 0;
+  CONNECTION_TYPE_WIFI = 1;
+  CONNECTION_TYPE_CELLULAR = 2;
+}
+
+message DynamicDeviceInfo {
+  reserved 4;
+
+  message Android {
+    optional bool network_connected = 1;
+    optional int32 network_type = 2;
+    optional bool network_metered = 3;
+    optional int32 telephony_manager_network_type = 4;
+
+    optional bool adb_enabled = 5;
+    optional bool usb_connected = 6;
+
+    optional double volume = 7;
+    optional double max_volume = 8;
+
+    optional int64 device_up_time = 9;
+    optional int64 device_elapsed_realtime = 10;
+  }
+
+  message Ios {
+    optional string current_radio_access_technology = 1;
+    optional uint32 network_reachability_flags = 2;
+
+    repeated string nw_path_interfaces = 3;
+
+    repeated string locale_list = 4;
+    optional int32 current_ui_theme = 5;
+    optional string device_name = 6;
+
+    optional double volume = 7;
+
+    optional int32 tracking_auth_status = 8;
+  }
+
+  // Language used for UI on the phone
+  optional string language = 1;
+  // Network Operator Code if available
+  optional string network_operator = 2;
+  // Network Operator Name if available
+  optional string network_operator_name = 3;
+  // Total free disk space in kilobytes
+  optional int64 free_disk_space = 5;
+  // Total free RAM memory in kilobytes
+  optional int64 free_ram_memory = 6;
+  // Is a wired headset connected
+  optional bool wired_headset = 7;
+  // Time zone of the device
+  optional string time_zone = 8;
+  // Time zone offset of the device
+  optional int64 time_zone_offset = 9;
+  // Limited Tracking provided by Apple and Google Play
+  optional bool limited_tracking = 10;
+  // Limited Open Advertising Tracking provided by HUAWEI
+  optional bool limited_open_ad_tracking = 11;
+  // Battery level
+  optional double battery_level = 14;
+  // Battery status
+  optional int32 battery_status = 15;
+  // Connection type of the device
+  optional ConnectionType connection_type = 16;
+  // Is Application active
+  optional bool app_active = 17;
+
+  oneof platform_specific {
+    // Android specific information
+    Android android = 12;
+    // iOS specific information
+    Ios ios = 13;
+  }
+}

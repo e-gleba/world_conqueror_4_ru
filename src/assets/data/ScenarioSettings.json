@@ -1,0 +1,8 @@
+[
+{"Id":0,"UnlockRequirements":[],"UnlockedConquerId":0,"GeneralId":[1031],"DialoguesID":[1,2,3],"Open":1,"Visible":1},
+{"Id":1,"UnlockRequirements":[],"UnlockedConquerId":1,"GeneralId":[1050,1031],"DialoguesID":[4,5],"Open":1,"Visible":1},
+{"Id":2,"UnlockRequirements":[10111,10211],"UnlockedConquerId":2,"GeneralId":[1027,1031],"DialoguesID":[6,7],"Open":1,"Visible":1},
+{"Id":3,"UnlockRequirements":[10309,10409],"UnlockedConquerId":3,"GeneralId":[1018,1031],"DialoguesID":[8,9],"Open":1,"Visible":1},
+{"Id":4,"UnlockRequirements":[10506,10606],"UnlockedConquerId":4,"GeneralId":[1031],"DialoguesID":[10,11,12,13,14,15],"Open":1,"Visible":1},
+{"Id":5,"UnlockRequirements":[],"UnlockedConquerId":0,"GeneralId":[],"DialoguesID":[],"Open":0,"Visible":0}
+]

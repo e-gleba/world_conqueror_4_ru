@@ -1,0 +1,83 @@
+syntax = "proto3";
+
+package gateway.v1;
+
+import "gateway/v1/timestamps.proto";
+
+option swift_prefix = "Gateway";
+
+enum DiagnosticEventType {
+  DIAGNOSTIC_EVENT_TYPE_UNSPECIFIED = 0;
+  DIAGNOSTIC_EVENT_TYPE_CUSTOM = 1;
+}
+
+enum DiagnosticTagType {
+  DIAGNOSTIC_TAG_TYPE_UNSPECIFIED = 0;
+  DIAGNOSTIC_TAG_TYPE_CUSTOM = 1;
+}
+
+// Severity of diagnostic events which are allowed to be sent
+enum DiagnosticEventsSeverity {
+  DIAGNOSTIC_EVENTS_SEVERITY_UNSPECIFIED = 0;
+  DIAGNOSTIC_EVENTS_SEVERITY_DEBUG = 1;
+  DIAGNOSTIC_EVENTS_SEVERITY_INFO = 2;
+  DIAGNOSTIC_EVENTS_SEVERITY_WARNING = 3;
+  DIAGNOSTIC_EVENTS_SEVERITY_ERROR = 4;
+  DIAGNOSTIC_EVENTS_SEVERITY_ALWAYS = 5;
+}
+
+enum DiagnosticAdType {
+  DIAGNOSTIC_AD_TYPE_UNSPECIFIED = 0;
+  DIAGNOSTIC_AD_TYPE_FULLSCREEN = 1;
+  DIAGNOSTIC_AD_TYPE_BANNER = 2;
+}
+
+// A tag attached to a diagnostic event
+message DiagnosticTag {
+  // Tag type using predefined integer representation
+  repeated DiagnosticTagType tag_type = 1;
+  // Tag type represented as string (event_type must be set to
+  // DIAGNOSTIC_TAG_TYPE_CUSTOM)
+  optional string custom_tag_type = 2;
+
+  // A value attached to a tag
+  oneof value {
+    string string_value = 3;
+    int32 int_value = 4;
+  }
+}
+
+// A diagnostic event
+message DiagnosticEvent {
+  // Event type using predefined integer representation
+  DiagnosticEventType event_type = 1;
+  // Event type represented as string (event_type must be set to
+  // DIAGNOSTIC_EVENT_TYPE_CUSTOM)
+  optional string custom_event_type = 2;
+  // Device state when event was created
+  Timestamps timestamps = 3;
+  // Optional time value associated with event, in milliseconds
+  optional double time_value = 4;
+
+  // An alternative approach to handle tags
+  map<string, string> string_tags = 5;
+  map<string, uint32> int_tags = 6;
+
+  // The unique auto-incrementing event id for each event - replaces the batch
+  // ID to allow for retries to add to batches
+  int32 event_id = 7;
+
+  // Impression Opportunity ID of associated AdObject
+  optional bytes impression_opportunity_id = 8;
+  // Placement ID of associated AdObject
+  optional string placement_id = 9;
+  // Ad type of associated AdObject
+  optional DiagnosticAdType ad_type = 10;
+  // AdObject loaded with header bidding ad markup
+  optional bool is_header_bidding = 11;
+}
+
+message DiagnosticEventRequest {
+  // A batch of diagnostic events
+  repeated DiagnosticEvent batch = 1;
+}

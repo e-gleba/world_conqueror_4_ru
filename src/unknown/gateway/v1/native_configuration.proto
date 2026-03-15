@@ -1,0 +1,124 @@
+syntax = "proto3";
+
+package gateway.v1;
+
+import "gateway/v1/diagnostic_event_request.proto";
+
+option swift_prefix = "Gateway";
+
+// Message contains configuration for retry
+message RequestRetryPolicy {
+  // Maximum total elapsed time (ms) for a request including for all retries -
+  // also provides TTL for local storage, if enabled. For example operative
+  // events could have a 7 day max duration, and adRequests might have only
+  // 2000ms (depending on mediator etc)
+  int32 max_duration = 1;
+  // The minimum time (ms) before retrying a request
+  int32 retry_wait_base = 2;
+  // The maximum time (ms) before retrying a request - any inter-request delay
+  // should not exceed this value (used on long max duration)
+  int32 retry_max_interval = 3;
+  // The jitter percentage (0.0-1.0) that should be applied to the overall delay
+  float retry_jitter_pct = 4;
+  // The retry scaling factor that should be used to create the time delay
+  // between the requests
+  float retry_scaling_factor = 5;
+  // Whether or not the native SDK should store the request to be retried at a
+  // later time (used on long max duration requests)
+  bool should_store_locally = 6;
+
+  // The formula for calculating the delay between retries is:
+
+  // interval = (retry_wait_base * retry_scaling_factor * retry_count) +
+  // (retry_wait_base * random(retry_jitter_pct))
+
+  // if interval > retry_max_interval then interval = retry_max_interval
+
+  // if elapsed_time + interval > max_duration then don't retry
+
+  // Note: A request must always be made at least once, retry_count does
+  // not need to be preserved between sessions, retry_count must start at 1
+}
+
+// Message contains configuration for timeouts on http requests
+message RequestTimeoutPolicy {
+  // Specifies the maximum time allowed for establishing a connection with the
+  // server
+  int32 connect_timeout_ms = 1;
+  // Specifies the maximum time allowed for reading the response from the
+  // server
+  int32 read_timeout_ms = 2;
+  // Specifies the maximum time allowed for writing data to the server
+  int32 write_timeout_ms = 3;
+  // The overall timeout for a request - may be a combination of the above, may
+  // be longer / shorter depending on requirements
+  int32 overall_timeout_ms = 4;
+}
+
+message RequestPolicy {
+  RequestRetryPolicy retry_policy = 1;
+  RequestTimeoutPolicy timeout_policy = 2;
+}
+
+// Message contains configuration for diagnostic events
+message DiagnosticEventsConfiguration {
+  // Whether or not the native SDK should send diagnostic events
+  bool enabled = 1;
+  // Batch size for diagnostic events
+  int32 max_batch_size = 2;
+  // Maximum time (ms) to wait before sending a batch of diagnostic events
+  // regardless of number of events in the batch
+  int32 max_batch_interval_ms = 3;
+  // iOS Specific. Whether or not URLSession task transaction metrics should be
+  // enabled
+  bool ttm_enabled = 4;
+  // Severity of diagnostics events which are allowed to send to the server
+  DiagnosticEventsSeverity severity = 5;
+  // Diagnostic events which are allowed to send to the server, ignores severity
+  repeated DiagnosticEventType allowed_events = 6;
+  // Diagnostic events which are blocked from sending to the server, ignores severity
+  repeated DiagnosticEventType blocked_events = 7;
+}
+
+// Message contains configuration for ad operations
+message AdOperationsConfiguration {
+  // Specifies the maximum time allowed for load to complete
+  int32 load_timeout_ms = 1;
+  // Specifies the maximum time allowed for show to start
+  int32 show_timeout_ms = 2;
+  // Specifies the maximum time allowed for an asynchonous getToken call to return a token while initialization is in progress
+  int32 get_token_timeout_ms = 3;
+}
+
+// Message which contains all properties which can be consumed by the native
+// side
+message NativeConfiguration {
+  // Configuration for diagnostic events
+  DiagnosticEventsConfiguration diagnostic_events = 1;
+  // Policies for initialization requests
+  RequestPolicy init_policy = 2;
+  // Policies for ad requests (including refresh)
+  RequestPolicy ad_policy = 3;
+  // Policies for operative event requests
+  RequestPolicy operative_event_policy = 4;
+  // Policies for other requests
+  RequestPolicy other_policy = 5;
+  // Policies for ad operations
+  AdOperationsConfiguration ad_operations = 6;
+  // Feature flags for experimental features
+  FeatureFlags feature_flags = 7;
+	// If set, will enable collection of IAP data
+  bool enable_iap_event = 8;
+  // If set, will enable  Open-Measurement-SDK
+  bool enable_om = 9;
+}
+
+// Message which contains all current experimental features that can be enabled
+message FeatureFlags {
+  // Whether or not the native Android SDK should try and use OpenGL to determine the installed GPU
+  bool opengl_gpu_enabled = 1;
+  // Validates the loaded campaign to see if opportunity id used in show and placement id provided correlates
+  bool opportunity_id_placement_validation = 2;
+  // Whether or not next session should be initialized with bold or legacy flow.
+  bool bold_sdk_next_session_enabled = 3;
+}

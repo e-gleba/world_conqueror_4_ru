@@ -1,0 +1,26 @@
+<Texture name="anim_victory.png" w="860" h="512" />
+<Images>
+    <Image name="光芒小.png" x="1" y="1" w="54" h="275" refx="0" refy="0" />
+    <Image name="皇冠.png" x="56" y="1" w="167" h="147" refx="0" refy="0" />
+    <Image name="皇冠白.png" x="56" y="149" w="167" h="147" refx="0" refy="0" />
+    <Image name="光2.png" x="1" y="297" w="225" h="127" refx="0" refy="0" />
+    <Image name="星星.png" x="224" y="1" w="75" h="72" refx="0" refy="0" />
+    <Image name="星星白.png" x="224" y="74" w="75" h="72" refx="0" refy="0" />
+    <Image name="胜利C.png" x="300" y="1" w="70" h="71" refx="0" refy="0" />
+    <Image name="胜利O.png" x="300" y="73" w="75" h="71" refx="0" refy="0" />
+    <Image name="胜利白C.png" x="224" y="147" w="70" h="71" refx="0" refy="0" />
+    <Image name="胜利白O.png" x="227" y="219" w="75" h="71" refx="0" refy="0" />
+    <Image name="胜利I.png" x="371" y="1" w="42" h="69" refx="0" refy="0" />
+    <Image name="胜利R.png" x="295" y="147" w="81" h="69" refx="0" refy="0" />
+    <Image name="胜利T.png" x="227" y="291" w="65" h="70" refx="0" refy="0" />
+    <Image name="胜利V.png" x="303" y="217" w="81" h="70" refx="0" refy="0" />
+    <Image name="胜利白R.png" x="293" y="291" w="81" h="69" refx="0" refy="0" />
+    <Image name="胜利Y.png" x="227" y="362" w="88" h="69" refx="0" refy="0" />
+    <Image name="黄闪光.png" x="1" y="425" w="209" h="77" refx="0" refy="0" />
+    <Image name="胜利黑底.png" x="375" y="288" w="482" h="201" refx="0" refy="0" />
+    <Image name="黄圈.png" x="414" y="1" w="100" h="99" refx="0" refy="0" />
+    <Image name="胜利白T.png" x="515" y="1" w="65" h="70" refx="0" refy="0" />
+    <Image name="胜利白V.png" x="377" y="101" w="81" h="70" refx="0" refy="0" />
+    <Image name="胜利白I.png" x="459" y="101" w="42" h="69" refx="0" refy="0" />
+    <Image name="胜利白Y.png" x="581" y="1" w="88" h="69" refx="0" refy="0" />
+</Images>

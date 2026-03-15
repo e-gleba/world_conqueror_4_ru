@@ -1,0 +1,14 @@
+<Texture name="image_facilities_hd.png" />
+<Images>
+    <Image name="facility_airport.png" x="0" y="0" w="273" h="304" refx="0" refy="0" />
+    <Image name="facility_city_1.png" x="273" y="0" w="389" h="304" refx="0" refy="0" />
+    <Image name="facility_city_2.png" x="0" y="304" w="389" h="304" refx="0" refy="0" />
+    <Image name="facility_city_3.png" x="0" y="608" w="389" h="304" refx="0" refy="0" />
+    <Image name="facility_depot.png" x="662" y="0" w="273" h="304" refx="0" refy="0" />
+    <Image name="facility_factory.png" x="389" y="304" w="274" h="304" refx="0" refy="0" />
+    <Image name="facility_lab.png" x="389" y="608" w="271" h="304" refx="0" refy="0" />
+    <Image name="facility_missile.png" x="663" y="304" w="273" h="304" refx="0" refy="0" />
+    <Image name="facility_nuke.png" x="660" y="608" w="273" h="304" refx="0" refy="0" />
+    <Image name="facility_spacelab.png" x="935" y="0" w="273" h="304" refx="0" refy="0" />
+    <Image name="facility_port.png" x="936" y="304" w="273" h="303" refx="0" refy="0" />
+</Images>

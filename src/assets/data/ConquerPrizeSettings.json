@@ -1,0 +1,8 @@
+[
+{"Id":1,"Min":1,"Max":70000,"ChallengeMin":1,"ChallengeMax":70000,"Override":0.65},
+{"Id":2,"Min":70001,"Max":80000,"ChallengeMin":70001,"ChallengeMax":90000,"Override":0.75},
+{"Id":3,"Min":80001,"Max":90000,"ChallengeMin":90001,"ChallengeMax":110000,"Override":0.85},
+{"Id":4,"Min":90001,"Max":110000,"ChallengeMin":110001,"ChallengeMax":160000,"Override":1.0},
+{"Id":5,"Min":110001,"Max":135000,"ChallengeMin":160001,"ChallengeMax":210000,"Override":1.5},
+{"Id":6,"Min":135001,"Max":999999,"ChallengeMin":210001,"ChallengeMax":999999,"Override":2.0}
+]

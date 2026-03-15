@@ -1,0 +1,32 @@
+<Texture name="anim_target.png" w="232" h="232" />
+<Images>
+    <Image name="5.png" x="1" y="1" w="127" h="145" refx="0" refy="0" />
+    <Image name="29.png" x="129" y="1" w="101" h="102" refx="0" refy="0" />
+    <Image name="28.png" x="1" y="147" w="82" h="82" refx="0" refy="0" />
+    <Image name="3.png" x="129" y="104" w="61" h="64" refx="0" refy="0" />
+    <Image name="4.png" x="84" y="169" w="64" h="61" refx="0" refy="0" />
+    <Image name="1.png" x="191" y="104" w="34" h="39" refx="0" refy="0" />
+    <Image name="2.png" x="149" y="169" w="34" h="39" refx="0" refy="0" />
+    <Image name="6.png" x="84" y="147" w="13" h="13" refx="0" refy="0" />
+    <Image name="10.png" x="98" y="147" w="18" h="10" refx="0" refy="0" />
+    <Image name="11.png" x="98" y="158" w="18" h="10" refx="0" refy="0" />
+    <Image name="12.png" x="191" y="144" w="18" h="10" refx="0" refy="0" />
+    <Image name="13.png" x="149" y="209" w="18" h="10" refx="0" refy="0" />
+    <Image name="14.png" x="210" y="144" w="18" h="10" refx="0" refy="0" />
+    <Image name="15.png" x="191" y="155" w="18" h="10" refx="0" refy="0" />
+    <Image name="16.png" x="184" y="169" w="18" h="10" refx="0" refy="0" />
+    <Image name="17.png" x="149" y="220" w="18" h="10" refx="0" refy="0" />
+    <Image name="18.png" x="184" y="180" w="18" h="10" refx="0" refy="0" />
+    <Image name="19.png" x="210" y="155" w="18" h="10" refx="0" refy="0" />
+    <Image name="20.png" x="168" y="209" w="18" h="10" refx="0" refy="0" />
+    <Image name="21.png" x="203" y="166" w="18" h="10" refx="0" refy="0" />
+    <Image name="22.png" x="184" y="191" w="18" h="10" refx="0" refy="0" />
+    <Image name="23.png" x="168" y="220" w="18" h="10" refx="0" refy="0" />
+    <Image name="24.png" x="203" y="177" w="18" h="10" refx="0" refy="0" />
+    <Image name="25.png" x="187" y="202" w="18" h="10" refx="0" refy="0" />
+    <Image name="26.png" x="203" y="188" w="18" h="10" refx="0" refy="0" />
+    <Image name="27.png" x="187" y="213" w="18" h="10" refx="0" refy="0" />
+    <Image name="7.png" x="206" y="199" w="18" h="10" refx="0" refy="0" />
+    <Image name="8.png" x="206" y="210" w="18" h="10" refx="0" refy="0" />
+    <Image name="9.png" x="206" y="221" w="18" h="10" refx="0" refy="0" />
+</Images>

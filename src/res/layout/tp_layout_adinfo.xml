@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:orientation="vertical" android:background="@android:color/black" android:layout_width="fill_parent" android:layout_height="fill_parent"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <TextView android:textSize="20.0sp" android:textColor="@android:color/white" android:padding="15.0dip" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Ad Info" />
+    <View android:background="@android:color/white" android:layout_width="fill_parent" android:layout_height="1.0dip" android:layout_marginLeft="15.0dip" android:layout_marginRight="15.0dip" />
+    <ScrollView android:padding="15.0dip" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_weight="1.0">
+        <LinearLayout android:orientation="vertical" android:id="@id/tp_layout_info" android:layout_width="fill_parent" android:layout_height="fill_parent" />
+    </ScrollView>
+    <Button android:id="@id/btn_close" android:layout_width="fill_parent" android:layout_height="wrap_content" android:text="close" />
+</LinearLayout>

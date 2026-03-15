@@ -1,0 +1,4 @@
+<Texture name="image_wonder_frame_hd.png" />
+<Images>
+    <Image name="wonder_frame.png" x="1" y="1" w="410" h="510" refx="0" refy="0" />
+</Images>

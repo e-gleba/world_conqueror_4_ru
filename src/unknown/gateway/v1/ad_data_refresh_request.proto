@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package gateway.v1;
+
+import "gateway/v1/campaign_state.proto";
+import "gateway/v1/dynamic_device_info.proto";
+import "gateway/v1/session_counters.proto";
+import "gateway/v1/static_device_info.proto";
+
+option swift_prefix = "Gateway";
+
+message AdDataRefreshRequest {
+  // Session Counters tracked by the SDK
+  SessionCounters session_counters = 1;
+  // Static Device Info collected during SDK initialization. Information collected here doesn't change during session.
+  StaticDeviceInfo static_device_info = 2;
+  // Dynamic Device Info collected at request time. Information collected here can change during session.
+  DynamicDeviceInfo dynamic_device_info = 3;
+  // List of campaigns currently loaded
+  CampaignState campaign_state = 4;
+  // Impression Opportunity ID
+  bytes impression_opportunity_id = 5;
+  // Ad Data Refresh Token
+  bytes ad_data_refresh_token = 6;
+}

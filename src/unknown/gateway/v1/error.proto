@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package gateway.v1;
+
+option swift_prefix = "Gateway";
+
+// Error is a general error returned from a service. It can be returned via the payload
+// to indicate that an error occurred within the service itself, or alongside the response
+// to indicate failure to communicate with that service (reachability, timeout, etc.)
+message Error {
+  // The text of the error.
+  string error_text = 2;
+}

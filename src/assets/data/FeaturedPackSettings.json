@@ -1,0 +1,6 @@
+[
+{"Id":1,"Type":1,"InStock":1,"LastingDays":1,"ProductIds":[14,46,47,77],"Condition":1,"Parameter1":3,"Parameter2":0},
+{"Id":2,"Type":1,"InStock":1,"LastingDays":1,"ProductIds":[74,75,94,76],"Condition":1,"Parameter1":5,"Parameter2":7},
+{"Id":3,"Type":1,"InStock":1,"LastingDays":1,"ProductIds":[15,16,106],"Condition":1,"Parameter1":7,"Parameter2":14},
+{"Id":4,"Type":2,"InStock":2,"LastingDays":2,"ProductIds":[101,102],"Condition":2,"Parameter1":0,"Parameter2":0}
+]

@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package gateway.v1;
+
+option swift_prefix = "Gateway";
+
+message SessionCounters {
+  // Count of LOAD request
+  int32 load_requests = 1;
+  // Count of LOAD request with provided Ad Markup (Header Bidding Load Request)
+  int32 load_requests_adm = 2;
+  // Count of banner LOAD request from waterfall
+  int32 banner_load_requests = 3;
+  // Count of banner LOAD request with provided Ad Markup (Header Bidding Load Request)
+  int32 banner_requests_adm = 4;
+  // Count of impression from banner ads
+  int32 banner_impressions = 5;
+}

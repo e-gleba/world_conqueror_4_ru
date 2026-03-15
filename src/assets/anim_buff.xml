@@ -1,0 +1,18 @@
+<Texture name="anim_buff.png" w="748" h="744" />
+<Images>
+    <Image name="5.png" x="1" y="1" w="264" h="171" refx="0" refy="0" />
+    <Image name="3.png" x="1" y="173" w="296" h="212" refx="0" refy="0" />
+    <Image name="4.png" x="298" y="1" w="299" h="210" refx="0" refy="0" />
+    <Image name="1.png" x="298" y="212" w="305" h="217" refx="0" refy="0" />
+    <Image name="2.png" x="1" y="430" w="305" h="213" refx="0" refy="0" />
+    <Image name="6.png" x="307" y="430" w="307" h="212" refx="0" refy="0" />
+    <Image name="8.png" x="598" y="1" w="145" h="124" refx="0" refy="0" />
+    <Image name="9.png" x="1" y="644" w="197" h="99" refx="0" refy="0" />
+    <Image name="10.png" x="604" y="126" w="70" h="96" refx="0" refy="0" />
+    <Image name="12.png" x="307" y="643" w="107" h="89" refx="0" refy="0" />
+    <Image name="11.png" x="604" y="223" w="116" h="81" refx="0" refy="0" />
+    <Image name="7.png" x="675" y="126" w="43" h="69" refx="0" refy="0" />
+    <Image name="15.png" x="266" y="1" w="21" h="24" refx="0" refy="0" />
+    <Image name="14.png" x="1" y="386" w="24" h="19" refx="0" refy="0" />
+    <Image name="13.png" x="266" y="26" w="14" h="11" refx="0" refy="0" />
+</Images>

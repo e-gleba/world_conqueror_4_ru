@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package gateway.v1;
+
+option swift_prefix = "Gateway";
+
+message TestData {
+  optional string force_campaign_id = 1;
+  optional string force_country = 2;
+  optional string force_country_subdivision = 3;
+}

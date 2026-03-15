@@ -1,0 +1,8 @@
+<Texture name="image_rewarded_video_hd.png" />
+<Images>
+    <Image name="img_doublereward_tips.png" x="1" y="1" w="157" h="99" refx="0" refy="0" />
+    <Image name="btn_ad.png" x="159" y="1" w="76" h="76" refx="0" refy="0" />
+    <Image name="btn_ad_double.png" x="1" y="101" w="116" h="69" refx="0" refy="0" />
+    <Image name="icon_play.png" x="159" y="78" w="26" h="40" refx="0" refy="0" />
+    <Image name="icon_dot.png" x="118" y="101" w="26" h="26" refx="0" refy="0" />
+</Images>

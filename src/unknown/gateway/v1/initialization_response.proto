@@ -1,0 +1,39 @@
+syntax = "proto3";
+
+package gateway.v1;
+
+import "gateway/v1/error.proto";
+import "gateway/v1/native_configuration.proto";
+
+option swift_prefix = "Gateway";
+
+enum AdFormat {
+  AD_FORMAT_UNSPECIFIED = 0;
+  AD_FORMAT_INTERSTITIAL = 1;
+  AD_FORMAT_REWARDED = 2;
+  AD_FORMAT_BANNER = 3;
+}
+
+message Placement {
+  AdFormat ad_format = 1;
+}
+
+message InitializationResponse {
+  // Native Configuration contains feature flags and settings to be consumed by Native SDK
+  NativeConfiguration native_configuration = 1;
+
+  // Can be used to override URL to be used for accessing the gateway
+  optional string universal_request_url = 2;
+
+  // If set, there was an error processing the request.
+  optional Error error = 3;
+
+  // If set, Native SDK must send initialization completed request to the gateway
+  bool trigger_initialization_completed_request = 4;
+
+  // Count of last show campaigns to be tracked and be sent to the gateway in CampaignState
+  int32 count_of_last_shown_campaigns = 5;
+
+  // Placements to be used for SCAR signal collection
+  map<string, Placement> scar_placements = 6;
+}

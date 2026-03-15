@@ -1,0 +1,5 @@
+syntax = "proto3";
+
+message UniversalRequestStore {
+    map<string, bytes> universal_request_map = 1;
+}

@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package headerbidding.v1;
+
+option swift_prefix = "HeaderBidding";
+
+// Ad Markup used in a header bidding integration
+message HeaderBiddingAdMarkup {
+  // A blob of data which contains an ad to show.
+  // This blob should be provided to Ad Player to parse and cache the ad.
+  // Currently it is a Auction V6 response.
+  bytes ad_data = 1;
+  // A version of the ad data. Can be used to determine which parser to use.
+  int32 ad_data_version = 2;
+
+  // Configuration Token which can be used to fetch Ad Player Configuration.
+  bytes configuration_token = 3;
+}

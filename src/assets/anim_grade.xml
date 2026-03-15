@@ -1,0 +1,12 @@
+﻿<Texture name="anim_grade.png" />
+<Images>
+    <Image name="评分A.png" x="1" y="168" w="124" h="121" refx="0" refy="0" />
+    <Image name="评分B.png" x="213" y="168" w="104" h="112" refx="0" refy="0" />
+    <Image name="评分D.png" x="122" y="293" w="113" h="112" refx="0" refy="0" />
+    <Image name="评分S.png" x="126" y="168" w="86" h="124" refx="0" refy="0" />
+    <Image name="评分c.png" x="1" y="290" w="120" h="119" refx="0" refy="0" />
+    <Image name="评分e.png" x="318" y="168" w="102" h="112" refx="0" refy="0" />
+    <Image name="评分圆1.png" x="1" y="1" w="167" h="166" refx="0" refy="0" />
+    <Image name="评分圆2.png" x="169" y="1" w="166" h="166" refx="0" refy="0" />
+    <Image name="评分圆3.png" x="336" y="1" w="167" h="166" refx="0" refy="0" />
+</Images>

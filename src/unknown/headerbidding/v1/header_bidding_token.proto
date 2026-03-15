@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package headerbidding.v1;
+
+import "gateway/v1/campaign_state.proto";
+import "gateway/v1/client_info.proto";
+import "gateway/v1/dynamic_device_info.proto";
+import "gateway/v1/pii.proto";
+import "gateway/v1/session_counters.proto";
+import "gateway/v1/static_device_info.proto";
+import "gateway/v1/timestamps.proto";
+
+option swift_prefix = "HeaderBidding";
+
+message HeaderBiddingToken {
+  bytes token_id = 1;
+  int32 token_number = 2;
+  bytes session_token = 3;
+  gateway.v1.ClientInfo client_info = 4;
+  gateway.v1.Timestamps timestamps = 5;
+  gateway.v1.SessionCounters session_counters = 6;
+  gateway.v1.StaticDeviceInfo static_device_info = 7;
+  gateway.v1.DynamicDeviceInfo dynamic_device_info = 8;
+  optional gateway.v1.Pii pii = 9;
+  gateway.v1.CampaignState campaign_state = 10;
+  optional bytes tcf = 11;
+}

@@ -1,0 +1,9 @@
+<Texture name="eff.png" />
+<Images>
+    <Image name="cloud5.png" x="65" y="1" w="63" h="63" refx="31" refy="29" />
+    <Image name="rain_splash.png" x="129" y="1" w="47" h="29" refx="17" refy="16" />
+    <Image name="raindrop.png" x="46" y="66" w="12" h="14" refx="7" refy="9" />
+    <Image name="spark.png" x="65" y="65" w="40" h="40" refx="21" refy="20" />
+    <Image name="star.png" x="1" y="1" w="63" h="64" refx="32" refy="33" />
+    <Image name="water001.png" x="1" y="66" w="44" h="50" refx="22" refy="26" />
+</Images>

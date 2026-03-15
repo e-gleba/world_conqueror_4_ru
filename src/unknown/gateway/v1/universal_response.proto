@@ -1,0 +1,41 @@
+syntax = "proto3";
+
+package gateway.v1;
+
+import "gateway/v1/ad_data_refresh_response.proto";
+import "gateway/v1/ad_player_config_response.proto";
+import "gateway/v1/ad_response.proto";
+import "gateway/v1/error.proto";
+import "gateway/v1/initialization_response.proto";
+import "gateway/v1/mutable_data.proto";
+import "gateway/v1/privacy_update_response.proto";
+
+option swift_prefix = "Gateway";
+
+// The UniversalResponse is the response sent from the server to the client
+message UniversalResponse {
+  message Payload {
+    oneof value {
+      // Initialization Response
+      InitializationResponse initialization_response = 1;
+      // Ad Response
+      AdResponse ad_response = 2;
+      // Response with placement configuration
+      AdPlayerConfigResponse ad_player_config_response = 3;
+      // Ad Data Refresh Response
+      AdDataRefreshResponse ad_data_refresh_response = 4;
+      // Privacy request response
+      PrivacyUpdateResponse privacy_update_response = 5;
+    }
+  }
+
+  // Payload of the response
+  Payload payload = 1;
+
+  // Contains mutable data for the client to use for updating its state
+  optional MutableData mutable_data = 2;
+
+  // If set, there was an error processing the request as a whole. For
+  // individual services, their responses contain their own Error response.
+  optional Error error = 3;
+}

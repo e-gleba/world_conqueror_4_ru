@@ -1,0 +1,14 @@
+<Texture name="anim_card.png" w="348" h="352" />
+<Images>
+    <Image name="4.png" x="1" y="1" w="38" h="279" refx="0" refy="0" />
+    <Image name="3.png" x="40" y="1" w="92" h="203" refx="0" refy="0" />
+    <Image name="5.png" x="40" y="205" w="217" h="129" refx="0" refy="0" />
+    <Image name="7.png" x="133" y="1" w="111" h="143" refx="0" refy="0" />
+    <Image name="6.png" x="245" y="1" w="99" h="128" refx="0" refy="0" />
+    <Image name="1.png" x="133" y="145" w="59" h="59" refx="0" refy="0" />
+    <Image name="2.png" x="193" y="145" w="59" h="59" refx="0" refy="0" />
+    <Image name="11.png" x="258" y="130" w="40" h="41" refx="0" refy="0" />
+    <Image name="9.png" x="258" y="172" w="40" h="40" refx="0" refy="0" />
+    <Image name="10.png" x="299" y="130" w="45" h="37" refx="0" refy="0" />
+    <Image name="8.png" x="1" y="281" w="28" h="27" refx="0" refy="0" />
+</Images>

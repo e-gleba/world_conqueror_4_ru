@@ -1,0 +1,202 @@
+﻿<script>
+  <!--关闭回合-->
+  <cmd name="wait enter scene" string="SceneRoundTurn"/>
+  <cmd name="draw ui rect" string="btn_ok" w="0" h="0"/>
+  <cmd name="wait ui" string="btn_ok"/>
+
+  <!--教官说话-->
+  <cmd name="show text" commander="1032" textid="1021"/>
+  <cmd name="wait close scene" string="SceneTalk"/>
+
+  <cmd name="moveto area" gx="34" gy="28"/>
+  <cmd name="wait area" gx="34" gy="28"/>
+
+	<cmd name="wait time" time="0.5"/>
+	<cmd name="draw ui rect" string="rpt_areainfo"/>
+
+	<!--地形会对战斗的结果带来一些影响。-->
+	<cmd name="show text" commander="1032" textid="1022"/>
+	<cmd name="wait close scene" string="SceneTalk"/>
+	<cmd name="clear rect"/>
+	
+  <cmd name="moveto area" gx="35" gy="28"/>
+  <cmd name="wait area" gx="35" gy="28"/>
+  <cmd name="wait action"/>
+  <cmd name="wait return scene" string="SceneBattle"/>
+  
+  <!--空降部队-->
+  <cmd name="moveto area" gx="29" gy="26"/>
+  <cmd name="wait area" gx="29" gy="26"/>
+  <cmd name="wait time" time="0.2"/>
+
+  <cmd name="show text" commander="1032" textid="1023"/>
+  <cmd name="wait close scene" string="SceneTalk"/>
+
+	<cmd name="wait time" time="0.5"/>
+	<cmd name="draw ui rect" string="img_facility_icon" repeater="rpt_area_facilities" index="2"/>
+	<cmd name="wait time" time="1.2"/>
+	
+  <cmd name="draw ui rect" string="btn_airforce"/>
+  <cmd name="wait ui" string="btn_airforce"/>
+
+  <cmd name="wait enter scene" string="SceneBuildAirforce"/>
+  <cmd name="wait time" time="0.2"/>
+  
+  <cmd name="disable ui" string="btn_feat_1" repeater="rpt_armylist" index="0"/>
+  <cmd name="disable ui" string="btn_feat_2" repeater="rpt_armylist" index="0"/>
+  <cmd name="disable ui" string="btn_feat_3" repeater="rpt_armylist" index="0"/>
+
+  <cmd name="disable scroll" string="sv_armylist"/>
+  <cmd name="draw ui rect" string="btn_army_item" repeater="rpt_armylist" index="0"/>
+  <cmd name="wait ui" string="btn_army_item" repeater="rpt_armylist" index="0"/>
+  <cmd name="wait time" time="0.2"/>
+
+  <cmd name="draw ui rect" string="btn_launch"/>
+  <cmd name="wait ui" string="btn_launch"/>
+
+  <cmd name="moveto area" gx="29" gy="22"/>
+  <cmd name="wait area" gx="29" gy="22"/>
+  
+  <cmd name="wait action"/>
+	<cmd name="wait time" time="0.8"/>
+  <cmd name="unsel area"/>
+  <cmd name="wait time" time="0.8"/>
+ 
+  <!--制造核弹-->
+  <cmd name="show text" commander="1032" textid="1024"/>
+  <cmd name="wait close scene" string="SceneTalk"/>
+
+  <cmd name="sel area" gx="29" gy="22"/>
+  <cmd name="wait time" time="0.2"/>
+  
+  <cmd name="draw ui rect" string="btn_airforce"/>
+  <cmd name="wait ui" string="btn_airforce"/>
+  <cmd name="wait enter scene" string="SceneBuildAirforce"/>
+  <cmd name="wait time" time="0.2"/>
+
+  <cmd name="disable scroll" string="sv_armylist"/>
+  <cmd name="draw ui rect" string="btn_army_item" repeater="rpt_armylist" index="0"/>
+  <cmd name="wait ui" string="btn_army_item" repeater="rpt_armylist" index="0"/>
+  <cmd name="wait time" time="0.2"/>
+
+  <cmd name="draw ui rect" string="btn_launch"/>
+  <cmd name="wait ui" string="btn_launch"/>
+  <cmd name="wait action"/>
+ 
+  <!--导弹装载核弹-->
+  <cmd name="moveto area" gx="29" gy="26"/>
+  <cmd name="wait area" gx="29" gy="26"/>
+  <cmd name="wait time" time="0.2"/>
+
+  <cmd name="draw ui rect" string="img_facility_icon" repeater="rpt_area_facilities" index="3"/>
+	<cmd name="wait time" time="1.2"/>
+  
+  <cmd name="show text" commander="1032" textid="1025"/>
+  <cmd name="wait close scene" string="SceneTalk"/>
+
+  <cmd name="draw ui rect" string="btn_airforce"/>
+  <cmd name="wait ui" string="btn_airforce"/>
+  <cmd name="wait enter scene" string="SceneBuildAirforce"/>
+  <cmd name="wait time" time="0.2"/>
+
+  <cmd name="draw ui rect" string="btn_missile"/>
+  <cmd name="wait ui" string="btn_missile"/>
+  <cmd name="wait time" time="0.2"/>
+
+  <cmd name="disable scroll" string="sv_armylist"/>
+  <cmd name="draw ui rect" string="btn_loadbomb" repeater="rpt_armylist" index="0"/>
+  <cmd name="wait ui" string="btn_loadbomb" repeater="rpt_armylist" index="0"/>
+  <cmd name="wait time" time="0.2"/>
+
+  <cmd name="draw ui rect" string="btn_warhead_1"/>
+  <cmd name="wait ui" string="btn_warhead_1"/>
+  <cmd name="wait time" time="0.2"/>
+
+  <cmd name="draw ui rect" string="btn_launch"/>
+  <cmd name="wait ui" string="btn_launch"/>
+
+  <cmd name="moveto area" gx="34" gy="22"/>
+  <cmd name="wait area" gx="34" gy="22"/>
+  <cmd name="wait action"/>
+
+  <!--陆军入海惩罚-->
+  <cmd name="show text" commander="1032" textid="1026"/>
+  <cmd name="wait close scene" string="SceneTalk"/>
+
+  <cmd name="moveto area" gx="35" gy="25"/>
+  <cmd name="wait area" gx="35" gy="25"/>
+
+	<!--在陆地的部队信息-->
+	<cmd name="wait time" time="0.2"/>
+	<cmd name="draw ui rect" string="btn_unitinfo"/>
+	<cmd name="wait ui" string="btn_unitinfo"/>
+	<cmd name="wait enter scene" string="SceneUnitInfo"/>
+	<cmd name="wait time" time="0.2"/>
+
+	<cmd name="draw ui rect" string="inner_winbtn_close"/>
+	<cmd name="wait ui" string="inner_winbtn_close"/>
+	<cmd name="wait return scene" string="SceneBattle"/>
+	
+	<cmd name="moveto area" gx="35" gy="24"/>
+  <cmd name="wait area" gx="35" gy="24"/>
+  <cmd name="wait action"/>
+
+	<!--在海里的部队信息-->
+	<cmd name="wait time" time="0.2"/>
+	<cmd name="draw ui rect" string="btn_unitinfo"/>
+	<cmd name="wait ui" string="btn_unitinfo"/>
+	<cmd name="wait enter scene" string="SceneUnitInfo"/>
+	<cmd name="wait time" time="0.2"/>
+
+	<cmd name="draw ui rect" string="inner_winbtn_close"/>
+	<cmd name="wait ui" string="inner_winbtn_close"/>
+	<cmd name="wait return scene" string="SceneBattle"/>
+	
+  <cmd name="moveto area" gx="35" gy="23"/>
+  <cmd name="wait area" gx="35" gy="23"/>
+  <cmd name="wait action"/>
+  <cmd name="wait return scene" string="SceneBattle"/>
+
+  <!--建造海军-->
+  <cmd name="show text" commander="1032" textid="1027"/>
+  <cmd name="wait close scene" string="SceneTalk"/>
+
+  <cmd name="moveto area" gx="33" gy="25"/>
+  <cmd name="wait area" gx="33" gy="25"/>
+  <cmd name="wait time" time="0.2"/>
+
+  <cmd name="draw ui rect" string="btn_recruitnavy"/>
+  <cmd name="wait ui" string="btn_recruitnavy"/>
+  <cmd name="wait enter scene" string="SceneBuildArmy"/>
+  <cmd name="wait time" time="0.2"/>
+
+  <cmd name="disable ui" string="btn_feat_1" repeater="rpt_armylist" index="0"/>
+  <cmd name="disable ui" string="btn_feat_2" repeater="rpt_armylist" index="0"/>
+  <cmd name="disable ui" string="btn_feat_3" repeater="rpt_armylist" index="0"/>
+
+  <cmd name="disable scroll" string="sv_armylist"/>
+  <cmd name="draw ui rect" string="btn_army_item" repeater="rpt_armylist" index="0"/>
+  <cmd name="wait ui" string="btn_army_item" repeater="rpt_armylist" index="0"/>
+  <cmd name="wait time" time="0.2"/>
+
+  <cmd name="draw ui rect" string="btn_increase"/>
+  <cmd name="wait ui" string="btn_increase"/>
+
+  <cmd name="draw ui rect" string="btn_build"/>
+  <cmd name="wait ui" string="btn_build"/>
+  <cmd name="wait action"/>
+
+
+	<!--结束语-->
+	<cmd name="show text" commander="1032" textid="1028"/>
+  	<cmd name="wait time" time="1"/>
+  	<cmd name="wait close scene" string="SceneTalk"/>
+
+	<cmd name="finish"/>
+
+</script>
+
+
+  
+
+

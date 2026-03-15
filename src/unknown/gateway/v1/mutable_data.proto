@@ -1,0 +1,34 @@
+syntax = "proto3";
+
+package gateway.v1;
+
+import "gateway/v1/allowed_pii.proto";
+import "gateway/v1/session_counters.proto";
+
+option swift_prefix = "Gateway";
+
+message MutableData {
+  // This current state will be sent on every response from the gateway and will
+  // be expected to be returned on every request (other than the initial request)
+  optional bytes current_state = 1;
+  // The session token will only be returned if it has been modified by the
+  // server - the majority of requests are expected to not contain the session
+  // token At least 1 session token will be returned for every session
+  optional bytes session_token = 10;
+  // The privacy object will only be returned if the one stored on the device
+  // should be updated. It contains information about the current consent and privacy context
+  optional bytes privacy = 11;
+  // The session counters will only be returned if they need to be updated based
+  // on gateway logic
+  optional SessionCounters session_counters = 12;
+  // Represents the PII types that can be sent to the gateway inside the
+  // following requests
+  optional AllowedPii allowed_pii = 13;
+  // Allows for the gateway to update the cache at any point (most commonly on
+  // initialization and first add request for identity caching)
+  optional bytes cache = 14;
+  // Passes the fsm to the sdk to be provided adViewer/privacyViewer. This can
+  // be the entire FSM or just an ID/URL to fetch it from a CDN. This should be
+  // passed to every show request to the adViewer
+  optional bytes privacy_fsm = 15;
+}

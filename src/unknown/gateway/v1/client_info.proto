@@ -1,0 +1,43 @@
+syntax = "proto3";
+
+package gateway.v1;
+
+option swift_prefix = "Gateway";
+
+enum Platform {
+  PLATFORM_UNSPECIFIED = 0;
+  PLATFORM_ANDROID = 1;
+  PLATFORM_IOS = 2;
+}
+
+enum MediationProvider {
+  MEDIATION_PROVIDER_UNSPECIFIED = 0;
+  // Non well-known mediation provider, custom_mediation_name field should contain full mediation name from SDK
+  MEDIATION_PROVIDER_CUSTOM = 1;
+  // AdMob Mediation. Should match following values set in mediation.name: AdMob
+  MEDIATION_PROVIDER_ADMOB = 2;
+  // MAX Mediation. Should match following values set in mediation.name: MAX, AppLovinSdk_*, max
+  MEDIATION_PROVIDER_MAX = 3;
+  // Level Play Mediation. Should match following values set in mediation.name: ironSource, ironsource, IronSource
+  MEDIATION_PROVIDER_LEVELPLAY = 4;
+}
+
+// Information about the client who is making request
+message ClientInfo {
+  // SDK Version represented as integer for example 4710
+  uint32 sdk_version = 1;
+  // SDK Version represented as string for example 4.7.1
+  string sdk_version_name = 2;
+  // Game ID used to initialize the SDK
+  string game_id = 3;
+  // Test Mode flag provided during initialization
+  bool test = 4;
+  // Platform of the client
+  Platform platform = 5;
+  // The well-known mediation provider used by the client
+  MediationProvider mediation_provider = 6;
+  // Non well-known mediation provider name, filled only if mediation_provider equals to MEDIATION_PROVIDER_CUSTOM
+  optional string custom_mediation_name = 7;
+  // The mediation provider version
+  optional string mediation_version = 8;
+}

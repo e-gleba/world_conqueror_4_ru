@@ -1,0 +1,11 @@
+﻿<Texture name="anim_mainui.png" />
+<Images>
+    <Image name="g1.png" x="1" y="1" w="773" h="822" refx="0" refy="0" />
+    <Image name="g2.png" x="1" y="824" w="594" h="784" refx="0" refy="0" />
+    <Image name="start原件.png" x="596" y="824" w="395" h="79" refx="0" refy="0" />
+    <Image name="start原件cn.png" x="1" y="1809" w="395" h="79" refx="0" refy="0" />
+    <Image name="火心.png" x="962" y="1" w="11" h="8" refx="0" refy="0" />
+    <Image name="火焰.png" x="775" y="1" w="186" h="214" refx="0" refy="0" />
+    <Image name="烟1.png" x="1" y="1609" w="313" h="199" refx="0" refy="0" />
+    <Image name="烟2.png" x="315" y="1609" w="452" h="129" refx="0" refy="0" />
+</Images>

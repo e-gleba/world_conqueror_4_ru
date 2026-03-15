@@ -1,0 +1,7 @@
+<Texture name="anim_medal.png" w="176" h="172" />
+<Images>
+    <Image name="1.png" x="1" y="1" w="106" h="77" refx="0" refy="0" />
+    <Image name="4.png" x="108" y="1" w="66" h="93" refx="0" refy="0" />
+    <Image name="2.png" x="1" y="79" w="75" h="53" refx="0" refy="0" />
+    <Image name="3.png" x="77" y="95" w="48" h="74" refx="0" refy="0" />
+</Images>

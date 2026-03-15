@@ -1,0 +1,17 @@
+<Texture name="image_units_hd.png" />
+<Images>
+    <Image name="unit_aa_artillery.png" x="0" y="0" w="460" h="131" refx="0" refy="0" />
+    <Image name="unit_aa_gun.png" x="0" y="131" w="460" h="131" refx="0" refy="0" />
+    <Image name="unit_aa_missile.png" x="0" y="262" w="460" h="131" refx="0" refy="0" />
+    <Image name="unit_bunker.png" x="460" y="0" w="460" h="131" refx="0" refy="0" />
+    <Image name="unit_coastal_gun.png" x="460" y="131" w="460" h="131" refx="0" refy="0" />
+    <Image name="unit_crbm.png" x="460" y="262" w="460" h="131" refx="0" refy="0" />
+    <Image name="unit_fort_artillery.png" x="0" y="393" w="460" h="131" refx="0" refy="0" />
+    <Image name="unit_irbm.png" x="0" y="524" w="460" h="131" refx="0" refy="0" />
+    <Image name="unit_mrbm.png" x="0" y="655" w="460" h="131" refx="0" refy="0" />
+    <Image name="unit_nuke_1.png" x="0" y="786" w="460" h="131" refx="0" refy="0" />
+    <Image name="unit_nuke_2.png" x="460" y="393" w="460" h="131" refx="0" refy="0" />
+    <Image name="unit_nuke_3.png" x="460" y="524" w="460" h="131" refx="0" refy="0" />
+    <Image name="unit_rocket_launcher.png" x="460" y="655" w="460" h="131" refx="0" refy="0" />
+    <Image name="unit_srbm.png" x="460" y="786" w="460" h="131" refx="0" refy="0" />
+</Images>

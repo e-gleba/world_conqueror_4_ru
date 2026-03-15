@@ -1,0 +1,46 @@
+﻿<Texture name="anim_fire.png" />
+<Images>
+    <Image name="大火01.png" x="162" y="157" w="68" h="145" refx="0" refy="0" />
+    <Image name="大火02.png" x="416" y="141" w="65" h="135" refx="0" refy="0" />
+    <Image name="大火03.png" x="162" y="303" w="67" h="141" refx="0" refy="0" />
+    <Image name="大火04.png" x="301" y="1" w="67" h="140" refx="0" refy="0" />
+    <Image name="大火05.png" x="410" y="539" w="66" h="116" refx="0" refy="0" />
+    <Image name="大火06.png" x="202" y="553" w="69" h="124" refx="0" refy="0" />
+    <Image name="大火07.png" x="231" y="143" w="71" h="140" refx="0" refy="0" />
+    <Image name="大火08.png" x="379" y="280" w="71" h="134" refx="0" refy="0" />
+    <Image name="大火09.png" x="404" y="1" w="72" h="139" refx="0" refy="0" />
+    <Image name="大火10.png" x="1" y="322" w="70" h="145" refx="0" refy="0" />
+    <Image name="大火11.png" x="1" y="603" w="70" h="130" refx="0" refy="0" />
+    <Image name="大火12.png" x="1" y="468" w="73" h="134" refx="0" refy="0" />
+    <Image name="大火13.png" x="303" y="142" w="75" h="138" refx="0" refy="0" />
+    <Image name="大火14.png" x="230" y="422" w="74" h="130" refx="0" refy="0" />
+    <Image name="大火15.png" x="270" y="284" w="73" h="136" refx="0" refy="0" />
+    <Image name="大火16.png" x="226" y="1" w="74" h="141" refx="0" refy="0" />
+    <Image name="大火17.png" x="80" y="163" w="81" h="147" refx="0" refy="0" />
+    <Image name="大火19.png" x="410" y="415" w="69" h="123" refx="0" refy="0" />
+    <Image name="大火21.png" x="136" y="577" w="65" h="126" refx="0" refy="0" />
+    <Image name="大火23.png" x="344" y="415" w="65" h="128" refx="0" refy="0" />
+    <Image name="大火25.png" x="72" y="603" w="63" h="129" refx="0" refy="0" />
+    <Image name="小火01.png" x="186" y="445" w="41" h="106" refx="0" refy="0" />
+    <Image name="小火02.png" x="305" y="421" w="37" h="118" refx="0" refy="0" />
+    <Image name="小火03.png" x="112" y="450" w="35" h="126" refx="0" refy="0" />
+    <Image name="小火04.png" x="379" y="142" w="36" h="137" refx="0" refy="0" />
+    <Image name="小火05.png" x="42" y="168" w="32" h="147" refx="0" refy="0" />
+    <Image name="小火06.png" x="121" y="1" w="36" h="158" refx="0" refy="0" />
+    <Image name="小火07.png" x="41" y="1" w="38" h="166" refx="0" refy="0" />
+    <Image name="小火08.png" x="1" y="1" w="39" h="171" refx="0" refy="0" />
+    <Image name="小火09.png" x="190" y="1" w="35" h="148" refx="0" refy="0" />
+    <Image name="小火10.png" x="158" y="1" w="31" h="155" refx="0" refy="0" />
+    <Image name="小火11.png" x="112" y="311" w="35" h="138" refx="0" refy="0" />
+    <Image name="小火12.png" x="346" y="544" w="37" h="115" refx="0" refy="0" />
+    <Image name="小火13.png" x="451" y="277" w="39" h="124" refx="0" refy="0" />
+    <Image name="小火14.png" x="75" y="454" w="34" h="134" refx="0" refy="0" />
+    <Image name="小火15.png" x="369" y="1" w="34" h="140" refx="0" refy="0" />
+    <Image name="小火16.png" x="148" y="445" w="37" h="131" refx="0" refy="0" />
+    <Image name="小火17.png" x="75" y="311" w="36" h="142" refx="0" refy="0" />
+    <Image name="小火18.png" x="305" y="544" w="40" h="124" refx="0" refy="0" />
+    <Image name="小火19.png" x="231" y="284" w="38" h="137" refx="0" refy="0" />
+    <Image name="小火20.png" x="1" y="173" w="40" h="148" refx="0" refy="0" />
+    <Image name="小火21.png" x="80" y="1" w="40" h="161" refx="0" refy="0" />
+    <Image name="辐射.png" x="202" y="678" w="120" h="120" refx="0" refy="0" />
+</Images>

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link data-n-head="1" rel="icon" type="image/x-icon" href="/icon.ico">
+    <title>Privacy Policy</title>
+    <style>
+        .title {
+            font-size: 28px;
+            color: #0099ff;
+            font-size: 600;
+        }
+
+        ol,
+        ul,
+        p {
+            font-family: "Microsoft Yahei", Helvetica, arial, sans-serif;
+            font-size: 14px;
+            line-height: 1.6;
+            margin: 15px 0;
+            color: #516272;
+        }
+
+        a {
+            color: #4183C4;
+        }
+    </style>
+</head>
+
+<body>
+<div class="content">
+    <div class="title"> Personalize Your Experience</div>
+
+    <p>This app provide you advertising services through TradPlus, an mobile ad mediation platform. By consenting
+        this
+        statement, you will see ads based on your personal interests provided by TradPlus and its partners. In order
+        to
+        protect and respect your privacy, we need your consent to collect and process your personal data to provide
+        advertisements of your interest, such as:<p>
+
+    <ul>
+        <li> Device identifiers(iOS Identifier for Advertising,Android Advertising ID)</li>
+        <li> Location data</li>
+        <li> Brand and Model</li>
+        <li>OS type and version
+            <br /> etc.</li>
+    </ul>
+
+    <p> By agreeing, you are confirming that you are a citizen older than 16 and allow us to provide you
+        with
+        personalized advertising services.</p>
+
+    <p> If you refuse, we will still show you the same amount of advertisements that you may not be
+        interested in.</p>
+
+    <p> To learn more about our <a target="_blank" href="https://tradplusad.com/privacy-policy/">Privacy Policy</a>.</p>
+
+</div>
+
+</body>
+
+</html>

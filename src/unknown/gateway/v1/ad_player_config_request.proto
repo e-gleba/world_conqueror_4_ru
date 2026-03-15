@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package gateway.v1;
+
+option swift_prefix = "Gateway";
+
+message AdPlayerConfigRequest {
+  // A configuration token which can be exchanged for a ad player configuration and tracking token.
+  // Retrieved from Header Bidding Ad Markup
+  bytes configuration_token = 1;
+  // The Placement ID for which Ad Markup is being loaded.
+  string placement_id = 2;
+  // Locally cached WebView version
+  optional int32 webview_version = 9;
+  // Impression Opportunity ID
+  bytes impression_opportunity_id = 4;
+}

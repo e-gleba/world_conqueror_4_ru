@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:gravity="center" android:orientation="vertical" android:layout_width="fill_parent" android:layout_height="fill_parent" android:layout_centerHorizontal="true" android:layout_centerVertical="true"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <LinearLayout android:orientation="vertical" android:id="@id/tp_ad_layout_ly" android:background="@drawable/tp_bg_internative_layout" android:layout_width="fill_parent" android:layout_height="fill_parent">
+        <RelativeLayout android:orientation="vertical" android:layout_width="fill_parent" android:layout_height="wrap_content">
+            <LinearLayout android:gravity="center" android:layout_gravity="center_vertical" android:orientation="vertical" android:id="@id/tp_ad_customimage" android:layout_width="320.0dip" android:layout_height="180.0dip">
+                <ImageView android:id="@id/tp_mopub_native_main_image" android:layout_width="fill_parent" android:layout_height="wrap_content" />
+            </LinearLayout>
+            <ImageView android:id="@id/tp_icon_close" android:background="@drawable/tp_internative_icon_close" android:visibility="invisible" android:layout_width="30.0dip" android:layout_height="30.0dip" android:layout_margin="16.0dip" android:layout_alignTop="@id/tp_ad_customimage" android:layout_alignRight="@id/tp_ad_customimage" />
+            <ImageView android:id="@id/tp_ad" android:background="@drawable/tp_internative_adchoice_ad" android:layout_width="24.0dip" android:layout_height="15.0dip" android:layout_alignBottom="@id/tp_ad_customimage" />
+        </RelativeLayout>
+        <LinearLayout android:orientation="vertical" android:layout_width="fill_parent" android:layout_height="wrap_content">
+            <LinearLayout android:orientation="vertical" android:layout_width="fill_parent" android:layout_height="fill_parent" android:layout_centerInParent="true">
+                <LinearLayout android:gravity="center|left" android:orientation="horizontal" android:paddingLeft="8.0dip" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginLeft="5.0dip" android:layout_marginTop="10.0dip" android:layout_marginRight="5.0dip">
+                    <ImageView android:id="@id/tp_native_icon_image" android:background="@drawable/tp_bg_internative_icon" android:layout_width="48.0dip" android:layout_height="48.0dip" android:layout_alignParentLeft="true" />
+                    <LinearLayout android:orientation="vertical" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginLeft="8.0dip">
+                        <TextView android:textSize="16.0sp" android:textColor="#ff333333" android:id="@id/tp_native_title" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="" android:singleLine="true" android:layout_toRightOf="@id/tp_native_icon_image" />
+                        <TextView android:textSize="12.0sp" android:textColor="#ff565656" android:id="@id/tp_native_text" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="5.0dip" android:text="" android:maxLines="2" android:singleLine="false" android:layout_toRightOf="@id/tp_native_icon_image" android:layout_below="@id/tp_native_title" android:layout_alignLeft="@id/tp_native_title" />
+                    </LinearLayout>
+                </LinearLayout>
+                <LinearLayout android:gravity="center" android:orientation="vertical" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginLeft="20.0dip" android:layout_marginTop="20.0dip" android:layout_marginRight="20.0dip" android:layout_marginBottom="5.0dip">
+                    <TextView android:textSize="16.0sp" android:textColor="@android:color/white" android:gravity="center" android:layout_gravity="center" android:id="@id/tp_native_cta_btn" android:background="@drawable/tp_bg_internative_clickbtn" android:layout_width="fill_parent" android:layout_height="48.0dip" android:text="Learn More" />
+                </LinearLayout>
+            </LinearLayout>
+            <LinearLayout android:gravity="right" android:orientation="vertical" android:paddingRight="2.0dip" android:layout_width="fill_parent" android:layout_height="wrap_content">
+                <FrameLayout android:id="@id/tp_ad_choices_container" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_alignParentRight="true" android:layout_alignParentBottom="true" />
+                <ImageView android:gravity="right" android:id="@id/tp_native_ad_choice" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_alignParentRight="true" android:layout_alignParentBottom="true" />
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>

@@ -1,0 +1,12 @@
+[
+{"Id":1,"Nature":[1,2],"Skill":[1,1],"Military":[1,4],"Num":1,"Time":8,"PrizeGold":1000,"PrizeIndustry":200,"PrizeEnergy":30,"PrizeTech":2,"PrizeExp":25},
+{"Id":2,"Nature":[2,4],"Skill":[2,4],"Military":[4,12],"Num":2,"Time":8,"PrizeGold":1500,"PrizeIndustry":300,"PrizeEnergy":50,"PrizeTech":3,"PrizeExp":50},
+{"Id":3,"Nature":[4,6],"Skill":[2,4],"Military":[6,14],"Num":2,"Time":8,"PrizeGold":2000,"PrizeIndustry":400,"PrizeEnergy":60,"PrizeTech":4,"PrizeExp":100},
+{"Id":4,"Nature":[6,12],"Skill":[6,6],"Military":[12,21],"Num":3,"Time":8,"PrizeGold":2500,"PrizeIndustry":500,"PrizeEnergy":80,"PrizeTech":6,"PrizeExp":150},
+{"Id":5,"Nature":[9,12],"Skill":[6,9],"Military":[12,27],"Num":3,"Time":8,"PrizeGold":3500,"PrizeIndustry":750,"PrizeEnergy":100,"PrizeTech":8,"PrizeExp":200},
+{"Id":6,"Nature":[9,15],"Skill":[6,9],"Military":[15,27],"Num":3,"Time":8,"PrizeGold":5000,"PrizeIndustry":900,"PrizeEnergy":150,"PrizeTech":10,"PrizeExp":250},
+{"Id":7,"Nature":[12,15],"Skill":[6,12],"Military":[18,30],"Num":3,"Time":8,"PrizeGold":7500,"PrizeIndustry":1400,"PrizeEnergy":230,"PrizeTech":12,"PrizeExp":500},
+{"Id":8,"Nature":[16,23],"Skill":[12,15],"Military":[28,40],"Num":4,"Time":8,"PrizeGold":10000,"PrizeIndustry":1800,"PrizeEnergy":300,"PrizeTech":14,"PrizeExp":750},
+{"Id":9,"Nature":[16,23],"Skill":[12,15],"Military":[32,44],"Num":4,"Time":8,"PrizeGold":12500,"PrizeIndustry":2300,"PrizeEnergy":380,"PrizeTech":16,"PrizeExp":1000},
+{"Id":10,"Nature":[20,23],"Skill":[15,15],"Military":[36,44],"Num":4,"Time":8,"PrizeGold":15000,"PrizeIndustry":2700,"PrizeEnergy":450,"PrizeTech":20,"PrizeExp":1250}
+]

@@ -1,0 +1,47 @@
+<!-- pad=是否PAD资源 preload=预加载 fix=是否常驻内存 ignore=是否在编辑器忽略 ext=图片文件扩展名 lang=多语言标识 -->
+<ImageResource>
+	<HD>
+		<file name="image_feats_hd.xml"/>
+		<file name="image_main_hd.xml" fix="false"/>
+		<file name="image_flags_hd.xml"/>
+		<file name="image_medals_hd.xml"/>
+		<file name="image_achi_hd.xml"/>
+		<file name="image_tech_hd.xml"/>
+		<file name="image_wonders_hd.xml" ext="xxx" fix="false"/>
+		<file name="image_wonders_hd2.xml" ext="xxx" fix="false"/>
+		<file name="image_wonders_hd3.xml" ext="xxx" fix="false"/>
+		<file name="image_wonders_hd4.xml" ext="xxx" fix="false"/>
+		<file name="image_wonders_hd5.xml" ext="xxx" fix="false"/>
+		<file name="image_wonders_hd6.xml" ext="xxx" fix="false"/>
+		<file name="image_wonders_hd7.xml" ext="xxx" fix="false"/>
+		<file name="image_wonders_hd8.xml" ext="xxx" fix="false"/>
+		<file name="image_wonder_frame_hd.xml"/>
+		<file name="image_ui_hd.xml"/>
+		<file name="image_ui_hd2.xml"/>
+		<file name="image_ui_hd3.xml"/>
+		<file name="image_ui_hd4.xml"/>
+		<file name="image_ui_hd5.xml"/>
+		<file name="image_ui_hd6.xml"/>
+		<file name="image_ui_hd7.xml"/>
+		<file name="image_ui_hd8.xml"/>
+		<file name="image_photo_hd.xml"/>
+		<file name="image_line_hd.xml"/>
+		<file name="image_units_hd.xml" ext="xxx"/>
+		<file name="image_facilities_hd.xml"/>
+		<file name="image_legion_icon_hd.xml"/>
+		<file name="image_cityfeature_hd.xml"/>
+		<file name="image_general_medal_hd.xml"/>
+		<file name="image_sns_hd.xml"/>
+		<file name="image_rewarded_video_hd.xml"/>
+        <file name="image_frontier_hd.xml"/>
+        <file name="image_homepage_hd.xml"/>
+    	<file name="image_purchase_hd.xml"/>
+    	<file name="image_login_hd.xml"/>
+        <file name="image_warzone_hd.xml"/>
+        <file name="image_ribbon_hd.xml"/>
+		<file name="image_countrytech_hd.xml"/>
+		<file name="image_payment_hd.xml"/>
+	</HD>
+	<SD>
+	</SD>
+</ImageResource>

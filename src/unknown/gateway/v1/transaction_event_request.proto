@@ -1,0 +1,50 @@
+syntax = "proto3";
+
+package gateway.v1;
+
+import "gateway/v1/dynamic_device_info.proto";
+import "gateway/v1/static_device_info.proto";
+import "google/protobuf/timestamp.proto";
+
+option swift_prefix = "Gateway";
+
+enum StoreType {
+  STORE_TYPE_UNSPECIFIED = 0;
+  STORE_TYPE_CUSTOM = 1;
+  STORE_TYPE_APPLE_APP_STORE = 2; // "AppleAppStore"
+  STORE_TYPE_GOOGLE_PLAY = 3; // "GooglePlay"
+}
+
+enum TransactionState {
+  TRANSACTION_STATE_UNSPECIFIED = 0;
+  TRANSACTION_STATE_PENDING = 1;
+  TRANSACTION_STATE_PURCHASED = 2;
+  TRANSACTION_STATE_FAILED = 3;
+  TRANSACTION_STATE_RESTORED = 4;
+  TRANSACTION_STATE_DEFERRED = 5;
+}
+
+message TransactionData {
+  google.protobuf.Timestamp timestamp = 1;	
+  string product_id = 2;
+  bytes event_id = 3; // Unique identifier for the event (e.g. UUID 16 bytes)
+  string transaction_id = 4;
+  string product = 5; // Product data as JSON
+  string transaction = 6; // Transaction data as JSON
+  optional string receipt = 7; // iOS only
+  TransactionState transaction_state = 8;
+}
+    
+// Request sent from WebView to Gateway to report Transaction Event (IAP)
+message TransactionEventRequest {
+  // Static Device Info properties
+  StaticDeviceInfo static_device_info = 1;
+  // Dynamic Device Info properties
+  DynamicDeviceInfo dynamic_device_info = 2;
+  // "AppleAppStore", "GooglePlay" (shall we consider an enum?)
+  StoreType app_store = 3; 
+  // Custom store name (e.g. "AmazonAppStore") only used if app_store is STORE_TYPE_CUSTOM
+  string custom_store = 4; 
+  // Transaction Data
+  repeated TransactionData transaction_data = 5;	
+}

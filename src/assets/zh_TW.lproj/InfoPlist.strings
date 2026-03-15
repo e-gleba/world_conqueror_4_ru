@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleDisplayName</key>
+    <string>世界征服者4</string>
+    <key>NSUserTrackingUsageDescription</key>
+    <string>需要獲取您設備的廣告識別字，以為您提供更好的廣告體驗。</string>
+</dict>
+</plist>

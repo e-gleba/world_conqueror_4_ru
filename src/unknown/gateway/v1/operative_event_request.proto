@@ -1,0 +1,54 @@
+syntax = "proto3";
+
+package gateway.v1;
+
+import "gateway/v1/campaign_state.proto";
+import "gateway/v1/dynamic_device_info.proto";
+import "gateway/v1/session_counters.proto";
+import "gateway/v1/static_device_info.proto";
+
+option swift_prefix = "Gateway";
+
+enum OperativeEventType {
+  OPERATIVE_EVENT_TYPE_UNSPECIFIED = 0;
+  OPERATIVE_EVENT_TYPE_SPECIFIED_BY_AD_PLAYER = 1;
+  OPERATIVE_EVENT_TYPE_LOAD_ERROR = 2;
+  OPERATIVE_EVENT_TYPE_SHOW_ERROR = 3;
+}
+
+enum OperativeEventErrorType {
+  OPERATIVE_EVENT_ERROR_TYPE_UNSPECIFIED = 0;
+  OPERATIVE_EVENT_ERROR_TYPE_TIMEOUT = 1;
+}
+
+message OperativeEventErrorData {
+  OperativeEventErrorType error_type = 1;
+  string message = 2;
+}
+
+// Request sent from WebView to Gateway to report Operative Event
+message OperativeEventRequest {
+  // Unique Event ID (UUID v4) which can be used for deduplication purpose on the backend
+  bytes event_id = 1;
+  // Event type using predefined enum
+  OperativeEventType event_type = 2;
+  // Impression Opportunity ID
+  bytes impression_opportunity_id = 3;
+  // Tracking Token returned in Ad Request or Ad Player Configuration request
+  bytes tracking_token = 4;
+
+  // Additional data which can be encoded inside WebView and passed along Operative Event.
+  // This may contain click information for example.
+  // Protobuf Definition can be found in eventsadditionaldata/v1
+  bytes additional_data = 5;
+  // Game Server ID for S2S rewarded callback integration
+  string sid = 6;
+  // Event-time session counters
+  SessionCounters session_counters = 7;
+  // Static Device Info properties
+  StaticDeviceInfo static_device_info = 8;
+  // Dynamic Device Info properties
+  DynamicDeviceInfo dynamic_device_info = 9;
+  // List of campaigns currently loaded and shown
+  CampaignState campaign_state = 10;
+}

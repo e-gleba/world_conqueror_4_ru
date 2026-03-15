@@ -1,0 +1,46 @@
+﻿<Texture name="anim_ui.png" />
+<Images>
+    <Image name="烟花02.png" x="1" y="1" w="23" h="320" refx="0" refy="0" />
+    <Image name="烟花y01.png" x="25" y="1" w="23" h="320" refx="0" refy="0" />
+    <Image name="烟花y03.png" x="49" y="1" w="23" h="320" refx="0" refy="0" />
+    <Image name="黄光.png" x="73" y="1" w="286" h="287" refx="0" refy="0" />
+    <Image name="圆形扩散3.png" x="1" y="322" w="170" h="170" refx="0" refy="0" />
+    <Image name="点击光圈2.png" x="172" y="289" w="161" h="161" refx="0" refy="0" />
+    <Image name="点击光圈01.png" x="334" y="289" w="155" h="155" refx="0" refy="0" />
+    <Image name="蓝色半圆.png" x="360" y="1" w="79" h="153" refx="0" refy="0" />
+    <Image name="黄圆.png" x="440" y="1" w="142" h="142" refx="0" refy="0" />
+    <Image name="光-1.png" x="583" y="1" w="136" h="137" refx="0" refy="0" />
+    <Image name="HQ光.png" x="440" y="144" w="124" h="102" refx="0" refy="0" />
+    <Image name="八边形.png" x="565" y="144" w="97" h="97" refx="0" refy="0" />
+    <Image name="剧本闪光.png" x="720" y="1" w="294" h="97" refx="0" refy="0" />
+    <Image name="光炸开-1.png" x="490" y="247" w="94" h="95" refx="0" refy="0" />
+    <Image name="方形闪光.png" x="663" y="139" w="94" h="94" refx="0" refy="0" />
+    <Image name="光晕黄.png" x="758" y="99" w="88" h="89" refx="0" refy="0" />
+    <Image name="长方形06.png" x="847" y="99" w="87" h="84" refx="0" refy="0" />
+    <Image name="点击手.png" x="758" y="189" w="82" h="76" refx="0" refy="0" />
+    <Image name="长方形04.png" x="585" y="242" w="99" h="81" refx="0" refy="0" />
+    <Image name="长方形05.png" x="360" y="155" w="59" h="85" refx="0" refy="0" />
+    <Image name="方形03.png" x="172" y="451" w="58" h="60" refx="0" refy="0" />
+    <Image name="方形01.png" x="360" y="241" w="61" h="47" refx="0" refy="0" />
+    <Image name="方形02.png" x="334" y="445" w="61" h="40" refx="0" refy="0" />
+    <Image name="黄射线02.png" x="231" y="451" w="81" h="52" refx="0" refy="0" />
+    <Image name="HQ.png" x="396" y="445" w="89" h="52" refx="0" refy="0" />
+    <Image name="黄色半弧02.png" x="685" y="234" w="42" h="68" refx="0" refy="0" />
+    <Image name="长方形03.png" x="685" y="303" w="128" h="41" refx="0" refy="0" />
+    <Image name="长方形01.png" x="490" y="343" w="134" h="69" refx="0" refy="0" />
+    <Image name="黄条.png" x="420" y="155" w="10" h="63" refx="0" refy="0" />
+    <Image name="黄色半弧01.png" x="625" y="324" w="38" h="63" refx="0" refy="0" />
+    <Image name="升级箭头.png" x="422" y="247" w="29" h="35" refx="0" refy="0" />
+    <Image name="升级箭头02.png" x="452" y="247" w="29" h="35" refx="0" refy="0" />
+    <Image name="绿色箭头01.png" x="720" y="99" w="28" h="34" refx="0" refy="0" />
+    <Image name="绿色向上小箭头.png" x="73" y="289" w="26" h="31" refx="0" refy="0" />
+    <Image name="黄点2.png" x="100" y="289" w="31" h="29" refx="0" refy="0" />
+    <Image name="黄点1.png" x="132" y="289" w="24" h="21" refx="0" refy="0" />
+    <Image name="圆点y 1.png" x="1" y="493" w="17" h="17" refx="0" refy="0" />
+    <Image name="圆点y3.png" x="19" y="493" w="17" h="17" refx="0" refy="0" />
+    <Image name="圆点绿.png" x="37" y="493" w="17" h="17" refx="0" refy="0" />
+    <Image name="绿色箭头02.png" x="55" y="493" w="24" h="12" refx="0" refy="0" />
+    <Image name="蓝方长条.png" x="231" y="504" w="154" h="7" refx="0" refy="0" />
+    <Image name="长方形02.png" x="625" y="388" w="162" h="16" refx="0" refy="0" />
+    <Image name="蓝方发光.png" x="490" y="413" w="285" h="51" refx="0" refy="0" />
+</Images>

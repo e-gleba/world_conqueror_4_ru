@@ -1,0 +1,62 @@
+.class final Lcom/tradplus/ads/unity/TradplusUnityPlugin$3$1;
+.super Ljava/lang/Object;
+
+# interfaces
+.implements Lcom/tradplus/ads/open/TradPlusSdk$TPGDPRListener;
+
+
+# annotations
+.annotation system Ldalvik/annotation/EnclosingMethod;
+    value = Lcom/tradplus/ads/unity/TradplusUnityPlugin$3;->run()V
+.end annotation
+
+.annotation system Ldalvik/annotation/InnerClass;
+    accessFlags = 0x0
+    name = null
+.end annotation
+
+
+# instance fields
+.field final synthetic a:Lcom/tradplus/ads/unity/TradplusUnityPlugin$3;
+
+
+# direct methods
+.method constructor <init>(Lcom/tradplus/ads/unity/TradplusUnityPlugin$3;)V
+    .locals 0
+
+    iput-object p1, p0, Lcom/tradplus/ads/unity/TradplusUnityPlugin$3$1;->a:Lcom/tradplus/ads/unity/TradplusUnityPlugin$3;
+
+    invoke-direct {p0}, Ljava/lang/Object;-><init>()V
+
+    return-void
+.end method
+
+
+# virtual methods
+.method public final failed(Ljava/lang/String;)V
+    .locals 1
+
+    sget-object v0, Lcom/tradplus/ads/unity/TradplusUnityPlugin$UnityEvent;->GDPRFailed:Lcom/tradplus/ads/unity/TradplusUnityPlugin$UnityEvent;
+
+    filled-new-array {p1}, [Ljava/lang/String;
+
+    move-result-object p1
+
+    invoke-virtual {v0, p1}, Lcom/tradplus/ads/unity/TradplusUnityPlugin$UnityEvent;->Emit([Ljava/lang/String;)V
+
+    return-void
+.end method
+
+.method public final success(Ljava/lang/String;)V
+    .locals 1
+
+    sget-object v0, Lcom/tradplus/ads/unity/TradplusUnityPlugin$UnityEvent;->GDPRSuccess:Lcom/tradplus/ads/unity/TradplusUnityPlugin$UnityEvent;
+
+    filled-new-array {p1}, [Ljava/lang/String;
+
+    move-result-object p1
+
+    invoke-virtual {v0, p1}, Lcom/tradplus/ads/unity/TradplusUnityPlugin$UnityEvent;->Emit([Ljava/lang/String;)V
+
+    return-void
+.end method

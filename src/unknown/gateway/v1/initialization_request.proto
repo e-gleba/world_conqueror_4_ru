@@ -1,0 +1,47 @@
+syntax = "proto3";
+
+package gateway.v1;
+
+import "gateway/v1/client_info.proto";
+
+option swift_prefix = "Gateway";
+
+// InitializationRequest is the request sent by the SDK to the gateway.
+// This information is requried to generate Install Event.
+message InitializationDeviceInfo {
+  string bundle_id = 1;
+  string device_make = 2;
+  string device_model = 3;
+  string os_version = 4;
+  optional int32 tracking_auth_status = 5; 
+}
+
+// InitializationRequest is the request sent by the SDK to the gateway
+message InitializationRequest {
+  ClientInfo client_info = 1;
+  // User Consent and privacy context stored on the device
+  optional bytes privacy = 2;
+  // Install Identifier stored on the device
+  string idfi = 3;
+  // Session ID generated on the device. This can be shared across multiple SDK/products.
+  bytes session_id = 4;
+  // Optional cache that can be provided by the gateway and stored locally on
+  // the SDK this allows for a reduction in cross cluster traffic + latency
+  // controlled by the gateway
+  optional bytes cache = 5;
+  // Optional legacy flow user consent. This structure is locally stored in Storage API
+  // Stored in private storage with keys `privacy.*`, `pipl.*` and `unity.privacy.permissions.*`; contains JSON with flatten tree
+  optional string legacy_flow_user_consent = 6;
+  // AUID provided by Level Play SDK
+  optional bytes auid = 7;
+  // Unity Analytics User ID
+  // from Unity engine Modules/UnityAnalytics/CoreStats/UnityConnectService.cpp
+  // stored using 'unity.cloud_userid' key
+  optional string analytics_user_id = 8;
+  // Device Info which is requried by initialization request
+  InitializationDeviceInfo device_info = 9;
+  // Flag which indicates if it is first initialization after install
+  // Should be backward compatible with legacy flow
+  // store using Storage API under key configuration.hasInitialized
+  bool is_first_init = 10;
+}

@@ -1,0 +1,26 @@
+﻿<script>
+	<cmd name="wait close scene" string="SceneTalk"/>
+	<cmd name="show text" commander="1051" textid="1043"/>
+	<cmd name="wait close scene" string="SceneTalk"/>
+
+	<cmd name="show text" commander="1051" textid="1044"/>
+	<cmd name="wait close scene" string="SceneTalk"/>
+	
+	<cmd name="draw ui rect" string="btn_formnext"/>
+	<cmd name="wait ui" string="btn_formnext"/>
+
+	<cmd name="wait time" time="0.5"/>
+	
+	<cmd name="show text" commander="1051" textid="1045"/>
+	<cmd name="wait close scene" string="SceneTalk"/>
+	
+	<cmd name="draw ui rect" string="btn_assign"/>
+	<cmd name="wait ui" string="btn_assign"/>
+
+	<cmd name="finish"/>
+</script>
+
+
+
+
+

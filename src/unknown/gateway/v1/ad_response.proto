@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+package gateway.v1;
+
+import "gateway/v1/error.proto";
+import "gateway/v1/webview_configuration.proto";
+
+option swift_prefix = "Gateway";
+
+// This is the response from the Gateway when requesting an ad
+message AdResponse {
+  // Tracking Token is used to track operative events during impression opportunity.
+  bytes tracking_token = 1;
+  // Impression Configuration is used by Ad Player(WebView) to render the ad.
+  bytes impression_configuration = 2;
+  // A version of the impression configuration.
+  int32 impression_configuration_version = 3;
+  // WebView configuration which should be used by Native to start Ad Player.
+  optional gateway.v1.WebViewConfiguration webview_configuration = 4;
+  // Ad Data Refresh Token is used to refresh the ad if impression occurred.
+  bytes ad_data_refresh_token = 5;
+
+  // A blob of data which contains an ad to show.
+  // This blob should be provided to Ad Player to parse and cache the ad.
+  // Currently it is a Auction V6 response.
+  bytes ad_data = 6;
+  // A version of the ad data. Can be used to determine which parser to use.
+  int32 ad_data_version = 7;
+
+  // If set, there was an error processing the request.
+  optional Error error = 8;
+}

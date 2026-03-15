@@ -1,0 +1,11 @@
+﻿<Texture name="anim_failure.png" />
+<Images>
+    <Image name="失败a.png" x="75" y="203" w="83" h="70" refx="0" refy="0" />
+    <Image name="失败e.png" x="75" y="275" w="63" h="70" refx="0" refy="0" />
+    <Image name="失败f.png" x="159" y="203" w="61" h="71" refx="0" refy="0" />
+    <Image name="失败i.png" x="139" y="275" w="41" h="70" refx="0" refy="0" />
+    <Image name="失败l.png" x="221" y="203" w="65" h="71" refx="0" refy="0" />
+    <Image name="失败r.png" x="181" y="275" w="81" h="70" refx="0" refy="0" />
+    <Image name="失败u.png" x="1" y="203" w="73" h="72" refx="0" refy="0" />
+    <Image name="失败黑底.png" x="1" y="1" w="485" h="201" refx="0" refy="0" />
+</Images>

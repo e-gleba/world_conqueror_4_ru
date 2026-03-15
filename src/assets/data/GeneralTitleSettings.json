@@ -1,0 +1,10 @@
+[
+{"Id":1049,"GeneralId":1049,"EliteType":2,"AddHpPercent":0,"AddAttack":12,"AddDefense":0,"AddMRange":0,"AddMobility":0,"AddCriChange":10,"AddCriDamage":0},
+{"Id":1018,"GeneralId":1018,"EliteType":3,"AddHpPercent":20,"AddAttack":18,"AddDefense":0,"AddMRange":0,"AddMobility":0,"AddCriChange":0,"AddCriDamage":0},
+{"Id":1062,"GeneralId":1062,"EliteType":1,"AddHpPercent":0,"AddAttack":18,"AddDefense":12,"AddMRange":0,"AddMobility":0,"AddCriChange":0,"AddCriDamage":0},
+{"Id":1050,"GeneralId":1050,"EliteType":2,"AddHpPercent":0,"AddAttack":18,"AddDefense":0,"AddMRange":0,"AddMobility":0,"AddCriChange":0,"AddCriDamage":35},
+{"Id":1031,"GeneralId":1031,"EliteType":4,"AddHpPercent":0,"AddAttack":18,"AddDefense":0,"AddMRange":1,"AddMobility":0,"AddCriChange":0,"AddCriDamage":0},
+{"Id":1009,"GeneralId":1009,"EliteType":2,"AddHpPercent":0,"AddAttack":12,"AddDefense":0,"AddMRange":0,"AddMobility":2,"AddCriChange":0,"AddCriDamage":0},
+{"Id":1051,"GeneralId":1051,"EliteType":2,"AddHpPercent":0,"AddAttack":0,"AddDefense":0,"AddMRange":0,"AddMobility":2,"AddCriChange":0,"AddCriDamage":25},
+{"Id":1019,"GeneralId":1019,"EliteType":3,"AddHpPercent":0,"AddAttack":12,"AddDefense":0,"AddMRange":0,"AddMobility":0,"AddCriChange":10,"AddCriDamage":0}
+]

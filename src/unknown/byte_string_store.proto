@@ -1,0 +1,7 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+
+message ByteStringStore {
+    bytes data = 1;
+}

@@ -1,0 +1,48 @@
+<effect name="firetrack">
+  <emitter name="cloud" life="1.0" offsetx="30" offsety="3.5">
+    <param name="settings" mode="cont" type="area" width="35" height="3"/>
+    <param name="image" file="rain_splash.png" blend="add" width="-45" height="-7"/>
+    <param name="life" min="0.28" max="0.3"/>
+    <param name="angle" min="162.0" max="174.0"/>
+    <param name="rotangle" type="random" min="0.0" max="0.0"/>
+    <param name="speed" min="160.0" max="180.0"/>
+    <param name="gravity" min="0.0" max="0.0"/>
+    <param name="scale" min="1.2" max="1.6"/>
+    <param name="rotspeed" min="0.0" max="0.0"/>
+    <param name="r" min="255" max="255"/>
+    <param name="g" min="255" max="255"/>
+    <param name="b" min="255" max="255"/>
+    <param name="a" min="255" max="255"/>
+    <param name="timetrack">
+      <track time="0.0" quantity="70.0"/>
+    </param>
+    <param name="lifetrack">
+      <track life="0.0" speed="1.2" gravity="0.0" scale="0.2" rotspeed="0.0" r="1.0" g="1.0" b="1.0" a="0.0"/>
+      <track life="0.2" speed="0.96" gravity="0.0" scale="0.4" rotspeed="0.0" r="1.0" g="1.0" b="1.0" a="0.65"/>
+      <track life="1.0" speed="0.0" gravity="0.0" scale="1.3" rotspeed="0.0" r="1.0" g="1.0" b="1.0" a="0.0"/>
+    </param>
+  </emitter>
+  <emitter name="cloud" life="1.0" offsetx="30" offsety="3.5">
+    <param name="settings" mode="cont" type="area" width="45" height="3"/>
+    <param name="image" file="rain_splash.png" blend="add" width="-45" height="7"/>
+    <param name="life" min="0.28" max="0.3"/>
+    <param name="angle" min="-174.0" max="-162.0"/>
+    <param name="rotangle" type="random" min="0.0" max="0.0"/>
+    <param name="speed" min="160.0" max="180.0"/>
+    <param name="gravity" min="0.0" max="0.0"/>
+    <param name="scale" min="1.2" max="1.6"/>
+    <param name="rotspeed" min="0.0" max="0.0"/>
+    <param name="r" min="255" max="255"/>
+    <param name="g" min="255" max="255"/>
+    <param name="b" min="255" max="255"/>
+    <param name="a" min="255" max="255"/>
+    <param name="timetrack">
+      <track time="0.0" quantity="70.0"/>
+    </param>
+    <param name="lifetrack">
+      <track life="0.0" speed="1.2" gravity="0.0" scale="0.2" rotspeed="0.0" r="1.0" g="1.0" b="1.0" a="0.0"/>
+      <track life="0.2" speed="0.96" gravity="0.0" scale="0.4" rotspeed="0.0" r="1.0" g="1.0" b="1.0" a="0.65"/>
+      <track life="1.0" speed="0.0" gravity="0.0" scale="1.3" rotspeed="0.0" r="1.0" g="1.0" b="1.0" a="0.0"/>
+    </param>
+  </emitter>
+</effect>

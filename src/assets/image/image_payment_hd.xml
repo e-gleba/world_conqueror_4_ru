@@ -1,0 +1,9 @@
+<Texture name="image_payment_hd.png" />
+<Images>
+    <Image name="btn_bg.png" x="1" y="1" w="242" h="110" refx="0" refy="0" />
+    <Image name="alipay.png" x="1" y="112" w="405" h="100" refx="0" refy="0" />
+    <Image name="paypal.png" x="1" y="213" w="450" h="100" refx="0" refy="0" />
+    <Image name="mycard.png" x="452" y="1" w="467" h="200" refx="0" refy="0" />
+    <Image name="wechatpay.png" x="1" y="314" w="520" h="190" refx="0" refy="0" />
+    <Image name="xsolla.png" x="1" y="505" w="560" h="200" refx="0" refy="0" />
+</Images>

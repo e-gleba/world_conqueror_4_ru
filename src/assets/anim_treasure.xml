@@ -1,0 +1,16 @@
+﻿<Texture name="anim_treasure.png" />
+<Images>
+    <Image name="宝箱元件.png" x="1" y="1" w="204" h="134" refx="0" refy="0" />
+    <Image name="宝箱发光.png" x="206" y="1" w="260" h="190" refx="0" refy="0" />
+    <Image name="金币堆.png" x="1" y="192" w="262" h="117" refx="0" refy="0" />
+    <Image name="星星.png" x="264" y="192" w="52" h="59" refx="0" refy="0" />
+    <Image name="jinbi1.png" x="1" y="136" w="43" h="23" refx="0" refy="0" />
+    <Image name="jinbi11.png" x="467" y="1" w="43" h="23" refx="0" refy="0" />
+    <Image name="jinbi2.png" x="45" y="136" w="43" h="24" refx="0" refy="0" />
+    <Image name="jinbi3.png" x="1" y="160" w="43" h="24" refx="0" refy="0" />
+    <Image name="jinbi10.png" x="1" y="310" w="44" h="23" refx="0" refy="0" />
+    <Image name="jinbi4.png" x="89" y="136" w="44" h="24" refx="0" refy="0" />
+    <Image name="jinbi5.png" x="45" y="161" w="44" h="24" refx="0" refy="0" />
+    <Image name="jinbi6.png" x="264" y="252" w="46" h="23" refx="0" refy="0" />
+    <Image name="jinbi9.png" x="90" y="161" w="46" h="23" refx="0" refy="0" />
+</Images>

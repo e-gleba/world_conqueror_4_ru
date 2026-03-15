@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package gateway.v1;
+
+import "gateway/v1/error.proto";
+
+option swift_prefix = "Gateway";
+
+message AdDataRefreshResponse {
+  // non empty if fill otherwise empty
+  bytes ad_data = 1;
+  // version of the ad markup. Use to determine which parser to use.
+  int32 ad_data_version = 2;
+  // non empty if fill otherwise empty
+  bytes tracking_token = 3;
+  // Ad Data Refresh Token to be used to refresh ad markup
+  bytes ad_data_refresh_token = 4;
+  // If set, there was an error processing the request.
+  optional Error error = 5;
+}

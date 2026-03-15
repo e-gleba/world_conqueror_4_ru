@@ -1,0 +1,6 @@
+[
+{"Id":1,"CostGold":0,"CostMedal":0,"Score":0,"RibbonNum":0},
+{"Id":2,"CostGold":10000,"CostMedal":0,"Score":150,"RibbonNum":1},
+{"Id":3,"CostGold":50000,"CostMedal":0,"Score":300,"RibbonNum":2},
+{"Id":4,"CostGold":0,"CostMedal":500,"Score":500,"RibbonNum":3}
+]

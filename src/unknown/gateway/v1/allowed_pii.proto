@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+package gateway.v1;
+
+option swift_prefix = "Gateway";
+
+message AllowedPii {
+  bool idfa = 1;
+  bool idfv = 2;
+}

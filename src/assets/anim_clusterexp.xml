@@ -1,0 +1,42 @@
+<Texture name="anim_clusterexp.png" w="680" h="684" />
+<Images>
+    <Image name="15.png" x="1" y="1" w="153" h="152" refx="0" refy="0" />
+    <Image name="6.png" x="155" y="1" w="107" h="139" refx="0" refy="0" />
+    <Image name="8.png" x="155" y="141" w="103" h="127" refx="0" refy="0" />
+    <Image name="39.png" x="1" y="154" w="122" h="122" refx="0" refy="0" />
+    <Image name="5.png" x="259" y="141" w="117" h="122" refx="0" refy="0" />
+    <Image name="7.png" x="263" y="1" w="98" h="119" refx="0" refy="0" />
+    <Image name="4.png" x="259" y="264" w="112" h="111" refx="0" refy="0" />
+    <Image name="3.png" x="1" y="277" w="106" h="99" refx="0" refy="0" />
+    <Image name="11.png" x="108" y="277" w="149" h="101" refx="0" refy="0" />
+    <Image name="18.png" x="258" y="376" w="154" h="133" refx="0" refy="0" />
+    <Image name="19.png" x="362" y="1" w="166" h="136" refx="0" refy="0" />
+    <Image name="14.png" x="372" y="264" w="171" h="96" refx="0" refy="0" />
+    <Image name="20.png" x="413" y="361" w="172" h="148" refx="0" refy="0" />
+    <Image name="12.png" x="1" y="510" w="180" h="124" refx="0" refy="0" />
+    <Image name="21.png" x="182" y="510" w="192" h="160" refx="0" refy="0" />
+    <Image name="13.png" x="375" y="510" w="204" h="144" refx="0" refy="0" />
+    <Image name="17.png" x="377" y="138" w="117" h="108" refx="0" refy="0" />
+    <Image name="29.png" x="1" y="377" w="91" h="97" refx="0" refy="0" />
+    <Image name="28.png" x="93" y="379" w="87" h="95" refx="0" refy="0" />
+    <Image name="2.png" x="529" y="1" w="94" h="91" refx="0" refy="0" />
+    <Image name="27.png" x="529" y="93" w="84" h="94" refx="0" refy="0" />
+    <Image name="26.png" x="544" y="188" w="81" h="88" refx="0" refy="0" />
+    <Image name="25.png" x="181" y="379" w="74" h="78" refx="0" refy="0" />
+    <Image name="24.png" x="544" y="277" w="67" h="68" refx="0" refy="0" />
+    <Image name="38.png" x="586" y="346" w="68" h="68" refx="0" refy="0" />
+    <Image name="16.png" x="614" y="93" w="53" h="57" refx="0" refy="0" />
+    <Image name="23.png" x="612" y="277" w="59" h="57" refx="0" refy="0" />
+    <Image name="1.png" x="586" y="415" w="51" h="56" refx="0" refy="0" />
+    <Image name="30.png" x="1" y="475" w="35" h="30" refx="0" refy="0" />
+    <Image name="10.png" x="37" y="475" w="45" h="31" refx="0" refy="0" />
+    <Image name="31.png" x="83" y="475" w="46" h="31" refx="0" refy="0" />
+    <Image name="22.png" x="181" y="458" w="49" h="40" refx="0" refy="0" />
+    <Image name="32.png" x="1" y="635" w="54" h="34" refx="0" refy="0" />
+    <Image name="33.png" x="580" y="510" w="58" h="37" refx="0" refy="0" />
+    <Image name="34.png" x="580" y="548" w="60" h="39" refx="0" refy="0" />
+    <Image name="35.png" x="580" y="588" w="63" h="39" refx="0" refy="0" />
+    <Image name="36.png" x="580" y="628" w="64" h="39" refx="0" refy="0" />
+    <Image name="37.png" x="56" y="635" w="65" h="48" refx="0" refy="0" />
+    <Image name="9.png" x="263" y="121" w="6" h="10" refx="0" refy="0" />
+</Images>

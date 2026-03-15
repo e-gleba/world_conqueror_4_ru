@@ -1,0 +1,105 @@
+syntax = "proto3";
+
+package gateway.v1;
+
+import "gateway/v1/ad_data_refresh_request.proto";
+import "gateway/v1/ad_player_config_request.proto";
+import "gateway/v1/ad_request.proto";
+import "gateway/v1/client_info.proto";
+import "gateway/v1/developer_consent.proto";
+import "gateway/v1/diagnostic_event_request.proto";
+import "gateway/v1/get_token_event_request.proto";
+import "gateway/v1/initialization_completed_event_request.proto";
+import "gateway/v1/initialization_request.proto";
+import "gateway/v1/operative_event_request.proto";
+import "gateway/v1/pii.proto";
+import "gateway/v1/privacy_update_request.proto";
+import "gateway/v1/test_data.proto";
+import "gateway/v1/timestamps.proto";
+import "gateway/v1/transaction_event_request.proto";
+import "google/protobuf/timestamp.proto";
+
+option swift_prefix = "Gateway";
+
+// Limited session token which can be used to get some information on the Gateway, in the case if session token is not available.
+message LimitedSessionToken {
+  // Device Manufacturer
+  string device_make = 1;
+  // Device Model
+  string device_model = 2;
+  // OS Version
+  string os_version = 3;
+  // IDFI
+  string idfi = 4;
+  // SDK Version represented as integer
+  uint32 sdk_version = 5;
+  // SDK Version represented as string
+  string sdk_version_name = 7;
+  // Game ID
+  string game_id = 8;
+  // Current Platform
+  Platform platform = 9;
+  // The well-known mediation provider used by the client
+  MediationProvider mediation_provider = 10;
+  // Non well-known mediation provider name, filled only if mediation_provider equals to MEDIATION_PROVIDER_CUSTOM
+  optional string custom_mediation_name = 11;
+  // The mediation provider version
+  optional string mediation_version = 12;
+}
+
+// Univarsel Request which contains a shared data and requests specific data.
+message UniversalRequest {
+  message SharedData {
+    // Latest knonw session Token provide by SDK Gateway.
+    optional bytes session_token = 1;
+    Timestamps timestamps = 2;
+    // PII if it was allowed to send by SDK Gateway
+    optional Pii pii = 3;
+    optional DeveloperConsent developer_consent = 4;
+    // Currently used WebView version for the impression opportunity, set only if event triggered by the WebView during impression oppourtunity
+    optional int32 webview_version = 5;
+    // The last known state of the SDK from the POV of the gateway - not sent if
+    // not present Will be received on every universal_response
+    optional bytes current_state = 6;
+    // The data which can be used for testing purposes
+    // For example it can force country, campaign ID and etc.bool
+    // Works only when connected via VPN
+    optional TestData test_data = 7;
+    // UTC timestamp when application started in milliseconds
+    google.protobuf.Timestamp app_start_time = 8;
+    // UTC timestamp when application called initialize method in milliseconds
+    google.protobuf.Timestamp sdk_start_time = 9;
+    // Should be set if request is made without session token
+    optional LimitedSessionToken limited_session_token = 10;
+  }
+
+  message Payload {
+    oneof value {
+      // Data which required for initialization request
+      InitializationRequest initialization_request = 2;
+      // Data which required for ad request
+      AdRequest ad_request = 3;
+      // Data which required for operative event request
+      OperativeEventRequest operative_event = 4;
+      // Data which required for diagnostic event request
+      DiagnosticEventRequest diagnostic_event_request = 5;
+      // Request for placement configuration
+      AdPlayerConfigRequest ad_player_config_request = 6;
+      // Request for SCAR upload
+      GetTokenEventRequest get_token_event_request = 7;
+      // Request for privacy update
+      PrivacyUpdateRequest privacy_update_request = 8;
+      // Request for ad data refresh
+      AdDataRefreshRequest ad_data_refresh_request = 9;
+      // Initialization Completed Event
+      InitializationCompletedEventRequest initialization_completed_event_request = 10;
+      // Transaction event for IAP
+      TransactionEventRequest transaction_event_request = 11;
+    }
+  }
+
+  // Shared Data which is filled for each request sent from SDK
+  SharedData shared_data = 1;
+  // Payload contains actual request
+  Payload payload = 2;
+}

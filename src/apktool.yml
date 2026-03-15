@@ -1,0 +1,750 @@
+version: 2.10.0
+apkFileName: original.apk
+isFrameworkApk: false
+usesFramework:
+  ids:
+  - 1
+  tag: null
+sdkInfo:
+  minSdkVersion: 21
+  targetSdkVersion: 35
+packageInfo:
+  forcedPackageId: 127
+  renameManifestPackage: null
+versionInfo:
+  versionCode: 88
+  versionName: 1.24.2
+resourcesAreCompressed: false
+sharedLibrary: false
+sparseResources: false
+unknownFiles:
+  androidsupportmultidexversion.txt: 0
+  billing.properties: 8
+  byte_string_store.proto: 8
+  core-common.properties: 8
+  DebugProbesKt.bin: 8
+  firebase-analytics.properties: 8
+  firebase-annotations.properties: 8
+  firebase-common.properties: 8
+  firebase-components.properties: 8
+  firebase-datatransport.properties: 8
+  firebase-encoders-json.properties: 8
+  firebase-encoders-proto.properties: 8
+  firebase-encoders.properties: 8
+  firebase-iid-interop.properties: 8
+  firebase-iid.properties: 8
+  firebase-installations-interop.properties: 8
+  firebase-installations.properties: 8
+  firebase-measurement-connector.properties: 8
+  firebase-messaging.properties: 8
+  play-services-ads-base.properties: 8
+  play-services-ads-identifier.properties: 8
+  play-services-ads-lite.properties: 8
+  play-services-ads.properties: 8
+  play-services-appset.properties: 8
+  play-services-auth-api-phone.properties: 8
+  play-services-auth-base.properties: 8
+  play-services-auth.properties: 8
+  play-services-base.properties: 8
+  play-services-basement.properties: 8
+  play-services-cloud-messaging.properties: 8
+  play-services-cronet.properties: 8
+  play-services-drive.properties: 8
+  play-services-fido.properties: 8
+  play-services-games.properties: 8
+  play-services-location.properties: 8
+  play-services-measurement-api.properties: 8
+  play-services-measurement-base.properties: 8
+  play-services-measurement-impl.properties: 8
+  play-services-measurement-sdk-api.properties: 8
+  play-services-measurement-sdk.properties: 8
+  play-services-measurement.properties: 8
+  play-services-places-placereport.properties: 8
+  play-services-stats.properties: 8
+  play-services-tasks.properties: 8
+  review.properties: 8
+  transport-api.properties: 8
+  transport-backend-cct.properties: 8
+  transport-runtime.properties: 8
+  universal_request_store.proto: 8
+  user-messaging-platform.properties: 8
+  webview_configuration_store.proto: 8
+  com/appsflyer/internal/a-: 0
+  com/appsflyer/internal/b-: 0
+  gateway/v1/ad_data_refresh_request.proto: 8
+  gateway/v1/ad_data_refresh_response.proto: 8
+  gateway/v1/ad_player_config_request.proto: 8
+  gateway/v1/ad_player_config_response.proto: 8
+  gateway/v1/ad_request.proto: 8
+  gateway/v1/ad_response.proto: 8
+  gateway/v1/allowed_pii.proto: 8
+  gateway/v1/campaign_state.proto: 8
+  gateway/v1/client_info.proto: 8
+  gateway/v1/developer_consent.proto: 8
+  gateway/v1/diagnostic_event_request.proto: 8
+  gateway/v1/dynamic_device_info.proto: 8
+  gateway/v1/error.proto: 8
+  gateway/v1/get_token_event_request.proto: 8
+  gateway/v1/initialization_completed_event_request.proto: 8
+  gateway/v1/initialization_request.proto: 8
+  gateway/v1/initialization_response.proto: 8
+  gateway/v1/mutable_data.proto: 8
+  gateway/v1/native_configuration.proto: 8
+  gateway/v1/operative_event_request.proto: 8
+  gateway/v1/pii.proto: 8
+  gateway/v1/privacy_update_request.proto: 8
+  gateway/v1/privacy_update_response.proto: 8
+  gateway/v1/session_counters.proto: 8
+  gateway/v1/static_device_info.proto: 8
+  gateway/v1/test_data.proto: 8
+  gateway/v1/timestamps.proto: 8
+  gateway/v1/transaction_event_request.proto: 8
+  gateway/v1/universal_request.proto: 8
+  gateway/v1/universal_response.proto: 8
+  gateway/v1/webview_configuration.proto: 8
+  generated-sources/com/twitter/TldLists.java: 8
+  google/protobuf/any.proto: 8
+  google/protobuf/api.proto: 8
+  google/protobuf/duration.proto: 8
+  google/protobuf/empty.proto: 8
+  google/protobuf/field_mask.proto: 8
+  google/protobuf/source_context.proto: 8
+  google/protobuf/struct.proto: 8
+  google/protobuf/timestamp.proto: 8
+  google/protobuf/type.proto: 8
+  google/protobuf/wrappers.proto: 8
+  headerbidding/v1/header_bidding_ad_markup.proto: 8
+  headerbidding/v1/header_bidding_token.proto: 8
+  okhttp3/internal/publicsuffix/NOTICE: 8
+  okhttp3/internal/publicsuffix/publicsuffixes.gz: 0
+doNotCompress:
+- AndroidManifest.xml
+- resources.arsc
+- png
+- assets/anim_buff.xml
+- assets/anim_card.xml
+- assets/anim_claim.xml
+- assets/anim_clusterexp.xml
+- assets/anim_failure.xml
+- assets/anim_fire.xml
+- assets/anim_glow.xml
+- assets/anim_grade.xml
+- assets/anim_ion.xml
+- assets/anim_mainui.xml
+- assets/anim_medal.xml
+- assets/anim_miss.xml
+- assets/anim_missile.xml
+- assets/anim_nuclear.xml
+- assets/anim_skill.xml
+- assets/anim_smoke.xml
+- assets/anim_status.xml
+- assets/anim_target.xml
+- assets/anim_treasure.xml
+- assets/anim_ui.xml
+- assets/anim_ui2.xml
+- assets/anim_ui3.xml
+- assets/anim_victory.xml
+- assets/battleres_hd.xml
+- webp
+- assets/buildings_hd.xml
+- assets/coastmask_hd.xml
+- assets/coast_hd.xml
+- assets/eff.xml
+- assets/font_resource.xml
+- assets/global_data.xml
+- assets/image_resource.xml
+- assets/layout.xml
+- assets/layout_x.xml
+- assets/maptext.xml
+- assets/maptextpos.xml
+- assets/plant_hd.xml
+- assets/smapmask.xml
+- assets/supplierconfig.json
+- assets/tacticalmap.xml
+- assets/terrain.xml
+- assets/terrain_hd.xml
+- assets/uishape.xml
+- assets/unit_elite1.xml
+- assets/unit_elite2.xml
+- assets/unit_elite3.xml
+- assets/unit_elite4.xml
+- assets/unit_elite5.xml
+- assets/unit_elite6.xml
+- assets/unit_elite7.xml
+- assets/unit_elite8.xml
+- assets/unit_elitepanzer.xml
+- assets/unit_elitepanzer2.xml
+- assets/unit_fort.xml
+- assets/unit_infantry.xml
+- assets/unit_mi24.xml
+- assets/unit_missilesub.xml
+- assets/unit_panzer.xml
+- assets/unit_rpg.xml
+- assets/unit_ship.xml
+- assets/ad-viewer/config.ad-viewer.json
+- mp3
+- wav
+- assets/Base.lproj/locstrings.xml
+- assets/data/AchievementSettings.json
+- assets/data/AirDefenceSettings.json
+- assets/data/ArmyBuffSettings.json
+- assets/data/ArmyFeatureSettings.json
+- assets/data/ArmyGroupCardSettings.json
+- assets/data/ArmyGroupChallengeSettings.json
+- assets/data/ArmyGroupEventSettings.json
+- assets/data/ArmyGroupPrizeSettings.json
+- assets/data/ArmyGroupReinforcementSettings.json
+- assets/data/ArmyGroupSettings.json
+- assets/data/ArmyLevelSettings.json
+- assets/data/ArmyNumberSettings.json
+- assets/data/ArmySettings.json
+- assets/data/ArmySubTypeSettings.json
+- assets/data/BuildingSettings.json
+- assets/data/CityFeatureSettings.json
+- assets/data/CitySettings.json
+- assets/data/ConquerChallengeSettings.json
+- assets/data/ConquerCountrySettings.json
+- assets/data/ConquerEventSettings.json
+- assets/data/ConquerPassSettings.json
+- assets/data/ConquerPrizeSettings.json
+- assets/data/ConquerScoreSettings.json
+- assets/data/ConquerSettings.json
+- assets/data/CorpsSettings.json
+- assets/data/CountrySettings.json
+- assets/data/CountryTechSettings.json
+- assets/data/def_armypos.xml
+- assets/data/def_array.xml
+- assets/data/def_capital.xml
+- assets/data/def_citycoord.xml
+- assets/data/def_dialogues.xml
+- assets/data/def_effectsanim.xml
+- assets/data/def_elementanim.xml
+- assets/data/def_frontierarmy.xml
+- assets/data/def_help.xml
+- assets/data/def_map.xml
+- assets/data/def_mapterrain.xml
+- assets/data/def_motion.xml
+- assets/data/def_portraitpos.xml
+- assets/data/def_strategy.xml
+- assets/data/def_strength.xml
+- assets/data/def_tacticalmap.xml
+- assets/data/def_terraintype.xml
+- assets/data/def_tutorials.xml
+- assets/data/def_warzone_stage.xml
+- assets/data/EliteArmySettings.json
+- assets/data/EliteBoxSettings.json
+- assets/data/EliteCalendarSettings.json
+- assets/data/EliteChallengeSettings.json
+- assets/data/ElitePassSettings.json
+- assets/data/EventBuffSettings.json
+- assets/data/EventCalendarSettings.json
+- assets/data/EventPrizeSettings.json
+- assets/data/EventSettings.json
+- assets/data/EventStageSettings.json
+- assets/data/FacilitySettings.json
+- assets/data/FeaturedPackSettings.json
+- assets/data/FrontierBuffSetting.json
+- assets/data/FrontierChapterSetting.json
+- assets/data/FrontierNodeSetting.json
+- assets/data/FrontierReinforcementSetting.json
+- assets/data/FrontierStageSetting.json
+- assets/data/GeneralLevelSettings.json
+- assets/data/GeneralMedalSettings.json
+- assets/data/GeneralNameSettings.json
+- assets/data/GeneralPhotoSettings.json
+- assets/data/GeneralPromotionSettings.json
+- assets/data/GeneralQualitySettings.json
+- assets/data/GeneralSettings.json
+- assets/data/GeneralStageSettings.json
+- assets/data/GeneralTitleSettings.json
+- assets/data/InvasionGeneralSettings.json
+- assets/data/InvasionSettings.json
+- assets/data/ItemSettings.json
+- assets/data/LegendArmySettings.json
+- assets/data/LegendChapterSettings.json
+- assets/data/LegendStageSettings.json
+- assets/data/LegendTacticsSettings.json
+- assets/data/LegionSettings.json
+- assets/data/LoginRewardSettings.json
+- assets/data/MuseumSetting.json
+- assets/data/PassportPrizeSetting.json
+- assets/data/PaySettings.json
+- assets/data/QuestRewardSettings.json
+- assets/data/QuestSettings.json
+- assets/data/ScenarioSettings.json
+- assets/data/ShareAPPCampaign.xml
+- assets/data/SkillSettings.json
+- assets/data/StageSettings.json
+- assets/data/StarterChallengeSettings.json
+- assets/data/StarterPassSettings.json
+- assets/data/TechnologySettings.json
+- assets/data/TechResearchSettings.json
+- assets/data/TradeTaskSettings.json
+- assets/data/WarZoneSetting.json
+- assets/data/WarZoneStageSetting.json
+- assets/data/WonderSettings.json
+- assets/de.lproj/locstrings.xml
+- assets/dexopt/baseline.prof
+- assets/dexopt/baseline.profm
+- assets/effect/effect_moving1.xml
+- assets/effect/effect_moving2.xml
+- assets/effect/effect_moving3.xml
+- assets/effect/effect_moving4.xml
+- assets/effect/effect_moving5.xml
+- assets/effect/effect_moving6.xml
+- assets/effect/effect_rain.xml
+- assets/effect/effect_snow.xml
+- assets/en.lproj/locstrings.xml
+- assets/es.lproj/locstrings.xml
+- assets/image/image_achi_hd.xml
+- assets/image/image_cityfeature_hd.xml
+- assets/image/image_countrytech_hd.xml
+- assets/image/image_facilities_hd.xml
+- assets/image/image_feats_hd.xml
+- assets/image/image_flags_hd.xml
+- assets/image/image_frontier_hd.xml
+- assets/image/image_general_medal_hd.xml
+- assets/image/image_homepage_hd.xml
+- assets/image/image_legion_icon_hd.xml
+- assets/image/image_line_hd.xml
+- assets/image/image_login_hd.xml
+- assets/image/image_main_hd.xml
+- assets/image/image_payment_hd.xml
+- assets/image/image_photo_hd.xml
+- assets/image/image_purchase_hd.xml
+- assets/image/image_rewarded_video_hd.xml
+- assets/image/image_ribbon_hd.xml
+- assets/image/image_sns_hd.xml
+- assets/image/image_tech_hd.xml
+- assets/image/image_ui_hd.xml
+- assets/image/image_ui_hd2.xml
+- assets/image/image_ui_hd3.xml
+- assets/image/image_ui_hd4.xml
+- assets/image/image_ui_hd5.xml
+- assets/image/image_ui_hd6.xml
+- assets/image/image_ui_hd7.xml
+- assets/image/image_ui_hd8.xml
+- assets/image/image_units_hd.xml
+- assets/image/image_warzone_hd.xml
+- assets/image/image_wonders_hd.xml
+- assets/image/image_wonders_hd2.xml
+- assets/image/image_wonders_hd3.xml
+- assets/image/image_wonders_hd4.xml
+- assets/image/image_wonders_hd5.xml
+- assets/image/image_wonders_hd6.xml
+- assets/image/image_wonders_hd7.xml
+- assets/image/image_wonders_hd8.xml
+- assets/image/image_wonder_frame_hd.xml
+- assets/ja.lproj/locstrings.xml
+- assets/ko.lproj/locstrings.xml
+- assets/tutorials/script10001.xml
+- assets/tutorials/script10002.xml
+- assets/tutorials/script10003.xml
+- assets/tutorials/script10004.xml
+- assets/tutorials/script20001.xml
+- assets/tutorials/script30001.xml
+- assets/zh_CN.lproj/locstrings.xml
+- assets/zh_TW.lproj/locstrings.xml
+- lib/arm64-v8a/libRMS.so
+- META-INF/androidx.activity_activity-ktx.version
+- META-INF/androidx.activity_activity.version
+- META-INF/androidx.annotation_annotation-experimental.version
+- META-INF/androidx.appcompat_appcompat-resources.version
+- META-INF/androidx.appcompat_appcompat.version
+- META-INF/androidx.arch.core_core-runtime.version
+- META-INF/androidx.asynclayoutinflater_asynclayoutinflater.version
+- META-INF/androidx.browser_browser.version
+- META-INF/androidx.cardview_cardview.version
+- META-INF/androidx.coordinatorlayout_coordinatorlayout.version
+- META-INF/androidx.core_core-ktx.version
+- META-INF/androidx.core_core.version
+- META-INF/androidx.cursoradapter_cursoradapter.version
+- META-INF/androidx.customview_customview.version
+- META-INF/androidx.databinding_viewbinding.version
+- META-INF/androidx.datastore_datastore.version
+- META-INF/androidx.documentfile_documentfile.version
+- META-INF/androidx.drawerlayout_drawerlayout.version
+- META-INF/androidx.emoji2_emoji2-views-helper.version
+- META-INF/androidx.emoji2_emoji2.version
+- META-INF/androidx.fragment_fragment.version
+- META-INF/androidx.interpolator_interpolator.version
+- META-INF/androidx.legacy_legacy-support-core-ui.version
+- META-INF/androidx.legacy_legacy-support-core-utils.version
+- META-INF/androidx.legacy_legacy-support-v4.version
+- META-INF/androidx.lifecycle_lifecycle-livedata-core.version
+- META-INF/androidx.lifecycle_lifecycle-livedata.version
+- META-INF/androidx.lifecycle_lifecycle-process.version
+- META-INF/androidx.lifecycle_lifecycle-runtime-ktx.version
+- META-INF/androidx.lifecycle_lifecycle-runtime.version
+- META-INF/androidx.lifecycle_lifecycle-service.version
+- META-INF/androidx.lifecycle_lifecycle-viewmodel-ktx.version
+- META-INF/androidx.lifecycle_lifecycle-viewmodel-savedstate.version
+- META-INF/androidx.lifecycle_lifecycle-viewmodel.version
+- META-INF/androidx.loader_loader.version
+- META-INF/androidx.localbroadcastmanager_localbroadcastmanager.version
+- META-INF/androidx.media_media.version
+- META-INF/androidx.print_print.version
+- META-INF/androidx.privacysandbox.ads_ads-adservices-java.version
+- META-INF/androidx.privacysandbox.ads_ads-adservices.version
+- META-INF/androidx.profileinstaller_profileinstaller.version
+- META-INF/androidx.recyclerview_recyclerview.version
+- META-INF/androidx.room_room-runtime.version
+- META-INF/androidx.savedstate_savedstate-ktx.version
+- META-INF/androidx.savedstate_savedstate.version
+- META-INF/androidx.slidingpanelayout_slidingpanelayout.version
+- META-INF/androidx.sqlite_sqlite-framework.version
+- META-INF/androidx.sqlite_sqlite.version
+- META-INF/androidx.startup_startup-runtime.version
+- META-INF/androidx.swiperefreshlayout_swiperefreshlayout.version
+- META-INF/androidx.tracing_tracing.version
+- META-INF/androidx.vectordrawable_vectordrawable-animated.version
+- META-INF/androidx.vectordrawable_vectordrawable.version
+- META-INF/androidx.versionedparcelable_versionedparcelable.version
+- META-INF/androidx.viewpager_viewpager.version
+- META-INF/androidx.webkit_webkit.version
+- META-INF/androidx.work_work-runtime-ktx.version
+- META-INF/androidx.work_work-runtime.version
+- META-INF/kotlinx_coroutines_android.version
+- META-INF/kotlinx_coroutines_core.version
+- META-INF/version-control-info.textproto
+- res/animator/fragment_close_enter.xml
+- res/animator/fragment_close_exit.xml
+- res/animator/fragment_fade_enter.xml
+- res/animator/fragment_fade_exit.xml
+- res/animator/fragment_open_enter.xml
+- res/animator/fragment_open_exit.xml
+- res/anim/abc_fade_in.xml
+- res/anim/abc_fade_out.xml
+- res/anim/abc_grow_fade_in_from_bottom.xml
+- res/anim/abc_popup_enter.xml
+- res/anim/abc_popup_exit.xml
+- res/anim/abc_shrink_fade_out_from_bottom.xml
+- res/anim/abc_slide_in_bottom.xml
+- res/anim/abc_slide_in_top.xml
+- res/anim/abc_slide_out_bottom.xml
+- res/anim/abc_slide_out_top.xml
+- res/anim/abc_tooltip_enter.xml
+- res/anim/abc_tooltip_exit.xml
+- res/anim/btn_checkbox_to_checked_box_inner_merged_animation.xml
+- res/anim/btn_checkbox_to_checked_box_outer_merged_animation.xml
+- res/anim/btn_checkbox_to_checked_icon_null_animation.xml
+- res/anim/btn_checkbox_to_unchecked_box_inner_merged_animation.xml
+- res/anim/btn_checkbox_to_unchecked_check_path_merged_animation.xml
+- res/anim/btn_checkbox_to_unchecked_icon_null_animation.xml
+- res/anim/btn_radio_to_off_mtrl_dot_group_animation.xml
+- res/anim/btn_radio_to_off_mtrl_ring_outer_animation.xml
+- res/anim/btn_radio_to_off_mtrl_ring_outer_path_animation.xml
+- res/anim/btn_radio_to_on_mtrl_dot_group_animation.xml
+- res/anim/btn_radio_to_on_mtrl_ring_outer_animation.xml
+- res/anim/btn_radio_to_on_mtrl_ring_outer_path_animation.xml
+- res/anim/fragment_fast_out_extra_slow_in.xml
+- res/anim/tw__accelerate_cubic.xml
+- res/anim/tw__slide_out.xml
+- res/color-v23/abc_btn_colored_borderless_text_material.xml
+- res/color-v23/abc_btn_colored_text_material.xml
+- res/color-v23/abc_color_highlight_material.xml
+- res/color-v23/abc_tint_btn_checkable.xml
+- res/color-v23/abc_tint_default.xml
+- res/color-v23/abc_tint_edittext.xml
+- res/color-v23/abc_tint_seek_thumb.xml
+- res/color-v23/abc_tint_spinner.xml
+- res/color-v23/abc_tint_switch_track.xml
+- res/color/abc_background_cache_hint_selector_material_dark.xml
+- res/color/abc_background_cache_hint_selector_material_light.xml
+- res/color/abc_btn_colored_borderless_text_material.xml
+- res/color/abc_btn_colored_text_material.xml
+- res/color/abc_hint_foreground_material_dark.xml
+- res/color/abc_hint_foreground_material_light.xml
+- res/color/abc_primary_text_disable_only_material_dark.xml
+- res/color/abc_primary_text_disable_only_material_light.xml
+- res/color/abc_primary_text_material_dark.xml
+- res/color/abc_primary_text_material_light.xml
+- res/color/abc_search_url_text.xml
+- res/color/abc_secondary_text_material_dark.xml
+- res/color/abc_secondary_text_material_light.xml
+- res/color/abc_tint_btn_checkable.xml
+- res/color/abc_tint_default.xml
+- res/color/abc_tint_edittext.xml
+- res/color/abc_tint_seek_thumb.xml
+- res/color/abc_tint_spinner.xml
+- res/color/abc_tint_switch_track.xml
+- res/color/common_google_signin_btn_text_dark.xml
+- res/color/common_google_signin_btn_text_light.xml
+- res/color/common_google_signin_btn_tint.xml
+- res/color/com_facebook_button_text_color.xml
+- res/color/com_facebook_send_button_text_color.xml
+- res/color/switch_thumb_material_dark.xml
+- res/color/switch_thumb_material_light.xml
+- res/drawable-v23/abc_control_background_material.xml
+- res/drawable-watch/abc_dialog_material_background.xml
+- res/drawable-watch/common_google_signin_btn_text_dark_normal.xml
+- res/drawable-watch/common_google_signin_btn_text_disabled.xml
+- res/drawable-watch/common_google_signin_btn_text_light_normal.xml
+- res/drawable/abc_action_bar_item_background_material.xml
+- res/drawable/abc_btn_borderless_material.xml
+- res/drawable/abc_btn_check_material.xml
+- res/drawable/abc_btn_check_material_anim.xml
+- res/drawable/abc_btn_colored_material.xml
+- res/drawable/abc_btn_default_mtrl_shape.xml
+- res/drawable/abc_btn_radio_material.xml
+- res/drawable/abc_btn_radio_material_anim.xml
+- res/drawable/abc_cab_background_internal_bg.xml
+- res/drawable/abc_cab_background_top_material.xml
+- res/drawable/abc_dialog_material_background.xml
+- res/drawable/abc_edit_text_material.xml
+- res/drawable/abc_ic_ab_back_material.xml
+- res/drawable/abc_ic_arrow_drop_right_black_24dp.xml
+- res/drawable/abc_ic_clear_material.xml
+- res/drawable/abc_ic_go_search_api_material.xml
+- res/drawable/abc_ic_menu_copy_mtrl_am_alpha.xml
+- res/drawable/abc_ic_menu_cut_mtrl_alpha.xml
+- res/drawable/abc_ic_menu_overflow_material.xml
+- res/drawable/abc_ic_menu_paste_mtrl_am_alpha.xml
+- res/drawable/abc_ic_menu_selectall_mtrl_alpha.xml
+- res/drawable/abc_ic_menu_share_mtrl_alpha.xml
+- res/drawable/abc_ic_search_api_material.xml
+- res/drawable/abc_ic_voice_search_api_material.xml
+- res/drawable/abc_item_background_holo_dark.xml
+- res/drawable/abc_item_background_holo_light.xml
+- res/drawable/abc_list_divider_material.xml
+- res/drawable/abc_list_selector_background_transition_holo_dark.xml
+- res/drawable/abc_list_selector_background_transition_holo_light.xml
+- res/drawable/abc_list_selector_holo_dark.xml
+- res/drawable/abc_list_selector_holo_light.xml
+- res/drawable/abc_ratingbar_indicator_material.xml
+- res/drawable/abc_ratingbar_material.xml
+- res/drawable/abc_ratingbar_small_material.xml
+- res/drawable/abc_seekbar_thumb_material.xml
+- res/drawable/abc_seekbar_tick_mark_material.xml
+- res/drawable/abc_seekbar_track_material.xml
+- res/drawable/abc_spinner_textfield_background_material.xml
+- res/drawable/abc_star_black_48dp.xml
+- res/drawable/abc_star_half_black_48dp.xml
+- res/drawable/abc_switch_thumb_material.xml
+- res/drawable/abc_tab_indicator_material.xml
+- res/drawable/abc_textfield_search_material.xml
+- res/drawable/abc_text_cursor_material.xml
+- res/drawable/abc_vector_test.xml
+- res/drawable/admob_close_button_black_circle_white_cross.xml
+- res/drawable/admob_close_button_white_circle_black_cross.xml
+- res/drawable/admob_close_button_white_cross.xml
+- res/drawable/banner_background_preview.xml
+- res/drawable/btn_checkbox_checked_mtrl.xml
+- res/drawable/btn_checkbox_checked_to_unchecked_mtrl_animation.xml
+- res/drawable/btn_checkbox_unchecked_mtrl.xml
+- res/drawable/btn_checkbox_unchecked_to_checked_mtrl_animation.xml
+- res/drawable/btn_radio_off_mtrl.xml
+- res/drawable/btn_radio_off_to_on_mtrl_animation.xml
+- res/drawable/btn_radio_on_mtrl.xml
+- res/drawable/btn_radio_on_to_off_mtrl_animation.xml
+- res/drawable/common_google_signin_btn_icon_dark.xml
+- res/drawable/common_google_signin_btn_icon_dark_focused.xml
+- res/drawable/common_google_signin_btn_icon_dark_normal.xml
+- res/drawable/common_google_signin_btn_icon_disabled.xml
+- res/drawable/common_google_signin_btn_icon_light.xml
+- res/drawable/common_google_signin_btn_icon_light_focused.xml
+- res/drawable/common_google_signin_btn_icon_light_normal.xml
+- res/drawable/common_google_signin_btn_text_dark.xml
+- res/drawable/common_google_signin_btn_text_dark_focused.xml
+- res/drawable/common_google_signin_btn_text_dark_normal.xml
+- res/drawable/common_google_signin_btn_text_disabled.xml
+- res/drawable/common_google_signin_btn_text_light.xml
+- res/drawable/common_google_signin_btn_text_light_focused.xml
+- res/drawable/common_google_signin_btn_text_light_normal.xml
+- res/drawable/com_facebook_auth_dialog_background.xml
+- res/drawable/com_facebook_auth_dialog_cancel_background.xml
+- res/drawable/com_facebook_auth_dialog_header_background.xml
+- res/drawable/com_facebook_button_background.xml
+- res/drawable/com_facebook_button_icon.xml
+- res/drawable/com_facebook_button_like_background.xml
+- res/drawable/com_facebook_button_send_background.xml
+- res/drawable/com_facebook_favicon_blue.xml
+- res/drawable/com_facebook_send_button_icon.xml
+- res/drawable/cp_bg_banner_clickbtn.xml
+- res/drawable/cp_bg_bottom_banner.xml
+- res/drawable/cp_bg_bottom_choice.xml
+- res/drawable/cp_bg_bottom_clickbtn.xml
+- res/drawable/cp_bg_countdown.xml
+- res/drawable/cp_video_close.xml
+- res/drawable/notification_action_background.xml
+- res/drawable/notification_bg.xml
+- res/drawable/notification_bg_low.xml
+- res/drawable/notification_icon_background.xml
+- res/drawable/notification_tile_bg.xml
+- res/drawable/offline_dialog_background.xml
+- res/drawable/offline_dialog_default_icon_42dp.xml
+- res/drawable/test_level_drawable.xml
+- res/drawable/tooltip_frame_dark.xml
+- res/drawable/tooltip_frame_light.xml
+- res/drawable/tp_adx_close_bg.xml
+- res/drawable/tp_bg_bottom_clickbtn.xml
+- res/drawable/tp_bg_countdown.xml
+- res/drawable/tp_bg_internative_clickbtn.xml
+- res/drawable/tp_bg_internative_icon.xml
+- res/drawable/tp_bg_internative_image.xml
+- res/drawable/tp_bg_internative_layout.xml
+- res/drawable/tp_bg_inter_countdown.xml
+- res/drawable/tp_inner_bg_app_detail.xml
+- res/drawable/tp_inner_bg_bottom_clickbtn.xml
+- res/drawable/tp_inner_bg_bottom_skip.xml
+- res/drawable/tp_inner_bg_btn_get.xml
+- res/drawable/tp_inner_bg_conduct.xml
+- res/drawable/tp_inner_bg_countdown.xml
+- res/drawable/tp_inner_bg_fullscreen_countdown.xml
+- res/drawable/tp_inner_ttd_black.xml
+- res/drawable/tp_inner_ttd_gray.xml
+- res/drawable/tw__bg_media_badge.xml
+- res/drawable/tw__btn_composer_tweet.xml
+- res/drawable/tw__call_to_action.xml
+- res/drawable/tw__gif_badge.xml
+- res/drawable/tw__like_action.xml
+- res/drawable/tw__login_btn.xml
+- res/drawable/tw__login_btn_default.xml
+- res/drawable/tw__login_btn_disabled.xml
+- res/drawable/tw__login_btn_pressed.xml
+- res/drawable/tw__player_overlay.xml
+- res/drawable/tw__quote_tweet_border.xml
+- res/drawable/tw__seekbar_thumb.xml
+- res/drawable/tw__share_action.xml
+- res/drawable/tw__video_pause_btn.xml
+- res/drawable/tw__video_play_btn.xml
+- res/drawable/tw__video_replay_btn.xml
+- res/drawable/tw__video_seekbar.xml
+- res/drawable/tw__vine_badge.xml
+- res/interpolator/btn_checkbox_checked_mtrl_animation_interpolator_0.xml
+- res/interpolator/btn_checkbox_checked_mtrl_animation_interpolator_1.xml
+- res/interpolator/btn_checkbox_unchecked_mtrl_animation_interpolator_0.xml
+- res/interpolator/btn_checkbox_unchecked_mtrl_animation_interpolator_1.xml
+- res/interpolator/btn_radio_to_off_mtrl_animation_interpolator_0.xml
+- res/interpolator/btn_radio_to_on_mtrl_animation_interpolator_0.xml
+- res/interpolator/fast_out_slow_in.xml
+- res/layout-v22/abc_alert_dialog_button_bar_material.xml
+- res/layout-v22/offline_ads_dialog.xml
+- res/layout-v26/abc_screen_toolbar.xml
+- res/layout-watch/abc_alert_dialog_button_bar_material.xml
+- res/layout-watch/abc_alert_dialog_title_material.xml
+- res/layout/abc_action_bar_title_item.xml
+- res/layout/abc_action_bar_up_container.xml
+- res/layout/abc_action_menu_item_layout.xml
+- res/layout/abc_action_menu_layout.xml
+- res/layout/abc_action_mode_bar.xml
+- res/layout/abc_action_mode_close_item_material.xml
+- res/layout/abc_activity_chooser_view.xml
+- res/layout/abc_activity_chooser_view_list_item.xml
+- res/layout/abc_alert_dialog_button_bar_material.xml
+- res/layout/abc_alert_dialog_material.xml
+- res/layout/abc_alert_dialog_title_material.xml
+- res/layout/abc_cascading_menu_item_layout.xml
+- res/layout/abc_dialog_title_material.xml
+- res/layout/abc_expanded_menu_layout.xml
+- res/layout/abc_list_menu_item_checkbox.xml
+- res/layout/abc_list_menu_item_icon.xml
+- res/layout/abc_list_menu_item_layout.xml
+- res/layout/abc_list_menu_item_radio.xml
+- res/layout/abc_popup_menu_header_item_layout.xml
+- res/layout/abc_popup_menu_item_layout.xml
+- res/layout/abc_screen_content_include.xml
+- res/layout/abc_screen_simple.xml
+- res/layout/abc_screen_simple_overlay_action_mode.xml
+- res/layout/abc_screen_toolbar.xml
+- res/layout/abc_search_dropdown_item_icons_2line.xml
+- res/layout/abc_search_view.xml
+- res/layout/abc_select_dialog_material.xml
+- res/layout/abc_tooltip.xml
+- res/layout/admob_empty_layout.xml
+- res/layout/background.xml
+- res/layout/browser_actions_context_menu_page.xml
+- res/layout/browser_actions_context_menu_row.xml
+- res/layout/com_facebook_activity_layout.xml
+- res/layout/com_facebook_device_auth_dialog_fragment.xml
+- res/layout/com_facebook_login_fragment.xml
+- res/layout/com_facebook_smart_device_dialog_fragment.xml
+- res/layout/cp_activity_ad.xml
+- res/layout/cp_alert_dialog_view.xml
+- res/layout/cp_layout_banner.xml
+- res/layout/cp_layout_banner_300_250.xml
+- res/layout/cp_layout_banner_320_50.xml
+- res/layout/cp_layout_banner_320_90.xml
+- res/layout/cp_layout_banner_728_90.xml
+- res/layout/cp_layout_endcard_banner.xml
+- res/layout/cp_layout_endcard_banner_land.xml
+- res/layout/cp_layout_skip.xml
+- res/layout/cp_layout_splash.xml
+- res/layout/custom_dialog.xml
+- res/layout/launcher.xml
+- res/layout/login.xml
+- res/layout/notification_action.xml
+- res/layout/notification_action_tombstone.xml
+- res/layout/notification_media_action.xml
+- res/layout/notification_media_cancel_action.xml
+- res/layout/notification_template_big_media.xml
+- res/layout/notification_template_big_media_custom.xml
+- res/layout/notification_template_big_media_narrow.xml
+- res/layout/notification_template_big_media_narrow_custom.xml
+- res/layout/notification_template_custom_big.xml
+- res/layout/notification_template_icon_group.xml
+- res/layout/notification_template_lines_media.xml
+- res/layout/notification_template_media.xml
+- res/layout/notification_template_media_custom.xml
+- res/layout/notification_template_part_chronometer.xml
+- res/layout/notification_template_part_time.xml
+- res/layout/offline_ads_dialog.xml
+- res/layout/select_dialog_item_material.xml
+- res/layout/select_dialog_multichoice_material.xml
+- res/layout/select_dialog_singlechoice_material.xml
+- res/layout/support_simple_spinner_dropdown_item.xml
+- res/layout/tp_activity_inner_web_view.xml
+- res/layout/tp_activity_layout_inner_fullscreen.xml
+- res/layout/tp_innerlayout_native_banner_250_ad.xml
+- res/layout/tp_innerlayout_native_banner_90_ad.xml
+- res/layout/tp_innerlayout_native_banner_ad.xml
+- res/layout/tp_innerlayout_native_countdown.xml
+- res/layout/tp_innerlayout_native_splash_ad.xml
+- res/layout/tp_innerlayout_native_splash_landscape_ad.xml
+- res/layout/tp_inner_dialog_skip.xml
+- res/layout/tp_inner_layout_app_detail.xml
+- res/layout/tp_inner_layout_app_detail_hor.xml
+- res/layout/tp_inner_layout_conduct.xml
+- res/layout/tp_inner_layout_interstitial_splash.xml
+- res/layout/tp_inner_layout_mediavideo_detail.xml
+- res/layout/tp_inner_layout_progress.xml
+- res/layout/tp_inner_layout_second_endcard.xml
+- res/layout/tp_internative_full_ad.xml
+- res/layout/tp_internative_half_ad.xml
+- res/layout/tp_internative_landscape_full_ad.xml
+- res/layout/tp_internative_landscape_half_ad.xml
+- res/layout/tp_layout_adinfo.xml
+- res/layout/tp_layout_consent.xml
+- res/layout/tp_layout_drap.xml
+- res/layout/tp_native_ad_list_item.xml
+- res/layout/tp_native_banner_ad_unit.xml
+- res/layout/tp_native_countdown.xml
+- res/layout/tp_native_express_countdown.xml
+- res/layout/tp_native_interstitial_layout.xml
+- res/layout/tp_native_splash_ad.xml
+- res/layout/tp_privace_policy_layout.xml
+- res/layout/tw__action_bar.xml
+- res/layout/tw__activity_composer.xml
+- res/layout/tw__activity_oauth.xml
+- res/layout/tw__composer_view.xml
+- res/layout/tw__gallery_activity.xml
+- res/layout/tw__media_badge.xml
+- res/layout/tw__player_activity.xml
+- res/layout/tw__tweet.xml
+- res/layout/tw__tweet_compact.xml
+- res/layout/tw__tweet_quote.xml
+- res/layout/tw__video_control.xml
+- res/mipmap-anydpi-v26/icon.xml
+- res/mipmap-anydpi-v26/icon_round.xml
+- jpg
+- res/raw/com_android_billingclient_heterodyne_info
+- res/raw/com_android_billingclient_registration_info.binarypb
+- res/raw/keep.xml
+- res/raw/keep_cronet_api.xml
+- res/xml/appsflyer_backup_rules.xml
+- res/xml/com_android_billingclient_phenotype.xml
+- res/xml/gma_ad_services_config.xml
+- res/xml/image_share_filepaths.xml
+- res/xml/network_security_config.xml
+- res/xml/provider_paths.xml
+- res/xml/tp_network_security_config.xml

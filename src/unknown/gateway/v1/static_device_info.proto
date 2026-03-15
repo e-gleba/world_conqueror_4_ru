@@ -1,0 +1,59 @@
+syntax = "proto3";
+
+package gateway.v1;
+
+option swift_prefix = "Gateway";
+
+message StaticDeviceInfo {
+  message Android {
+    optional uint32 api_level = 1;
+    optional uint32 version_code = 2;
+    optional string android_fingerprint = 3;
+    optional string app_installer = 4;
+    optional string apk_developer_signing_certificate_hash = 5;
+    optional string build_board = 6;
+    optional string build_brand = 7;
+    optional string build_device = 8;
+    optional string build_display = 9;
+    optional string build_fingerprint = 10;
+    optional string build_hardware = 11;
+    optional string build_host = 12;
+    optional string build_bootloader = 13;
+    optional string build_product = 14;
+    optional string build_id = 15;
+    optional uint32 extension_version = 16;
+  }
+
+  message Ios {
+    optional int64 system_boot_time = 1;
+    optional bool simulator = 2;
+    optional string built_sdk_version = 3;
+    repeated string skadnetwork_id = 4;
+    optional uint32 screen_scale = 5;
+    optional bool can_make_payments = 6;
+  }
+
+  optional string bundle_id = 1;
+  optional string bundle_version = 2;
+  optional bool app_debuggable = 3;
+  optional bool rooted = 4;
+  optional string os_version = 5;
+  optional string device_make = 6;
+  optional string device_model = 7;
+  optional string webview_ua = 8;
+  optional uint32 screen_density = 9;
+  optional uint32 screen_width = 10;
+  optional uint32 screen_height = 11;
+  optional uint32 screen_size = 12;
+  repeated string stores = 13;
+  optional int64 total_disk_space = 14;
+  optional int64 total_ram_memory = 15;
+  optional string cpu_model = 16;
+  optional int64 cpu_count = 17;
+  optional string gpu_model = 18;
+
+  oneof platform_specific {
+    Android android = 19;
+    Ios ios = 20;
+  }
+}

@@ -1,0 +1,38 @@
+syntax = "proto3";
+
+package gateway.v1;
+
+option swift_prefix = "Gateway";
+
+enum DeveloperConsentType {
+  DEVELOPER_CONSENT_TYPE_UNSPECIFIED = 0;
+  DEVELOPER_CONSENT_TYPE_CUSTOM = 1;
+  DEVELOPER_CONSENT_TYPE_NON_BEHAVIORAL = 2; // "user.nonBehavioral.value"
+  DEVELOPER_CONSENT_TYPE_PIPL_CONSENT = 3; // "pipl.consent.value"
+  DEVELOPER_CONSENT_TYPE_PRIVACY_CONSENT = 4; // "privacy.consent.value"
+  DEVELOPER_CONSENT_TYPE_GDPR_CONSENT = 5; // "gdpr.consent.value"
+  DEVELOPER_CONSENT_TYPE_USER_OVER_AGE_LIMIT = 6; // "privacy.useroveragelimit.value"
+}
+
+enum DeveloperConsentChoice {
+  DEVELOPER_CONSENT_CHOICE_UNSPECIFIED = 0;
+  DEVELOPER_CONSENT_CHOICE_TRUE = 1;
+  DEVELOPER_CONSENT_CHOICE_FALSE = 2;
+}
+
+// A consent option provided by the developer stored in Public storage via Metadata API.
+message DeveloperConsentOption {
+  // A Consent Type provided by the developer
+  DeveloperConsentType type = 1;
+  // A custom consent type provided by the developer, if there is not a defined consent type.
+  optional string custom_type = 2;
+  // The developer's choice for this consent type.
+  DeveloperConsentChoice value = 3;
+}
+
+// A developer's consent.
+// Because we need to be able to send a list of consent options to the server.
+message DeveloperConsent {
+  // The developer's consent options.
+  repeated DeveloperConsentOption options = 1;
+}

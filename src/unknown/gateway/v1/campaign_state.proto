@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+package gateway.v1;
+
+import "gateway/v1/timestamps.proto";
+
+option swift_prefix = "Gateway";
+
+message Campaign {
+  // Version of the campaign token
+  int32 data_version = 1;
+  // Defined in tracking/v1/loaded_campaign_token.proto
+  bytes data = 2;
+  // Placement ID for which this campaign is loaded
+  string placement_id = 3;
+  // Impression opportunity ID for which this campaign is loaded
+  bytes impression_opportunity_id = 4;
+  // Timestamps for when the campaign was loaded (when Ad Loaded event was fired)
+  Timestamps load_timestamp = 5;
+  // Timestamps for when the campaign was shown (when Show call was made and it was moved from loaded_campaigns to shown_campaigns)
+  optional Timestamps show_timestamp = 6;
+}
+
+// This structure will be converted to Loaded Campaigns required by exchange.
+message CampaignState {
+  // List of campaigns currently loaded and ready to be shown by SDK
+  repeated Campaign loaded_campaigns = 1;
+  // Last N campaigns shown by SDK in current session
+  repeated Campaign shown_campaigns = 2;
+}

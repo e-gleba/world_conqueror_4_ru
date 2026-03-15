@@ -1,0 +1,8 @@
+[
+{"Id":1,"Name":"幽灵师","TacticsSet":[10101,10102,10103,10104],"Army":[3,4,7,8,9,10,12,13,14,48,55,93],"MaxUnit":6,"MaxAssignment":10,"Country":[3,4,49]},
+{"Id":2,"Name":"矛头","TacticsSet":[10201,10202,10204,10205],"Army":[3,4,7,8,9,10,12,13,49,51,56,82,83],"MaxUnit":6,"MaxAssignment":10,"Country":[6]},
+{"Id":3,"Name":"塔曼旅","TacticsSet":[10301,10302,10303,10304,10305,10306],"Army":[1,2,3,4,11,12,13,14,16,17,49,64],"MaxUnit":6,"MaxAssignment":10,"Country":[5]},
+{"Id":4,"Name":"沙漠之鼠","TacticsSet":[10401,10402,10403,10404,10405],"Army":[3,4,7,8,9,10,12,13,14,51,74,78],"MaxUnit":6,"MaxAssignment":10,"Country":[1]},
+{"Id":5,"Name":"勒克莱尔师","TacticsSet":[10501,10502,10503,10504],"Army":[3,4,7,8,9,11,12,13,14,49,50,56,79],"MaxUnit":6,"MaxAssignment":10,"Country":[2,56]},
+{"Id":6,"Name":"闪电师","TacticsSet":[10601,10602,10603,10604],"Army":[3,4,5,11,12,13,50,63,82,93],"MaxUnit":6,"MaxAssignment":10,"Country":[7]}
+]

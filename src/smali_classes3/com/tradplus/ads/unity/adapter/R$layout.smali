@@ -1,0 +1,47 @@
+.class public final Lcom/tradplus/ads/unity/adapter/R$layout;
+.super Ljava/lang/Object;
+
+
+# annotations
+.annotation system Ldalvik/annotation/EnclosingClass;
+    value = Lcom/tradplus/ads/unity/adapter/R;
+.end annotation
+
+.annotation system Ldalvik/annotation/InnerClass;
+    accessFlags = 0x19
+    name = "layout"
+.end annotation
+
+
+# static fields
+.field public static custom_dialog:I = 0x7f0b002f
+
+.field public static notification_action:I = 0x7f0b0032
+
+.field public static notification_action_tombstone:I = 0x7f0b0033
+
+.field public static notification_template_custom_big:I = 0x7f0b003a
+
+.field public static notification_template_icon_group:I = 0x7f0b003b
+
+.field public static notification_template_part_chronometer:I = 0x7f0b003f
+
+.field public static notification_template_part_time:I = 0x7f0b0040
+
+.field public static tp_layout_adinfo:I = 0x7f0b005a
+
+.field public static tp_layout_consent:I = 0x7f0b005b
+
+.field public static tp_layout_drap:I = 0x7f0b005c
+
+.field public static tp_privace_policy_layout:I = 0x7f0b0063
+
+
+# direct methods
+.method private constructor <init>()V
+    .locals 0
+
+    invoke-direct {p0}, Ljava/lang/Object;-><init>()V
+
+    return-void
+.end method
