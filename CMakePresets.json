@@ -1,43 +1,92 @@
 {
     "$schema": "https://cmake.org/cmake/help/latest/_downloads/3e2d73bff478d88a7de0de736ba5e361/schema.json",
+    "$comment": "Requires CMake 4.2+. Schema v10 (3.31/4.x). Upgrade $schema hash from cmake.org/cmake/help/v4.2 when IDE validation matters.",
     "version": 10,
     "cmakeMinimumRequired": {
-        "major": 3,
-        "minor": 31,
+        "major": 4,
+        "minor": 2,
         "patch": 0
     },
     "configurePresets": [
         {
+            "$comment": "Base preset — inherit in all others. Override apk_input to skip auto-download.",
             "name": "default",
+            "displayName": "Default",
+            "description": "Out-of-source build under build/",
             "binaryDir": "${sourceDir}/build",
             "cacheVariables": {
                 "java_bin": {
                     "type": "FILEPATH",
                     "value": "java"
+                },
+                "python3_bin": {
+                    "type": "FILEPATH",
+                    "value": "python3"
+                },
+                "apk_input": {
+                    "$comment": "Leave empty to auto-download original.apk from GitHub release",
+                    "type": "FILEPATH",
+                    "value": ""
                 }
             }
         }
     ],
     "buildPresets": [
         {
-            "name": "update",
+            "name": "decompile",
+            "displayName": "Decompile APK",
+            "description": "apktool d + decrypt JSON + overlay diff/",
             "configurePreset": "default",
             "targets": [
-                "update"
+                "decompile"
             ]
         },
         {
-            "name": "patch",
+            "name": "sync",
+            "displayName": "Sync diff overlays",
+            "description": "Rebuild orig/ baseline, sync diff/ and diff_mod/",
             "configurePreset": "default",
             "targets": [
-                "patch"
+                "sync"
+            ]
+        },
+        {
+            "name": "build",
+            "displayName": "Build APKs",
+            "description": "Stage, encrypt, apktool b, sign — produces wc4_ru and wc4_ru_mod",
+            "configurePreset": "default",
+            "targets": [
+                "build"
             ]
         },
         {
             "name": "deploy",
+            "displayName": "Deploy to Waydroid",
+            "description": "Install both signed APKs via waydroid",
             "configurePreset": "default",
             "targets": [
-                "deploy_and_run"
+                "deploy"
+            ]
+        }
+    ],
+    "workflowPresets": [
+        {
+            "$comment": "Full pipeline: configure once, then build (implies sync) + deploy",
+            "name": "release",
+            "displayName": "Build and deploy",
+            "steps": [
+                {
+                    "type": "configure",
+                    "name": "default"
+                },
+                {
+                    "type": "build",
+                    "name": "build"
+                },
+                {
+                    "type": "build",
+                    "name": "deploy"
+                }
             ]
         }
     ]

@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.28...3.31)
+cmake_minimum_required(VERSION 4.2)
 project(
     apk_reverse_engineering
     VERSION 1.0.0
@@ -7,6 +7,10 @@ project(
     LANGUAGES
         NONE
 )
+
+# all configure-time execute_process calls are fatal by default;
+# optional calls override with COMMAND_ERROR_IS_FATAL NONE
+set(CMAKE_EXECUTE_PROCESS_COMMAND_ERROR_IS_FATAL ANY)
 
 # =========================================================================== #
 # config                                                                       #
@@ -44,7 +48,6 @@ set(diff_mod_dir
     CACHE PATH
     "overlay: unlock delta vs ru (auto-generated)"
 )
-
 set(decompiled_dir
     "${CMAKE_SOURCE_DIR}/decompiled"
     CACHE PATH
@@ -134,6 +137,7 @@ download_tool(
 
 # --------------------------------------------------------------------------- #
 # validate python cryptography                                                 #
+# NONE: if(py_rc) below is the error handler; fatal here would skip it        #
 # --------------------------------------------------------------------------- #
 execute_process(
     COMMAND
@@ -142,9 +146,8 @@ execute_process(
     ECHO_OUTPUT_VARIABLE
     ECHO_ERROR_VARIABLE
     RESULT_VARIABLE py_rc
-    COMMAND_ERROR_IS_FATAL ANY
+    COMMAND_ERROR_IS_FATAL NONE
 )
-
 if(py_rc)
     message(
         WARNING
@@ -164,7 +167,8 @@ endif()
 file(
     WRITE "${CMAKE_BINARY_DIR}/crypt_json.cmake"
     [=[
-cmake_minimum_required(VERSION 3.21)
+cmake_minimum_required(VERSION 4.2)
+set(CMAKE_EXECUTE_PROCESS_COMMAND_ERROR_IS_FATAL ANY)
 
 file(GLOB json_files "${DIR}/*.json")
 list(LENGTH json_files count)
@@ -176,15 +180,13 @@ endif()
 message(STATUS "${MODE} ${count} .json files in '${DIR}'")
 set(ok 0)
 foreach(f IN LISTS json_files)
-    cmake_path(GET f FILENAME fname)
     set(extra "")
     if(MODE STREQUAL "encrypt" AND HEADER)
         set(extra --header "${HEADER}")
     endif()
     execute_process(
         COMMAND "${PYTHON3}" "${WCRYPT}" "${MODE}" "${f}" -o "${f}" ${extra}
-        COMMAND_ECHO STDOUT
-        COMMAND_ERROR_IS_FATAL ANY)
+        COMMAND_ECHO STDOUT)
     math(EXPR ok "${ok} + 1")
 endforeach()
 message(STATUS "${MODE} done => ${ok}/${count} ok")
@@ -199,7 +201,7 @@ message(STATUS "${MODE} done => ${ok}/${count} ok")
 file(
     WRITE "${CMAKE_BINARY_DIR}/diff_sync.cmake"
     [=[
-cmake_minimum_required(VERSION 3.21)
+cmake_minimum_required(VERSION 4.2)
 
 file(MAKE_DIRECTORY "${DIFF}")
 file(GLOB_RECURSE src_files RELATIVE "${SRC}" "${SRC}/*")
@@ -238,7 +240,6 @@ foreach(rel IN LISTS src_files)
     endif()
 endforeach()
 
-# prune diff entries whose source was deleted
 file(GLOB_RECURSE diff_files RELATIVE "${DIFF}" "${DIFF}/*")
 foreach(rel IN LISTS diff_files)
     set(diff_f "${DIFF}/${rel}")
@@ -251,7 +252,6 @@ foreach(rel IN LISTS diff_files)
     endif()
 endforeach()
 
-# prune empty dirs bottom-up
 file(GLOB_RECURSE all_diff RELATIVE "${DIFF}" "${DIFF}/*")
 list(REVERSE all_diff)
 foreach(rel IN LISTS all_diff)
@@ -276,25 +276,27 @@ message(STATUS "diff_sync => '${DIFF}': +${added} updated, -${removed} removed, 
 file(
     WRITE "${CMAKE_BINARY_DIR}/waydroid_deploy.cmake"
     [=[
-cmake_minimum_required(VERSION 3.21)
+cmake_minimum_required(VERSION 4.2)
+set(CMAKE_EXECUTE_PROCESS_COMMAND_ERROR_IS_FATAL ANY)
 
 message(STATUS "starting waydroid session")
 execute_process(
     COMMAND waydroid session start
     COMMAND_ECHO STDOUT
-    OUTPUT_QUIET ERROR_QUIET)
+    OUTPUT_QUIET ERROR_QUIET
+    COMMAND_ERROR_IS_FATAL NONE)
 
 message(STATUS "removing '${PKG}'")
 execute_process(
     COMMAND waydroid app remove "${PKG}"
     COMMAND_ECHO STDOUT
-    OUTPUT_QUIET ERROR_QUIET)
+    OUTPUT_QUIET ERROR_QUIET
+    COMMAND_ERROR_IS_FATAL NONE)
 
 message(STATUS "installing '${APK}'")
 execute_process(
     COMMAND waydroid app install "${APK}"
-    COMMAND_ECHO STDOUT
-    COMMAND_ERROR_IS_FATAL ANY)
+    COMMAND_ECHO STDOUT)
 ]=]
 )
 
@@ -302,9 +304,6 @@ execute_process(
 # TARGETS                                                                     #
 # =========================================================================== #
 
-# --------------------------------------------------------------------------- #
-# decompile                                                                   #
-# --------------------------------------------------------------------------- #
 add_custom_target(
     decompile
     COMMAND
@@ -342,11 +341,6 @@ add_custom_target(
     VERBATIM
 )
 
-# --------------------------------------------------------------------------- #
-# sync                                                                        #
-# diff/     = decompiled/ vs orig/   (your edits)                             #
-# diff_mod/ = stage_mod/  vs stage_ru/ (what unlock changed — audit only)    #
-# --------------------------------------------------------------------------- #
 add_custom_target(
     sync
     COMMAND
@@ -400,9 +394,6 @@ add_custom_target(
     VERBATIM
 )
 
-# --------------------------------------------------------------------------- #
-# build                                                                       #
-# --------------------------------------------------------------------------- #
 add_custom_target(
     build
     COMMAND
@@ -486,9 +477,6 @@ add_custom_target(
     VERBATIM
 )
 
-# --------------------------------------------------------------------------- #
-# deploy                                                                      #
-# --------------------------------------------------------------------------- #
 add_custom_target(
     deploy
     COMMAND
