@@ -244,6 +244,280 @@
     return-void
 .end method
 
+.method private static CopyFile(Ljava/io/File;Ljava/io/File;)V
+    .locals 5
+
+    :try_start_0
+    new-instance v0, Ljava/io/FileInputStream;
+    invoke-direct {v0, p0}, Ljava/io/FileInputStream;-><init>(Ljava/io/File;)V
+
+    new-instance v1, Ljava/io/FileOutputStream;
+    invoke-direct {v1, p1}, Ljava/io/FileOutputStream;-><init>(Ljava/io/File;)V
+
+    const/16 v2, 0x2000
+    new-array v2, v2, [B
+
+    const/4 v4, 0x0
+
+    :loop
+    invoke-virtual {v0, v2}, Ljava/io/InputStream;->read([B)I
+    move-result v3
+    if-ltz v3, :done
+
+    invoke-virtual {v1, v2, v4, v3}, Ljava/io/OutputStream;->write([BII)V
+    goto :loop
+
+    :done
+    invoke-virtual {v0}, Ljava/io/InputStream;->close()V
+    invoke-virtual {v1}, Ljava/io/OutputStream;->close()V
+    :try_end_0
+    .catch Ljava/io/IOException; {:try_start_0 .. :try_end_0} :catch_0
+
+    return-void
+
+    :catch_0
+    move-exception v0
+    invoke-virtual {v0}, Ljava/io/IOException;->printStackTrace()V
+    return-void
+.end method
+
+.method private static MigrateSaves()V
+    .locals 12
+
+    const-string v0, "WC4M"
+
+    const-string v1, "migrate: begin"
+    invoke-static {v0, v1}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
+
+    invoke-static {}, Lcom/easytech/wc4/android/WC4Activity;->GetContext()Landroid/content/Context;
+    move-result-object v1
+    if-nez v1, :ctx_ok
+
+    const-string v1, "migrate: context == null"
+    invoke-static {v0, v1}, Landroid/util/Log;->e(Ljava/lang/String;Ljava/lang/String;)I
+    return-void
+
+    :ctx_ok
+    invoke-virtual {v1}, Landroid/content/Context;->getFilesDir()Ljava/io/File;
+    move-result-object v1
+    if-nez v1, :files_ok
+
+    const-string v1, "migrate: getFilesDir() == null"
+    invoke-static {v0, v1}, Landroid/util/Log;->e(Ljava/lang/String;Ljava/lang/String;)I
+    return-void
+
+    :files_ok
+    invoke-virtual {v1}, Ljava/io/File;->getParentFile()Ljava/io/File;
+    move-result-object v1
+    if-nez v1, :parent_ok
+
+    const-string v1, "migrate: parent == null"
+    invoke-static {v0, v1}, Landroid/util/Log;->e(Ljava/lang/String;Ljava/lang/String;)I
+    return-void
+
+    :parent_ok
+    invoke-virtual {v1}, Ljava/io/File;->listFiles()[Ljava/io/File;
+    move-result-object v2
+    if-nez v2, :scan_begin
+
+    const-string v1, "migrate: parent listFiles() == null"
+    invoke-static {v0, v1}, Landroid/util/Log;->e(Ljava/lang/String;Ljava/lang/String;)I
+    return-void
+
+    :scan_begin
+    array-length v3, v2
+    const/4 v4, 0x0
+
+    :scan_loop
+    if-ge v4, v3, :not_found
+
+    aget-object v5, v2, v4
+
+    invoke-virtual {v5}, Ljava/io/File;->isDirectory()Z
+    move-result v6
+    if-eqz v6, :scan_next
+
+    invoke-virtual {v5}, Ljava/io/File;->getName()Ljava/lang/String;
+    move-result-object v6
+
+    const-string v7, "files"
+    invoke-virtual {v6, v7}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+    move-result v7
+    if-nez v7, :scan_next
+
+    const-string v7, "cache"
+    invoke-virtual {v6, v7}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+    move-result v7
+    if-nez v7, :scan_next
+
+    const-string v7, "code_cache"
+    invoke-virtual {v6, v7}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+    move-result v7
+    if-nez v7, :scan_next
+
+    const-string v7, "shared_prefs"
+    invoke-virtual {v6, v7}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+    move-result v7
+    if-nez v7, :scan_next
+
+    const-string v7, "databases"
+    invoke-virtual {v6, v7}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+    move-result v7
+    if-nez v7, :scan_next
+
+    const-string v7, "no_backup"
+    invoke-virtual {v6, v7}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+    move-result v7
+    if-nez v7, :scan_next
+
+    const-string v7, "oat"
+    invoke-virtual {v6, v7}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+    move-result v7
+    if-nez v7, :scan_next
+
+    const-string v7, "ecPromotion"
+    invoke-virtual {v6, v7}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+    move-result v7
+    if-nez v7, :scan_next
+
+    goto :found
+
+    :scan_next
+    add-int/lit8 v4, v4, 0x1
+    goto :scan_loop
+
+    :not_found
+    const-string v1, "migrate: no save dir found"
+    invoke-static {v0, v1}, Landroid/util/Log;->w(Ljava/lang/String;Ljava/lang/String;)I
+    return-void
+
+    :found
+    new-instance v2, Ljava/io/File;
+    const-string v7, "headquarter.sav"
+    invoke-direct {v2, v5, v7}, Ljava/io/File;-><init>(Ljava/io/File;Ljava/lang/String;)V
+    invoke-virtual {v2}, Ljava/io/File;->exists()Z
+    move-result v2
+    if-nez v2, :src_ok
+
+    const-string v1, "migrate: no headquarter.sav, skip"
+    invoke-static {v0, v1}, Landroid/util/Log;->w(Ljava/lang/String;Ljava/lang/String;)I
+    return-void
+
+    :src_ok
+    invoke-static {}, Landroid/os/Environment;->getExternalStorageDirectory()Ljava/io/File;
+    move-result-object v2
+    if-nez v2, :ext_ok
+
+    const-string v1, "migrate: external storage == null"
+    invoke-static {v0, v1}, Landroid/util/Log;->e(Ljava/lang/String;Ljava/lang/String;)I
+    return-void
+
+    :ext_ok
+    invoke-virtual {v2}, Ljava/io/File;->getAbsolutePath()Ljava/lang/String;
+    move-result-object v2
+
+    new-instance v3, Ljava/lang/StringBuilder;
+    invoke-direct {v3}, Ljava/lang/StringBuilder;-><init>()V
+    invoke-virtual {v3, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    const-string v2, "/Documents/EasyTechGame/WC4"
+    invoke-virtual {v3, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    invoke-virtual {v3}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+    move-result-object v2
+
+    new-instance v3, Ljava/io/File;
+    invoke-direct {v3, v2}, Ljava/io/File;-><init>(Ljava/lang/String;)V
+
+    invoke-virtual {v3}, Ljava/io/File;->exists()Z
+    move-result v4
+    if-nez v4, :dst_root_ok
+    invoke-virtual {v3}, Ljava/io/File;->mkdirs()Z
+    move-result v4
+
+    :dst_root_ok
+    invoke-virtual {v5}, Ljava/io/File;->getName()Ljava/lang/String;
+    move-result-object v4
+
+    new-instance v6, Ljava/io/File;
+    invoke-direct {v6, v3, v4}, Ljava/io/File;-><init>(Ljava/io/File;Ljava/lang/String;)V
+
+    invoke-virtual {v6}, Ljava/io/File;->exists()Z
+    move-result v7
+    if-nez v7, :dst_dir_ok
+    invoke-virtual {v6}, Ljava/io/File;->mkdirs()Z
+    move-result v7
+
+    :dst_dir_ok
+    new-instance v7, Ljava/lang/StringBuilder;
+    invoke-direct {v7}, Ljava/lang/StringBuilder;-><init>()V
+    const-string v8, "migrate: src="
+    invoke-virtual {v7, v8}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    invoke-virtual {v5}, Ljava/io/File;->getAbsolutePath()Ljava/lang/String;
+    move-result-object v8
+    invoke-virtual {v7, v8}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    const-string v8, " dst="
+    invoke-virtual {v7, v8}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    invoke-virtual {v6}, Ljava/io/File;->getAbsolutePath()Ljava/lang/String;
+    move-result-object v8
+    invoke-virtual {v7, v8}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    invoke-virtual {v7}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+    move-result-object v7
+    invoke-static {v0, v7}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
+
+    invoke-virtual {v5}, Ljava/io/File;->listFiles()[Ljava/io/File;
+    move-result-object v2
+    if-nez v2, :copy_begin
+
+    const-string v1, "migrate: src listFiles() == null"
+    invoke-static {v0, v1}, Landroid/util/Log;->e(Ljava/lang/String;Ljava/lang/String;)I
+    return-void
+
+    :copy_begin
+    array-length v3, v2
+    const/4 v4, 0x0
+
+    :copy_loop
+    if-ge v4, v3, :done
+
+    aget-object v7, v2, v4
+
+    invoke-virtual {v7}, Ljava/io/File;->isFile()Z
+    move-result v8
+    if-eqz v8, :copy_next
+
+    invoke-virtual {v7}, Ljava/io/File;->getName()Ljava/lang/String;
+    move-result-object v8
+
+    new-instance v9, Ljava/io/File;
+    invoke-direct {v9, v6, v8}, Ljava/io/File;-><init>(Ljava/io/File;Ljava/lang/String;)V
+
+    new-instance v10, Ljava/lang/StringBuilder;
+    invoke-direct {v10}, Ljava/lang/StringBuilder;-><init>()V
+    const-string v11, "migrate: copying "
+    invoke-virtual {v10, v11}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    invoke-virtual {v7}, Ljava/io/File;->getAbsolutePath()Ljava/lang/String;
+    move-result-object v11
+    invoke-virtual {v10, v11}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    const-string v11, " => "
+    invoke-virtual {v10, v11}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    invoke-virtual {v9}, Ljava/io/File;->getAbsolutePath()Ljava/lang/String;
+    move-result-object v11
+    invoke-virtual {v10, v11}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    invoke-virtual {v10}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+    move-result-object v10
+    invoke-static {v0, v10}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
+
+    invoke-static {v7, v9}, Lcom/easytech/wc4/android/WC4Activity;->CopyFile(Ljava/io/File;Ljava/io/File;)V
+
+    :copy_next
+    add-int/lit8 v4, v4, 0x1
+    goto :copy_loop
+
+    :done
+    const-string v1, "migrate: done"
+    invoke-static {v0, v1}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
+    return-void
+.end method
+
 .method private static ContainsDoc(Ljava/lang/String;)Z
     .locals 5
 
@@ -2219,6 +2493,9 @@
     const/4 v2, 0x1
 
     :goto_1
+
+    invoke-static {}, Lcom/easytech/wc4/android/WC4Activity;->MigrateSaves()V
+
     const/4 v1, 0x1
     sput-boolean v1, Lcom/easytech/wc4/android/WC4Activity;->gameInited:Z
     sput-object p2, Lcom/easytech/wc4/android/WC4Activity;->GOOGLE_PLAYER_ID:Ljava/lang/String;
@@ -3953,6 +4230,8 @@
 
     sput-object p1, Lcom/easytech/wc4/android/WC4Activity;->appDataDir:Ljava/lang/String;
 
+    invoke-static {}, Lcom/easytech/wc4/android/WC4Activity;->MigrateSaves()V
+
     sget v0, Landroid/os/Build$VERSION;->SDK_INT:I
     const/16 v1, 0x1e
     if-ge v0, v1, :onCreate_check_manage
@@ -3972,8 +4251,8 @@
     return-void
 
     :onCreate_perm_ok
+    invoke-static {}, Lcom/easytech/wc4/android/WC4Activity;->MigrateSaves()V
     invoke-direct {p0, p0}, Lcom/easytech/wc4/android/WC4Activity;->Game_Init(Landroid/app/Activity;)V
-
     return-void
 
     :catch_0
