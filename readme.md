@@ -14,8 +14,8 @@ Decompile the APK → edit string tables + data JSON → recompile → sign → 
 | Java | 11+ | `sudo apt install default-jdk` |
 | Python | 3.12+ | system |
 | `cryptography` | any | `pip install cryptography` |
-| CMake | 3.31+ | cmake.org |
-| apktool | 2.10.0 | auto-downloaded |
+| CMake | 4.2+ | cmake.org |
+| apktool | 3.0.1 | auto-downloaded |
 | uber-apk-signer | 1.3.0 | auto-downloaded |
 | Waydroid | any | for deploy target only |
 
@@ -42,21 +42,20 @@ cmake --build build --target deploy
 ## CMake Targets
 
 | Target | What it does |
-|---|---|
+| :-- | :-- |
 | `update` | `apktool d` → `src/`; then batch-decrypt `assets/data/*.json` in-place |
 | `build` | stage `src/` → batch-encrypt JSON → `apktool b` → sign |
 | `deploy` | runs `build` then installs via `waydroid app install` |
-| `info` | print all configured paths |
 
 ## CMake Cache Variables
 
 | Variable | Default | Description |
-|---|---|---|
+| :-- | :-- | :-- |
 | `apk_input` | `` | Path to the original `.apk` |
 | `apk_pkg` | `` | Android package name (e.g. `com.easytech.wc4`) |
 | `java_bin` | `java` | Java executable |
 | `python3_bin` | `python3` | Python 3 executable |
-| `apktool_version` | `2.10.0` | apktool JAR version to download |
+| `apktool_version` | `3.0.1` | apktool JAR version to download |
 | `uber_signer_version` | `1.3.0` | uber-apk-signer JAR version |
 | `wc4_crypt` | `scripts/wc4_crypt.py` | Encryption script path |
 | `wc4_header` | `MD5_SIZE` | Header format used when re-encrypting |
@@ -72,11 +71,11 @@ cmake --preset default \
 
 ## Encryption (`scripts/wc4_crypt.py`)
 
-AES-256-CBC, key/IV extracted from `libworld-conqueror-4.so`.  
+AES-256-CBC, key/IV extracted from `libworld-conqueror-4.so`.
 All `assets/data/*.json` are encrypted blobs. The script handles five header formats:
 
 | Format | Layout |
-|---|---|
+| :-- | :-- |
 | `EASY_MD5_SIZE` | `EASY(4) + ver(4) + len(4) + md5(16) + origsize(4) + ct` |
 | `EASY_MD5` | `EASY(4) + ver(4) + len(4) + md5(16) + ct` |
 | `MD5_SIZE` | `md5(16) + origsize(4) + ct` ← default for re-encrypt |
@@ -124,7 +123,7 @@ python3 scripts/wc4_crypt.py roundtrip ArmySettings.json
 
 ## Full Unlock (`scripts/wc4_unlock.py`)
 
-Patches **all JSON data files in-place** (plaintext `src/assets/data/`) to unlock everything.  
+Patches **all JSON data files in-place** (plaintext `src/assets/data/`) to unlock everything.
 Does **not** touch stat/combat values. Does **not** modify `ScenarioSettings.json`.
 
 ```bash
@@ -164,12 +163,12 @@ python3 scripts/wc_spec_dump.py src/assets/data/ -o specs.md
 
 ```bash
 cmake --preset default -Dapk_input=~/wc4.apk -Dapk_pkg=com.easytech.wc4
-cmake --build build --target update          # decompile + decrypt
+cmake --build build --target update              # decompile + decrypt
 python3 scripts/wc4_unlock.py src/assets/data/  # unlock everything
-python3 scripts/patch_lang_notosans.py src/     # fix Cyrillic font
+python3 scripts/patch_lang_notosans.py src/      # fix Cyrillic font
 # edit src/assets/strings/strings.xml for RU strings
-cmake --build build --target build           # encrypt + recompile + sign
-cmake --build build --target deploy          # push to Waydroid
+cmake --build build --target build               # encrypt + recompile + sign
+cmake --build build --target deploy              # push to Waydroid
 ```
 
 ## Project Structure
@@ -188,13 +187,18 @@ cmake --build build --target deploy          # push to Waydroid
 └── schemas/                     # JSON schemas for data files
 ```
 
-## CI
+## Saves
 
-GitHub Actions workflow (`.github/workflows/apk-pipeline.yml`) runs on push/PR to `main`.  
-Runs `cmake --preset default` + `cmake --build build --target build` on `ubuntu-latest`.  
-Uploads `build/work/patched-aligned-debugSigned.apk` as artifact.
+Save files are stored in **public external storage** (required for Android SDK 35 target).
+On first launch after update, saves are migrated automatically from the old location.
+**Export your saves before updating** — use the in-game export function.
 
-Required secrets / env: none (apk_input is left empty in CI; use for validation only).
+## Releases
+
+| Version | Date | Notes |
+| :-- | :-- | :-- |
+| `v1.24.2_ru2` | 2026-03-22 | Save export support, GDPR crash fix, overbuf mod fix, translation fixes |
+| `v1.24.2_ru1` | 2026-03-15 | Initial public release |
 
 ## License
 
