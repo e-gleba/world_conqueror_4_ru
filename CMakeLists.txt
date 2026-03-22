@@ -19,7 +19,7 @@ set(apk_input "" CACHE FILEPATH "path to source .apk (empty = auto-download)")
 set(java_bin "java" CACHE FILEPATH "java binary")
 set(python3_bin "python3" CACHE FILEPATH "python3 binary")
 
-set(apktool_version "2.10.0" CACHE STRING "apktool version")
+set(apktool_version "3.0.1" CACHE STRING "apktool version")
 set(uber_signer_version "1.3.0" CACHE STRING "uber-apk-signer version")
 
 set(wc4_crypt
