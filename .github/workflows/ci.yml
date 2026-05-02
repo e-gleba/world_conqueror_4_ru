@@ -80,34 +80,18 @@ jobs:
       - name: Validate APK outputs
         run: |
           ls -la build/*.apk
-          for apk in build/*.apk; do
+          for apk in build/wc4_ru-aligned-debugSigned.apk build/wc4_ru_mod-aligned-debugSigned.apk; do
             test -f "$apk" || { echo "Missing $apk"; exit 1; }
             test -s "$apk" || { echo "$apk is empty"; exit 1; }
             file "$apk"
           done
-          echo "✅ All APKs built and validated."
-
-      - name: Upload wc4_ru APK
-        uses: actions/upload-artifact@v6
-        with:
-          name: wc4_ru
-          path: build/wc4_ru.apk
-          compression-level: 0
-          retention-days: 7
+          echo "✅ Both debug-signed APKs built and validated."
 
       - name: Upload wc4_ru-aligned-debugSigned APK
         uses: actions/upload-artifact@v6
         with:
           name: wc4_ru-aligned-debugSigned
           path: build/wc4_ru-aligned-debugSigned.apk
-          compression-level: 0
-          retention-days: 7
-
-      - name: Upload wc4_ru_mod APK
-        uses: actions/upload-artifact@v6
-        with:
-          name: wc4_ru_mod
-          path: build/wc4_ru_mod.apk
           compression-level: 0
           retention-days: 7
 
