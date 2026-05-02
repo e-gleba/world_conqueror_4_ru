@@ -8,57 +8,41 @@ on:
         required: true
         type: string
       apk_artifact_name:
-        description: 'Artifact name to test (wc4_ru-aligned-debugSigned or wc4_ru_mod-aligned-debugSigned)'
+        description: 'Artifact name to test'
         required: true
-        type: string
-        default: 'wc4_ru-aligned-debugSigned'
+        type: choice
+        options:
+          - wc4_ru-aligned-debugSigned
+          - wc4_ru_mod-aligned-debugSigned
+        default: 'wc4_ru_mod-aligned-debugSigned'
 
 jobs:
   waydroid:
     runs-on: [self-hosted, waydroid]
     steps:
+      - uses: actions/checkout@v6
+        with:
+          sparse-checkout: |
+            CMakeLists.txt
+            CMakePresets.json
+          sparse-checkout-cone-mode: false
+
       - name: Download APK artifact
         uses: actions/download-artifact@v7
         with:
           run-id: ${{ inputs.artifact_run_id }}
           name: ${{ inputs.apk_artifact_name }}
-          path: apks
+          path: build/
 
-      - name: Ensure Waydroid session
+      - name: Run CMake smoke_test target
         run: |
-          waydroid session start &
-          sleep 5
-
-      - name: Install APK
-        run: |
-          APK=$(ls apks/*.apk | head -1)
-          echo "Installing: $APK"
-          waydroid app remove com.easytech.wc4 || true
-          waydroid app install "$APK"
-
-      - name: Launch & 10-second crash watch
-        run: |
-          adb logcat -c || true
-          adb shell am start -n com.easytech.wc4/android.app.NativeActivity || \
-          adb shell am start -n com.easytech.wc4/com.easytech.wc4.android.WC4Activity || true
-          echo "⏳ Watching logcat for 10 seconds..."
-          sleep 10
-          adb logcat -d -s AndroidRuntime:E DEBUG:E AndroidRuntime:D '*:S' > crash.log || true
-
-      - name: Analyze logcat for crashes
-        run: |
-          if grep -iE "fatal|crash|exception|kill.*wc4|native.*crash" crash.log; then
-            echo "❌ Crash or fatal exception detected in 10s window."
-            cat crash.log
-            exit 1
-          else
-            echo "✅ No crash detected in 10s window."
-          fi
+          cmake --preset ci
+          cmake --build build --target smoke_test
 
       - name: Upload logcat
         uses: actions/upload-artifact@v6
         if: always()
         with:
           name: waydroid-logcat-${{ inputs.apk_artifact_name }}-${{ github.run_id }}
-          path: crash.log
+          path: build/smoke_test.log
           retention-days: 14
