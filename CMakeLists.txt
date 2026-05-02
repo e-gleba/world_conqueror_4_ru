@@ -97,21 +97,7 @@ set(orig_dir "${CMAKE_CURRENT_BINARY_DIR}/orig")
 set(stage_ru "${CMAKE_CURRENT_BINARY_DIR}/stage_ru")
 set(stage_mod "${CMAKE_CURRENT_BINARY_DIR}/stage_mod")
 set(assets_data_rel "assets/data")
-
-set(apktool_jar "${tools_dir}/apktool_${apktool_version}.jar")
-set(signer_jar "${tools_dir}/uber-apk-signer-${uber_signer_version}.jar")
-
-set(apk_ru_unsigned "${CMAKE_CURRENT_BINARY_DIR}/wc4_ru.apk")
-set(apk_mod_unsigned "${CMAKE_CURRENT_BINARY_DIR}/wc4_ru_mod.apk")
-set(apk_ru_signed "${CMAKE_CURRENT_BINARY_DIR}/wc4_ru-aligned-debugSigned.apk")
-set(apk_mod_signed "${CMAKE_CURRENT_BINARY_DIR}/wc4_ru_mod-aligned-debugSigned.apk")
-
-set(apktool_url
-    "https://github.com/iBotPeaches/Apktool/releases/download/v${apktool_version}/apktool_${apktool_version}.jar"
-)
-set(signer_url
-    "https://github.com/patrickfav/uber-apk-signer/releases/download/v${uber_signer_version}/uber-apk-signer-${uber_signer_version}.jar"
-)
+set(decompiled_manifest "${decompiled_dir}/AndroidManifest.xml")
 
 # ------------------------------------------------------------------------------
 # Normalize user paths
@@ -511,11 +497,11 @@ endif()
 )
 
 # ------------------------------------------------------------------------------
-# Target: decompile
+# Decompile command (file-level dependency for robust ordering)
 # ------------------------------------------------------------------------------
 
-add_custom_target(
-    decompile
+add_custom_command(
+    OUTPUT "${decompiled_manifest}"
     COMMAND "${CMAKE_COMMAND}" -E echo ""
     COMMAND "${CMAKE_COMMAND}" -E echo "=== decompile 1/4: clean ==="
     COMMAND "${CMAKE_COMMAND}" -E rm -rf "${decompiled_dir}"
@@ -538,8 +524,12 @@ add_custom_target(
     COMMAND "${CMAKE_COMMAND}" -E echo ""
     COMMAND "${CMAKE_COMMAND}" -E echo "=== decompile complete => '${decompiled_dir}' ==="
     COMMAND "${CMAKE_COMMAND}" -E echo ""
-    USES_TERMINAL
+    COMMENT "Decompiling vanilla APK into working tree"
     VERBATIM
+)
+
+add_custom_target(decompile
+    DEPENDS "${decompiled_manifest}"
 )
 
 # ------------------------------------------------------------------------------
@@ -585,7 +575,7 @@ add_custom_target(
     COMMAND "${CMAKE_COMMAND}" -E echo "  diff     => '${diff_dir}'"
     COMMAND "${CMAKE_COMMAND}" -E echo "  diff_mod => '${diff_mod_dir}'"
     COMMAND "${CMAKE_COMMAND}" -E echo ""
-    DEPENDS decompile
+    DEPENDS "${decompiled_manifest}"
     USES_TERMINAL
     VERBATIM
 )
@@ -654,7 +644,7 @@ add_custom_target(
     COMMAND "${CMAKE_COMMAND}" -E echo "  ${apk_ru_signed}"
     COMMAND "${CMAKE_COMMAND}" -E echo "  ${apk_mod_signed}"
     COMMAND "${CMAKE_COMMAND}" -E echo ""
-    DEPENDS decompile
+    DEPENDS "${decompiled_manifest}"
     USES_TERMINAL
     VERBATIM
 )
