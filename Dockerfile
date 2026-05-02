@@ -1,5 +1,5 @@
 # WC4 Build Environment — Ubuntu 24.04
-# Contains: OpenJDK, Python 3.12, CMake (latest), ninja, cryptography
+# Contains: OpenJDK, Python 3.12, CMake (latest), ninja, make, cryptography
 # Usage:
 #   docker build -t wc4-builder .
 #   docker run --rm -v $(pwd):/workspace wc4-builder cmake --build build --target build
@@ -18,6 +18,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     python3-pip \
     python3-venv \
     ninja-build \
+    make \
     unzip \
     wget \
     file \
