@@ -269,16 +269,22 @@ All automation lives in `.github/workflows/`. The builder image is published to 
 
 | Workflow | Trigger | What it does |
 |---|---|---|
-| `ci.yml` | Push / PR | Builds both APK variants, validates file structure, uploads artifacts. |
-| `release.yml` | Manual (`workflow_dispatch`) | Creates a versioned GitHub Release with `wc4_ru.apk` + `wc4_ru_mod.apk`. |
-| `smoke-test.yml` | Manual | Installs the selected APK on a self-hosted Waydroid runner and watches for crashes. |
+| `ci.yml` | Push / PR | Builds all APK variants, validates file structure, uploads **each APK as a separate artifact** with `compression-level: 0`. |
+| `release.yml` | Manual (`workflow_dispatch`) | Creates a versioned GitHub Release and attaches **every `build/*.apk` as an individual asset** using its original filename. |
+| `smoke-test.yml` | Manual | Downloads a selected APK artifact by exact name on a self-hosted Waydroid runner, installs, launches, and watches for crashes. |
 | `publish-docker.yml` | Push to `Dockerfile` | Rebuilds and pushes the builder image to `ghcr.io`. |
 
 ### Releasing a new version
 
 1. Go to **Actions → Release**.
 2. Click **Run workflow** and enter a tag (e.g. `v1.24.2_ru3`).
-3. The workflow downloads the base APK from the first release, builds both variants, creates an annotated tag, and publishes the release with APK assets attached.
+3. The workflow downloads the base APK from the first release, builds all variants, creates an annotated tag, and publishes the release with every APK attached as an individual asset.
+
+### Smoke-testing a specific artifact
+
+1. Trigger **Actions → Smoke Test**.
+2. Enter a CI run ID and the exact artifact name (e.g. `wc4_ru-aligned-debugSigned`).
+3. The self-hosted Waydroid runner downloads that artifact, installs the APK, launches the game, and monitors logcat for 10 seconds.
 
 ### Adding a Waydroid smoke-test runner
 
@@ -290,8 +296,6 @@ curl -fsSL https://github.com/actions/runner/releases/latest/download/actions-ru
 ./config.sh --url https://github.com/e-gleba/world_conqueror_4_ru --token <TOKEN> --labels waydroid
 ./run.sh
 ```
-
-Once registered, trigger **Actions → Smoke Test**, pick a CI run ID, and the runner will install, launch, and monitor logcat for 10 seconds.
 
 ---
 
