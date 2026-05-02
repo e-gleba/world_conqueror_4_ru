@@ -8,7 +8,7 @@ on:
         required: true
         type: string
       apk_artifact_name:
-        description: 'Artifact name to test (e.g. wc4_ru-aligned-debugSigned)'
+        description: 'Artifact name to test (wc4_ru-aligned-debugSigned or wc4_ru_mod-aligned-debugSigned)'
         required: true
         type: string
         default: 'wc4_ru-aligned-debugSigned'
