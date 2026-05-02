@@ -250,7 +250,8 @@ foreach(req IN ITEMS python3_bin wc4_crypt_script mode dir)
 endforeach()
 
 if(NOT EXISTS "${dir}")
-    message(FATAL_ERROR "directory does not exist: ${dir}")
+    message(WARNING "directory does not exist: ${dir}")
+    return()
 endif()
 
 file(GLOB json_files LIST_DIRECTORIES FALSE "${dir}/*.json")
