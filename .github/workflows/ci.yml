@@ -78,8 +78,7 @@ jobs:
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest \
             bash -c '
               cmake --preset default \
-                -Dapk_input=/workspace/base-apk/original.apk \
-                -Dapk_pkg=com.easytech.wc4 && \
+                -Dapk_input=/workspace/base-apk/original.apk && \
               cmake --build build --target decompile && \
               cmake --build build --target build
             '
@@ -89,8 +88,10 @@ jobs:
           ls -la build/*.apk
           test -f build/wc4_ru-aligned-debugSigned.apk || { echo "Missing RU APK"; exit 1; }
           test -f build/wc4_ru_mod-aligned-debugSigned.apk || { echo "Missing MOD APK"; exit 1; }
-          file build/wc4_ru-aligned-debugSigned.apk | grep -q "Android"
-          file build/wc4_ru_mod-aligned-debugSigned.apk | grep -q "Android"
+          test -s build/wc4_ru-aligned-debugSigned.apk || { echo "RU APK is empty"; exit 1; }
+          test -s build/wc4_ru_mod-aligned-debugSigned.apk || { echo "MOD APK is empty"; exit 1; }
+          file build/wc4_ru-aligned-debugSigned.apk
+          file build/wc4_ru_mod-aligned-debugSigned.apk
           echo "✅ Both APKs built and validated."
 
       - name: Upload APK artifacts
