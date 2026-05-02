@@ -71,9 +71,9 @@ jobs:
             -w /workspace \
             ${{ env.registry }}/${{ env.image_name }}:latest \
             bash -c '
+              set -euo pipefail
               cmake --preset ci \
                 -Dapk_input=/workspace/base-apk/original.apk && \
-              cmake --build build --target decompile && \
               cmake --build build --target build
             '
 
