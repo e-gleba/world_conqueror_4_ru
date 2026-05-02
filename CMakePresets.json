@@ -1,15 +1,14 @@
 {
     "$schema": "https://cmake.org/cmake/help/latest/_downloads/3e2d73bff478d88a7de0de736ba5e361/schema.json",
-    "$comment": "Requires CMake 4.2+. Schema v10 (3.31/4.x). Upgrade $schema hash from cmake.org/cmake/help/v4.2 when IDE validation matters.",
+    "$comment": "Requires CMake 4.0+. Schema v10 (4.0).",
     "version": 10,
     "cmakeMinimumRequired": {
         "major": 4,
-        "minor": 2,
+        "minor": 0,
         "patch": 0
     },
     "configurePresets": [
         {
-            "$comment": "Base preset — inherit in all others. Override apk_input to skip auto-download.",
             "name": "default",
             "displayName": "Default",
             "description": "Out-of-source build under build/",
@@ -30,6 +29,24 @@
                     "value": ""
                 }
             }
+        },
+        {
+            "name": "ci",
+            "displayName": "CI",
+            "description": "CI-optimized: no interactive features, pre-downloaded APK expected",
+            "generator": "Ninja",
+            "binaryDir": "${sourceDir}/build",
+            "inherits": "default",
+            "cacheVariables": {
+                "java_bin": {
+                    "type": "FILEPATH",
+                    "value": "java"
+                },
+                "python3_bin": {
+                    "type": "FILEPATH",
+                    "value": "python3"
+                }
+            }
         }
     ],
     "buildPresets": [
@@ -38,43 +55,42 @@
             "displayName": "Decompile APK",
             "description": "apktool d + decrypt JSON + overlay diff/",
             "configurePreset": "default",
-            "targets": [
-                "decompile"
-            ]
+            "targets": ["decompile"]
         },
         {
             "name": "sync",
             "displayName": "Sync diff overlays",
             "description": "Rebuild orig/ baseline, sync diff/ and diff_mod/",
             "configurePreset": "default",
-            "targets": [
-                "sync"
-            ]
+            "targets": ["sync"]
         },
         {
             "name": "build",
             "displayName": "Build APKs",
             "description": "Stage, encrypt, apktool b, sign — produces wc4_ru and wc4_ru_mod",
             "configurePreset": "default",
-            "targets": [
-                "build"
-            ]
+            "targets": ["build"]
         },
         {
             "name": "deploy",
             "displayName": "Deploy to Waydroid",
             "description": "Install both signed APKs via waydroid",
             "configurePreset": "default",
-            "targets": [
-                "deploy"
-            ]
+            "targets": ["deploy"]
+        },
+        {
+            "name": "smoke_test",
+            "displayName": "Smoke Test",
+            "description": "Install mod APK, launch, wait 25s, crash-watch via logcat",
+            "configurePreset": "default",
+            "targets": ["smoke_test"]
         }
     ],
     "workflowPresets": [
         {
-            "$comment": "Full pipeline: configure once, then build (implies sync) + deploy",
             "name": "release",
             "displayName": "Build and deploy",
+            "description": "Full pipeline: configure, build, deploy",
             "steps": [
                 {
                     "type": "configure",
@@ -87,6 +103,25 @@
                 {
                     "type": "build",
                     "name": "deploy"
+                }
+            ]
+        },
+        {
+            "name": "ci",
+            "displayName": "CI Pipeline",
+            "description": "Configure, build, smoke test",
+            "steps": [
+                {
+                    "type": "configure",
+                    "name": "ci"
+                },
+                {
+                    "type": "build",
+                    "name": "build"
+                },
+                {
+                    "type": "build",
+                    "name": "smoke_test"
                 }
             ]
         }
