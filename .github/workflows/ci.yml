@@ -1,0 +1,87 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - '**.md'
+      - '.github/logo.png'
+  pull_request:
+    paths-ignore:
+      - '**.md'
+      - '.github/logo.png'
+
+permissions:
+  contents: read
+  packages: read
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}/build-env
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: docker/login-action@v4
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # Pull published image if available; otherwise build inline (first run).
+      - name: Prepare builder image
+        run: |
+          docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest 2>/dev/null || \
+          docker build -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest .
+
+      # The base (vanilla) APK is pinned to the first release so every build is reproducible.
+      - name: Download base APK from first release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p base-apk
+          gh release download v1.24.2_ru \
+            --repo ${{ github.repository }} \
+            -p 'original.apk' \
+            -D base-apk \
+            --skip-existing || \
+          gh release download v1.24.2_ru \
+            --repo ${{ github.repository }} \
+            -p '*.apk' \
+            -D base-apk \
+            --skip-existing
+          ls -la base-apk/
+
+      - name: Configure & Build APKs in container
+        run: |
+          docker run --rm \
+            -v "${{ github.workspace }}:/workspace" \
+            -w /workspace \
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest \
+            bash -c '
+              cmake --preset default \
+                -Dapk_input=/workspace/base-apk/original.apk \
+                -Dapk_pkg=com.easytech.wc4 && \
+              cmake --build build --target build
+            '
+
+      - name: Validate APK outputs
+        run: |
+          ls -la build/*.apk
+          test -f build/wc4_ru-aligned-debugSigned.apk || { echo "Missing RU APK"; exit 1; }
+          test -f build/wc4_ru_mod-aligned-debugSigned.apk || { echo "Missing MOD APK"; exit 1; }
+          file build/wc4_ru-aligned-debugSigned.apk | grep -q "Android"
+          file build/wc4_ru_mod-aligned-debugSigned.apk | grep -q "Android"
+          echo "✅ Both APKs built and validated."
+
+      - name: Upload APK artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: wc4-apks-${{ github.run_id }}
+          path: |
+            build/wc4_ru-aligned-debugSigned.apk
+            build/wc4_ru_mod-aligned-debugSigned.apk
+          retention-days: 7
