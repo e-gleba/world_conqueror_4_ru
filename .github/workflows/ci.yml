@@ -18,6 +18,7 @@ permissions:
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}/build-env
+  BASE_RELEASE: v1.24.2_ru
 
 jobs:
   build:
@@ -31,31 +32,45 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # Pull published image if available; otherwise build inline (first run).
+      # Pull published image if available; otherwise build inline (cold start).
       - name: Prepare builder image
         run: |
           docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest 2>/dev/null || \
           docker build -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest .
 
-      # The base (vanilla) APK is pinned to the first release so every build is reproducible.
-      - name: Download base APK from first release
+      # Download the base (vanilla) APK pinned to the first release for reproducible builds.
+      - name: Download base APK
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           mkdir -p base-apk
-          gh release download v1.24.2_ru \
+          gh release download ${{ env.BASE_RELEASE }} \
             --repo ${{ github.repository }} \
             -p 'original.apk' \
             -D base-apk \
             --skip-existing || \
-          gh release download v1.24.2_ru \
+          gh release download ${{ env.BASE_RELEASE }} \
             --repo ${{ github.repository }} \
             -p '*.apk' \
             -D base-apk \
             --skip-existing
           ls -la base-apk/
 
-      - name: Configure & Build APKs in container
+      # Cache expensive intermediate artifacts across runs.
+      # Key includes the base-release version so a new APK invalidates the cache.
+      - name: Cache decompiled source & tools
+        uses: actions/cache@v4
+        with:
+          path: |
+            decompiled
+            build/tools
+          key: wc4-build-${{ env.BASE_RELEASE }}-${{ hashFiles('CMakeLists.txt', 'diff/**', 'diff_mod/**') }}
+          restore-keys: |
+            wc4-build-${{ env.BASE_RELEASE }}-
+
+      # The build target expects decompiled/ to exist (created by update/decompile).
+      # We run update first (idempotent — skips if already present), then build.
+      - name: Configure & build APKs in container
         run: |
           docker run --rm \
             -v "${{ github.workspace }}:/workspace" \
@@ -65,6 +80,7 @@ jobs:
               cmake --preset default \
                 -Dapk_input=/workspace/base-apk/original.apk \
                 -Dapk_pkg=com.easytech.wc4 && \
+              cmake --build build --target update && \
               cmake --build build --target build
             '
 
