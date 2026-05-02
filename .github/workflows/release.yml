@@ -76,18 +76,15 @@ jobs:
               cmake --build build --target build
             "
 
-      - name: Stage release assets
+      - name: Validate APK outputs
         run: |
-          cp build/wc4_ru-aligned-debugSigned.apk     wc4_ru.apk
-          cp build/wc4_ru_mod-aligned-debugSigned.apk wc4_ru_mod.apk
-          ls -la *.apk
-          test -f wc4_ru.apk     || { echo "Missing RU APK"; exit 1; }
-          test -f wc4_ru_mod.apk || { echo "Missing MOD APK"; exit 1; }
-          test -s wc4_ru.apk     || { echo "RU APK is empty"; exit 1; }
-          test -s wc4_ru_mod.apk || { echo "MOD APK is empty"; exit 1; }
-          file wc4_ru.apk
-          file wc4_ru_mod.apk
-          echo "✅ Both APKs staged and validated."
+          ls -la build/*.apk
+          for apk in build/*.apk; do
+            test -f "$apk" || { echo "Missing $apk"; exit 1; }
+            test -s "$apk" || { echo "$apk is empty"; exit 1; }
+            file "$apk"
+          done
+          echo "✅ All APKs validated."
 
       - name: Create tag & GitHub Release
         env:
@@ -100,4 +97,4 @@ jobs:
           gh release create ${{ inputs.version }} \
             --generate-notes \
             --title "${{ inputs.version }}" \
-            wc4_ru.apk wc4_ru_mod.apk
+            build/*.apk
