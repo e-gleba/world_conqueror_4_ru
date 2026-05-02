@@ -16,9 +16,9 @@ permissions:
   packages: read
 
 env:
-  REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}/build-env
-  BASE_RELEASE: v1.24.2_ru
+  registry: ghcr.io
+  image_name: ${{ github.repository }}/build-env
+  base_release: v1.24.2_ru
 
 jobs:
   build:
@@ -28,26 +28,26 @@ jobs:
 
       - uses: docker/login-action@v4
         with:
-          registry: ${{ env.REGISTRY }}
+          registry: ${{ env.registry }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Prepare builder image
         run: |
-          docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest 2>/dev/null || \
-          docker build -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest .
+          docker pull ${{ env.registry }}/${{ env.image_name }}:latest 2>/dev/null || \
+          docker build -t ${{ env.registry }}/${{ env.image_name }}:latest .
 
       - name: Download base APK
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           mkdir -p base-apk
-          gh release download ${{ env.BASE_RELEASE }} \
+          gh release download ${{ env.base_release }} \
             --repo ${{ github.repository }} \
             -p 'original.apk' \
             -D base-apk \
             --skip-existing || \
-          gh release download ${{ env.BASE_RELEASE }} \
+          gh release download ${{ env.base_release }} \
             --repo ${{ github.repository }} \
             -p '*.apk' \
             -D base-apk \
@@ -60,18 +60,18 @@ jobs:
           path: |
             decompiled
             build/tools
-          key: wc4-build-${{ env.BASE_RELEASE }}-${{ hashFiles('CMakeLists.txt', 'diff/**', 'diff_mod/**') }}
+          key: wc4-build-${{ env.base_release }}-${{ hashFiles('CMakeLists.txt', 'diff/**', 'diff_mod/**') }}
           restore-keys: |
-            wc4-build-${{ env.BASE_RELEASE }}-
+            wc4-build-${{ env.base_release }}-
 
       - name: Configure & build APKs in container
         run: |
           docker run --rm \
             -v "${{ github.workspace }}:/workspace" \
             -w /workspace \
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest \
+            ${{ env.registry }}/${{ env.image_name }}:latest \
             bash -c '
-              cmake --preset default \
+              cmake --preset ci \
                 -Dapk_input=/workspace/base-apk/original.apk && \
               cmake --build build --target decompile && \
               cmake --build build --target build
@@ -102,3 +102,21 @@ jobs:
           path: build/wc4_ru_mod-aligned-debugSigned.apk
           compression-level: 0
           retention-days: 7
+
+  smoke_test:
+    name: smoke-test
+    needs: build
+    runs-on: [self-hosted, waydroid]
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Download APK artifact
+        uses: actions/download-artifact@v7
+        with:
+          name: wc4_ru_mod-aligned-debugSigned
+          path: build/
+
+      - name: Run CMake smoke_test target
+        run: |
+          cmake --preset ci
+          cmake --build build --target smoke_test
