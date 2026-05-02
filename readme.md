@@ -7,6 +7,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./license)
 [![CMake](https://img.shields.io/badge/CMake-4.2+-064F8C?logo=cmake)](https://cmake.org)
 [![Python](https://img.shields.io/badge/Python-3.12+-3776AB?logo=python&logoColor=white)](https://python.org)
+[![CI](https://img.shields.io/github/actions/workflow/status/e-gleba/world_conqueror_4_ru/ci.yml?branch=main&label=CI)](https://github.com/e-gleba/world_conqueror_4_ru/actions/workflows/ci.yml)
 
 </div>
 
@@ -219,11 +220,17 @@ python3 scripts/wc_spec_dump.py src/assets/data/ -o specs.md
 world_conqueror_4_ru/
 ├── CMakeLists.txt                 # Build orchestration (LANGUAGES NONE)
 ├── CMakePresets.json              # Default configure / build presets
+├── Dockerfile                     # CI build environment (Ubuntu 24.04 + OpenJDK + Python)
 ├── scripts/
 │   ├── wc4_crypt.py               # AES-256-CBC toolkit
 │   ├── wc4_unlock.py              # Full-unlock patcher
 │   ├── patch_lang_notosans.py     # Cyrillic font replacement
 │   └── wc_spec_dump.py            # Stat dump → Markdown
+├── .github/workflows/
+│   ├── ci.yml                     # Push / PR build & validation
+│   ├── release.yml                # Manual release with APK publishing
+│   ├── smoke-test.yml             # Waydroid self-hosted runner smoke test
+│   └── publish-docker.yml         # Builder image → ghcr.io
 ├── diff/                          # RU translation overlay (vs vanilla)
 ├── diff_mod/                      # Unlock delta (auto-generated)
 ├── schemas/                       # JSON schemas for game data files
@@ -253,6 +260,38 @@ cmake --build build --target build
 # --- Phase 5: Deploy ---
 cmake --build build --target deploy
 ```
+
+---
+
+## CI / CD
+
+All automation lives in `.github/workflows/`. The builder image is published to `ghcr.io` so CI and local builds use the exact same environment.
+
+| Workflow | Trigger | What it does |
+|---|---|---|
+| `ci.yml` | Push / PR | Builds both APK variants, validates file structure, uploads artifacts. |
+| `release.yml` | Manual (`workflow_dispatch`) | Creates a versioned GitHub Release with `wc4_ru.apk` + `wc4_ru_mod.apk`. |
+| `smoke-test.yml` | Manual | Installs the selected APK on a self-hosted Waydroid runner and watches for crashes. |
+| `publish-docker.yml` | Push to `Dockerfile` | Rebuilds and pushes the builder image to `ghcr.io`. |
+
+### Releasing a new version
+
+1. Go to **Actions → Release**.
+2. Click **Run workflow** and enter a tag (e.g. `v1.24.2_ru3`).
+3. The workflow downloads the base APK from the first release, builds both variants, creates an annotated tag, and publishes the release with APK assets attached.
+
+### Adding a Waydroid smoke-test runner
+
+The `smoke-test.yml` workflow expects a self-hosted runner with the labels `[self-hosted, waydroid]`. To register one:
+
+```bash
+# On a Linux machine with Waydroid already configured
+curl -fsSL https://github.com/actions/runner/releases/latest/download/actions-runner-linux-x64.tar.gz | tar xz
+./config.sh --url https://github.com/e-gleba/world_conqueror_4_ru --token <TOKEN> --labels waydroid
+./run.sh
+```
+
+Once registered, trigger **Actions → Smoke Test**, pick a CI run ID, and the runner will install, launch, and monitor logcat for 10 seconds.
 
 ---
 
