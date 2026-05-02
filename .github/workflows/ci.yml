@@ -68,8 +68,8 @@ jobs:
           restore-keys: |
             wc4-build-${{ env.BASE_RELEASE }}-
 
-      # The build target expects decompiled/ to exist (created by update/decompile).
-      # We run update first (idempotent — skips if already present), then build.
+      # The build target expects decompiled/ to exist (created by the decompile target).
+      # We run decompile first (idempotent — skips if already present), then build.
       - name: Configure & build APKs in container
         run: |
           docker run --rm \
@@ -80,7 +80,7 @@ jobs:
               cmake --preset default \
                 -Dapk_input=/workspace/base-apk/original.apk \
                 -Dapk_pkg=com.easytech.wc4 && \
-              cmake --build build --target update && \
+              cmake --build build --target decompile && \
               cmake --build build --target build
             '
 

@@ -71,9 +71,8 @@ jobs:
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest \
             bash -c "
               cmake --preset default \
-                -Dapk_input=/workspace/$BASE_APK \
-                -Dapk_pkg=com.easytech.wc4 && \
-              cmake --build build --target update && \
+                -Dapk_input=/workspace/$BASE_APK && \
+              cmake --build build --target decompile && \
               cmake --build build --target build
             "
 
