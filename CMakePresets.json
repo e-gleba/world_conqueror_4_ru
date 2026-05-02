@@ -13,6 +13,7 @@
             "name": "default",
             "displayName": "Default",
             "description": "Out-of-source build under build/",
+            "generator": "Ninja",
             "binaryDir": "${sourceDir}/build",
             "cacheVariables": {
                 "java_bin": {
