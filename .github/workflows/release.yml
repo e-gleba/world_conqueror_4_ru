@@ -15,6 +15,7 @@ permissions:
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}/build-env
+  BASE_RELEASE: v1.24.2_ru
 
 jobs:
   build:
@@ -33,22 +34,32 @@ jobs:
           docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest 2>/dev/null || \
           docker build -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest .
 
-      - name: Download base APK from first release
+      - name: Download base APK
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           mkdir -p base-apk
-          gh release download v1.24.2_ru \
+          gh release download ${{ env.BASE_RELEASE }} \
             --repo ${{ github.repository }} \
             -p 'original.apk' \
             -D base-apk \
             --skip-existing || \
-          gh release download v1.24.2_ru \
+          gh release download ${{ env.BASE_RELEASE }} \
             --repo ${{ github.repository }} \
             -p '*.apk' \
             -D base-apk \
             --skip-existing
           ls -la base-apk/
+
+      - name: Cache decompiled source & tools
+        uses: actions/cache@v4
+        with:
+          path: |
+            decompiled
+            build/tools
+          key: wc4-build-${{ env.BASE_RELEASE }}-${{ hashFiles('CMakeLists.txt', 'diff/**', 'diff_mod/**') }}
+          restore-keys: |
+            wc4-build-${{ env.BASE_RELEASE }}-
 
       - name: Build APKs in container
         run: |
@@ -62,6 +73,7 @@ jobs:
               cmake --preset default \
                 -Dapk_input=/workspace/$BASE_APK \
                 -Dapk_pkg=com.easytech.wc4 && \
+              cmake --build build --target update && \
               cmake --build build --target build
             "
 
