@@ -21,11 +21,6 @@ jobs:
     runs-on: [self-hosted, waydroid]
     steps:
       - uses: actions/checkout@v6
-        with:
-          sparse-checkout: |
-            CMakeLists.txt
-            CMakePresets.json
-          sparse-checkout-cone-mode: false
 
       - name: Download APK artifact
         uses: actions/download-artifact@v7
