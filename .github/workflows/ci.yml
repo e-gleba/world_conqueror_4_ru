@@ -32,13 +32,11 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # Pull published image if available; otherwise build inline (cold start).
       - name: Prepare builder image
         run: |
           docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest 2>/dev/null || \
           docker build -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest .
 
-      # Download the base (vanilla) APK pinned to the first release for reproducible builds.
       - name: Download base APK
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -56,8 +54,6 @@ jobs:
             --skip-existing
           ls -la base-apk/
 
-      # Cache expensive intermediate artifacts across runs.
-      # Key includes the base-release version so a new APK invalidates the cache.
       - name: Cache decompiled source & tools
         uses: actions/cache@v5
         with:
@@ -68,8 +64,6 @@ jobs:
           restore-keys: |
             wc4-build-${{ env.BASE_RELEASE }}-
 
-      # The build target expects decompiled/ to exist (created by the decompile target).
-      # We run decompile first (idempotent — skips if already present), then build.
       - name: Configure & build APKs in container
         run: |
           docker run --rm \
@@ -94,18 +88,16 @@ jobs:
           file build/wc4_ru_mod-aligned-debugSigned.apk
           echo "✅ Both APKs built and validated."
 
-      # Upload each APK as a separate artifact so downstream jobs (e.g. smoke-test)
-      # can pull exactly one variant without unpacking a combined archive.
-      - name: Upload RU APK
+      - name: Upload RU APK artifact
         uses: actions/upload-artifact@v6
         with:
-          name: wc4-ru-${{ github.run_id }}
+          name: wc4-ru
           path: build/wc4_ru-aligned-debugSigned.apk
           retention-days: 7
 
-      - name: Upload MOD APK
+      - name: Upload MOD APK artifact
         uses: actions/upload-artifact@v6
         with:
-          name: wc4-mod-${{ github.run_id }}
+          name: wc4-mod
           path: build/wc4_ru_mod-aligned-debugSigned.apk
           retention-days: 7

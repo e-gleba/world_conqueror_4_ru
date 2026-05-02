@@ -18,16 +18,14 @@ on:
 
 jobs:
   waydroid:
-    # Waydroid requires binder/ashmem kernel modules not present on GitHub-hosted runners.
-    # Set up a self-hosted Linux runner with the labels [self-hosted, waydroid].
     runs-on: [self-hosted, waydroid]
     steps:
       - name: Download APK artifact
         uses: actions/download-artifact@v7
         with:
           run-id: ${{ inputs.artifact_run_id }}
-          name: wc4-${{ inputs.apk_variant }}-${{ inputs.artifact_run_id }}
-          path: apk
+          name: wc4-${{ inputs.apk_variant }}
+          path: apks
 
       - name: Ensure Waydroid session
         run: |
@@ -36,16 +34,14 @@ jobs:
 
       - name: Install APK
         run: |
-          APK=$(ls apk/*.apk | head -1)
+          APK=$(ls apks/*.apk | head -1)
           echo "Installing: $APK"
           waydroid app remove com.easytech.wc4 || true
           waydroid app install "$APK"
 
       - name: Launch & 10-second crash watch
         run: |
-          # Reset logcat buffer
           adb logcat -c || true
-          # Launch main activity
           adb shell am start -n com.easytech.wc4/android.app.NativeActivity || \
           adb shell am start -n com.easytech.wc4/com.easytech.wc4.android.WC4Activity || true
           echo "⏳ Watching logcat for 10 seconds..."
