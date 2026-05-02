@@ -1,0 +1,76 @@
+name: smoke-test
+
+on:
+  workflow_dispatch:
+    inputs:
+      artifact_run_id:
+        description: 'GitHub Actions run ID containing APK artifacts'
+        required: true
+        type: string
+      apk_variant:
+        description: 'Which variant to test'
+        required: true
+        type: choice
+        options:
+          - ru
+          - mod
+        default: ru
+
+jobs:
+  waydroid:
+    # Waydroid requires binder/ashmem kernel modules not present on GitHub-hosted runners.
+    # Set up a self-hosted Linux runner with the labels [self-hosted, waydroid].
+    runs-on: [self-hosted, waydroid]
+    steps:
+      - name: Download APK artifact
+        uses: actions/download-artifact@v4
+        with:
+          run-id: ${{ inputs.artifact_run_id }}
+          name: wc4-apks-${{ inputs.artifact_run_id }}
+          path: apks
+
+      - name: Ensure Waydroid session
+        run: |
+          waydroid session start &
+          sleep 5
+
+      - name: Install APK
+        run: |
+          VARIANT="${{ inputs.apk_variant }}"
+          if [ "$VARIANT" = "ru" ]; then
+            APK=$(ls apks/*ru*.apk | grep -v mod | head -1)
+          else
+            APK=$(ls apks/*mod*.apk | head -1)
+          fi
+          echo "Installing: $APK"
+          waydroid app remove com.easytech.wc4 || true
+          waydroid app install "$APK"
+
+      - name: Launch & 10-second crash watch
+        run: |
+          # Reset logcat buffer
+          adb logcat -c || true
+          # Launch main activity
+          adb shell am start -n com.easytech.wc4/android.app.NativeActivity || \
+          adb shell am start -n com.easytech.wc4/com.easytech.wc4.android.WC4Activity || true
+          echo "⏳ Watching logcat for 10 seconds..."
+          sleep 10
+          adb logcat -d -s AndroidRuntime:E DEBUG:E AndroidRuntime:D '*:S' > crash.log || true
+
+      - name: Analyze logcat for crashes
+        run: |
+          if grep -iE "fatal|crash|exception|kill.*wc4|native.*crash" crash.log; then
+            echo "❌ Crash or fatal exception detected in 10s window."
+            cat crash.log
+            exit 1
+          else
+            echo "✅ No crash detected in 10s window."
+          fi
+
+      - name: Upload logcat
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: waydroid-logcat-${{ inputs.apk_variant }}-${{ github.run_id }}
+          path: crash.log
+          retention-days: 14
