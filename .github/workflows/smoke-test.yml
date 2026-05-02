@@ -23,11 +23,11 @@ jobs:
     runs-on: [self-hosted, waydroid]
     steps:
       - name: Download APK artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           run-id: ${{ inputs.artifact_run_id }}
-          name: wc4-apks-${{ inputs.artifact_run_id }}
-          path: apks
+          name: wc4-${{ inputs.apk_variant }}-${{ inputs.artifact_run_id }}
+          path: apk
 
       - name: Ensure Waydroid session
         run: |
@@ -36,12 +36,7 @@ jobs:
 
       - name: Install APK
         run: |
-          VARIANT="${{ inputs.apk_variant }}"
-          if [ "$VARIANT" = "ru" ]; then
-            APK=$(ls apks/*ru*.apk | grep -v mod | head -1)
-          else
-            APK=$(ls apks/*mod*.apk | head -1)
-          fi
+          APK=$(ls apk/*.apk | head -1)
           echo "Installing: $APK"
           waydroid app remove com.easytech.wc4 || true
           waydroid app install "$APK"
@@ -68,7 +63,7 @@ jobs:
           fi
 
       - name: Upload logcat
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         if: always()
         with:
           name: waydroid-logcat-${{ inputs.apk_variant }}-${{ github.run_id }}
