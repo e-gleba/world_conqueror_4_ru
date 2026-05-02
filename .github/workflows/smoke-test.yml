@@ -7,14 +7,11 @@ on:
         description: 'GitHub Actions run ID containing APK artifacts'
         required: true
         type: string
-      apk_variant:
-        description: 'Which variant to test'
+      apk_artifact_name:
+        description: 'Artifact name to test (e.g. wc4_ru-aligned-debugSigned)'
         required: true
-        type: choice
-        options:
-          - ru
-          - mod
-        default: ru
+        type: string
+        default: 'wc4_ru-aligned-debugSigned'
 
 jobs:
   waydroid:
@@ -24,7 +21,7 @@ jobs:
         uses: actions/download-artifact@v7
         with:
           run-id: ${{ inputs.artifact_run_id }}
-          name: wc4-${{ inputs.apk_variant }}
+          name: ${{ inputs.apk_artifact_name }}
           path: apks
 
       - name: Ensure Waydroid session
@@ -62,6 +59,6 @@ jobs:
         uses: actions/upload-artifact@v6
         if: always()
         with:
-          name: waydroid-logcat-${{ inputs.apk_variant }}-${{ github.run_id }}
+          name: waydroid-logcat-${{ inputs.apk_artifact_name }}-${{ github.run_id }}
           path: crash.log
           retention-days: 14
