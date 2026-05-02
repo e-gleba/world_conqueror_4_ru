@@ -85,45 +85,5 @@
             "configurePreset": "default",
             "targets": ["smoke_test"]
         }
-    ],
-    "workflowPresets": [
-        {
-            "name": "release",
-            "displayName": "Build and deploy",
-            "description": "Full pipeline: configure, build, deploy",
-            "steps": [
-                {
-                    "type": "configure",
-                    "name": "default"
-                },
-                {
-                    "type": "build",
-                    "name": "build"
-                },
-                {
-                    "type": "build",
-                    "name": "deploy"
-                }
-            ]
-        },
-        {
-            "name": "ci",
-            "displayName": "CI Pipeline",
-            "description": "Configure, build, smoke test",
-            "steps": [
-                {
-                    "type": "configure",
-                    "name": "ci"
-                },
-                {
-                    "type": "build",
-                    "name": "build"
-                },
-                {
-                    "type": "build",
-                    "name": "smoke_test"
-                }
-            ]
-        }
     ]
 }
