@@ -59,7 +59,7 @@ jobs:
       # Cache expensive intermediate artifacts across runs.
       # Key includes the base-release version so a new APK invalidates the cache.
       - name: Cache decompiled source & tools
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             decompiled
@@ -94,11 +94,18 @@ jobs:
           file build/wc4_ru_mod-aligned-debugSigned.apk
           echo "✅ Both APKs built and validated."
 
-      - name: Upload APK artifacts
-        uses: actions/upload-artifact@v4
+      # Upload each APK as a separate artifact so downstream jobs (e.g. smoke-test)
+      # can pull exactly one variant without unpacking a combined archive.
+      - name: Upload RU APK
+        uses: actions/upload-artifact@v6
         with:
-          name: wc4-apks-${{ github.run_id }}
-          path: |
-            build/wc4_ru-aligned-debugSigned.apk
-            build/wc4_ru_mod-aligned-debugSigned.apk
+          name: wc4-ru-${{ github.run_id }}
+          path: build/wc4_ru-aligned-debugSigned.apk
+          retention-days: 7
+
+      - name: Upload MOD APK
+        uses: actions/upload-artifact@v6
+        with:
+          name: wc4-mod-${{ github.run_id }}
+          path: build/wc4_ru_mod-aligned-debugSigned.apk
           retention-days: 7
