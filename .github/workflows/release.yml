@@ -81,6 +81,13 @@ jobs:
           cp build/wc4_ru-aligned-debugSigned.apk     wc4_ru.apk
           cp build/wc4_ru_mod-aligned-debugSigned.apk wc4_ru_mod.apk
           ls -la *.apk
+          test -f wc4_ru.apk     || { echo "Missing RU APK"; exit 1; }
+          test -f wc4_ru_mod.apk || { echo "Missing MOD APK"; exit 1; }
+          test -s wc4_ru.apk     || { echo "RU APK is empty"; exit 1; }
+          test -s wc4_ru_mod.apk || { echo "MOD APK is empty"; exit 1; }
+          file wc4_ru.apk
+          file wc4_ru_mod.apk
+          echo "✅ Both APKs staged and validated."
 
       - name: Create tag & GitHub Release
         env:
