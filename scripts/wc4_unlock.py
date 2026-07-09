@@ -4,6 +4,7 @@
 Patches ALL JSON data files in-place to unlock everything.
 Does NOT change any stat/combat/effect values.
 PRESERVES AdvanceID chains in GeneralPromotionSettings.
+PRESERVES facility requirements in EliteArmySettings.
 Does NOT touch ScenarioSettings.json.
 Does NOT touch FrontierStageSetting / FrontierNodeSetting / FrontierChapterSetting.
 Price field intentionally excluded — uint32 underflow risk with active promotions.
@@ -187,6 +188,7 @@ _r("ArmyGroupChallengeSettings.json", "UnlockId", "zero")
 
 # =====================================================================
 # 12. ELITE ARMY UPGRADES
+#     RequireCityType is a facility id and is intentionally untouched.
 # =====================================================================
 _r("EliteArmySettings.json", "NeedHQLv", "zero")
 _r("EliteArmySettings.json", "CostGold", "zero")
@@ -195,7 +197,6 @@ _r("EliteArmySettings.json", "CostEnergy", "zero")
 _r("EliteArmySettings.json", "CostTech", "zero")
 _r("EliteArmySettings.json", "CostItem", "set", 1)
 _r("EliteArmySettings.json", "CostBadge", "zero")
-_r("EliteArmySettings.json", "RequireCityType", "set", 20001)
 
 _r("EliteChallengeSettings.json", "UnlockId", "zero")
 
@@ -447,4 +448,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-
