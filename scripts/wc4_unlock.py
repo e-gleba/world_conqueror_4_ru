@@ -4,6 +4,7 @@
 Patches ALL JSON data files in-place to unlock everything.
 Does NOT change any stat/combat/effect values.
 PRESERVES AdvanceID chains in GeneralPromotionSettings.
+PRESERVES facility requirements in EliteArmySettings.
 Does NOT touch ScenarioSettings.json.
 Does NOT touch FrontierStageSetting / FrontierNodeSetting / FrontierChapterSetting.
 Price field intentionally excluded — uint32 underflow risk with active promotions.
@@ -25,9 +26,6 @@ from typing import Any
 type Rules = list[tuple[str, str, Any]]
 type FileRules = dict[str, Rules]
 
-# ---------------------------------------------------------------------------
-# JSON backend — orjson ~3-5x faster; stdlib fallback
-# ---------------------------------------------------------------------------
 try:
     import orjson as _orjson  # type: ignore[import-untyped]
 
@@ -51,9 +49,6 @@ except ModuleNotFoundError:
         )
 
 
-# ---------------------------------------------------------------------------
-# Rule registry
-# ---------------------------------------------------------------------------
 FILE_RULES: FileRules = {}
 
 
@@ -61,9 +56,6 @@ def _r(fn: str, field: str, op: str, val: Any = None) -> None:
     FILE_RULES.setdefault(fn, []).append((field, op, val))
 
 
-# =====================================================================
-# 1. GENERALS — main definition
-# =====================================================================
 _gs = "GeneralSettings.json"
 for _f in (
     "InfantryMax",
@@ -80,9 +72,6 @@ _r(_gs, "CostGold", "zero")
 _r(_gs, "InShop", "set_nz", 1)
 _r(_gs, "Evaluate", "set_nz", 3)
 
-# =====================================================================
-# 2. GENERALS — promotions  (AdvanceID untouched — linked list)
-# =====================================================================
 _gp = "GeneralPromotionSettings.json"
 for _f in (
     "InfantryMax",
@@ -99,41 +88,20 @@ _r(_gp, "CostSceptre", "zero")
 _r(_gp, "CostMedal", "zero")
 _r(_gp, "CostMerit", "set", 1)
 
-# =====================================================================
-# 3. GENERALS — rank-up
-# =====================================================================
 _r("GeneralLevelSettings.json", "CostMedal", "cost1")
 _r("GeneralLevelSettings.json", "NeedHQLv", "set", 1)
-
-# =====================================================================
-# 4. GENERALS — decorations
-# =====================================================================
 _r("GeneralMedalSettings.json", "Cost", "cost1")
-
-# =====================================================================
-# 5. GENERALS — quality tiers
-# =====================================================================
 _r("GeneralQualitySettings.json", "CostGold", "zero")
 _r("GeneralQualitySettings.json", "CostMedal", "cost1")
 _r("GeneralQualitySettings.json", "RibbonNum", "set", 3)
-
-# =====================================================================
-# 6. GENERALS — biography stages
-# =====================================================================
 _r("GeneralStageSettings.json", "Open", "set", True)
 _r("GeneralStageSettings.json", "UnlockStageId", "zero")
 
-# =====================================================================
-# 7. SKILLS
-# =====================================================================
 _r("SkillSettings.json", "CostMedal", "cost1")
 _r("SkillSettings.json", "OpenDefault", "set", 1)
 _r("SkillSettings.json", "NeedStageId", "zero")
 _r("SkillSettings.json", "NeedScenarioId", "zero")
 
-# =====================================================================
-# 8. TECHNOLOGY
-# =====================================================================
 _r("TechnologySettings.json", "NeedScenarioId", "set", 0)
 _r("TechnologySettings.json", "NeedHQLv", "zero")
 _r("TechnologySettings.json", "CostGold", "zero")
@@ -148,46 +116,30 @@ _r("CountryTechSettings.json", "CostAtomic", "zero")
 _r("CountryTechSettings.json", "CostMerit", "set", 1)
 _r("CountryTechSettings.json", "ResearchLv", "set", 1)
 
-# =====================================================================
-# 9. STAGES / CAMPAIGNS
-# =====================================================================
 _r("StageSettings.json", "Open", "set", True)
 _r("StageSettings.json", "UnlockHQ", "zero")
-
 _r("EventStageSettings.json", "UnlockStageId", "zero")
 
-# =====================================================================
-# 10. CONQUESTS
-# =====================================================================
 _r("ConquerSettings.json", "Open", "set", 1)
 _r("ConquerSettings.json", "Visible", "set", 1)
-
 _r("ConquerCountrySettings.json", "CostMoney", "zero")
 _r("ConquerCountrySettings.json", "CostGear", "zero")
 _r("ConquerCountrySettings.json", "CostAtomic", "zero")
 _r("ConquerCountrySettings.json", "CloseTechTypes", "clear")
 _r("ConquerCountrySettings.json", "Seat", "set", 30)
-
 _r("ConquerChallengeSettings.json", "UnlockId", "zero")
 _r("ConquerPassSettings.json", "Point", "set", 1)
 
-# =====================================================================
-# 11. ARMY GROUP
-# =====================================================================
 _r("ArmyGroupSettings.json", "CostMoney", "set", 1)
 _r("ArmyGroupSettings.json", "CostGear", "zero")
 _r("ArmyGroupSettings.json", "CostAtomic", "zero")
 _r("ArmyGroupSettings.json", "CloseTechTypes", "clear")
 _r("ArmyGroupSettings.json", "CloseCardTypes", "clear")
 _r("ArmyGroupSettings.json", "TechAcquire", "zero")
-
 _r("ArmyGroupCardSettings.json", "NeedTechNum", "zero")
 _r("ArmyGroupReinforcementSettings.json", "CostPoint", "zero")
 _r("ArmyGroupChallengeSettings.json", "UnlockId", "zero")
 
-# =====================================================================
-# 12. ELITE ARMY UPGRADES
-# =====================================================================
 _r("EliteArmySettings.json", "NeedHQLv", "zero")
 _r("EliteArmySettings.json", "CostGold", "zero")
 _r("EliteArmySettings.json", "CostIndustry", "zero")
@@ -195,13 +147,8 @@ _r("EliteArmySettings.json", "CostEnergy", "zero")
 _r("EliteArmySettings.json", "CostTech", "zero")
 _r("EliteArmySettings.json", "CostItem", "set", 1)
 _r("EliteArmySettings.json", "CostBadge", "zero")
-_r("EliteArmySettings.json", "RequireCityType", "set", 20001)
-
 _r("EliteChallengeSettings.json", "UnlockId", "zero")
 
-# =====================================================================
-# 13. ARMY PURCHASE
-# =====================================================================
 _r("ArmySettings.json", "CostMoney", "cost1")
 _r("ArmySettings.json", "CostGear", "zero")
 _r("ArmySettings.json", "CostAtomic", "zero")
@@ -209,86 +156,43 @@ _r("ArmySettings.json", "CostPoints", "zero")
 _r("ArmySettings.json", "BuildTime", "zero")
 _r("ArmySettings.json", "BuildCD", "zero")
 
-# =====================================================================
-# 14. BUILDINGS / FACILITIES / AIR DEFENCE
-# =====================================================================
 _r("CityFeatureSettings.json", "CostMoney", "set", 1)
 _r("CityFeatureSettings.json", "CostGear", "zero")
-
 _r("FacilitySettings.json", "CostMoney", "cost1")
 _r("FacilitySettings.json", "CostGear", "zero")
 _r("FacilitySettings.json", "CostAtomic", "zero")
-
 _r("AirDefenceSettings.json", "CostMoney", "set", 1)
 _r("AirDefenceSettings.json", "CostGear", "zero")
 _r("AirDefenceSettings.json", "CostAtomic", "zero")
 
-# =====================================================================
-# 15. WONDERS
-# =====================================================================
 _r("WonderSettings.json", "CostGold", "zero")
 _r("WonderSettings.json", "CostIndustry", "zero")
 _r("WonderSettings.json", "CostEnergy", "zero")
 _r("WonderSettings.json", "CostTech", "zero")
 _r("WonderSettings.json", "CostMedals", "cost1")
 
-# =====================================================================
-# 16. LEGION / CORPS
-# =====================================================================
 _r("LegionSettings.json", "UnlockHqLv", "set", 1)
 _r("LegionSettings.json", "CostGold", "set", 1)
 _r("LegionSettings.json", "CostIndustry", "zero")
 _r("LegionSettings.json", "CostEnergy", "zero")
-
 _r("CorpsSettings.json", "NeedExp", "zero")
 _r("CorpsSettings.json", "UnlockLegionLv", "zero")
-
-# =====================================================================
-# 17. LEGEND MODE
-# =====================================================================
 _r("LegendChapterSettings.json", "NeedHQLv", "set", 1)
 _r("LegendStageSettings.json", "UnlockId", "zero")
-
-# =====================================================================
-# 18. EVENTS
-# =====================================================================
 _r("EventSettings.json", "NeedHQLv", "set", 1)
 _r("EventCalendarSettings.json", "NeedHQLv", "zero")
-
-# =====================================================================
-# 19. ACHIEVEMENTS
-# =====================================================================
 _r("AchievementSettings.json", "UnlockId", "zero")
-
-# =====================================================================
-# 20. FRONTIER — reinforcement costs only
-#     FrontierStageSetting / FrontierNodeSetting / FrontierChapterSetting
-#     are intentionally untouched.
-# =====================================================================
 _r("FrontierReinforcementSetting.json", "CostMoney", "zero")
 _r("FrontierReinforcementSetting.json", "CostGear", "zero")
 _r("FrontierReinforcementSetting.json", "CostAtomic", "zero")
-
-# =====================================================================
-# 21. DECORATIONS
-# =====================================================================
 _r("DecorationSettings.json", "UnlockId", "zero")
 _r("DecorationSettings.json", "CostMedal", "cost1")
 _r("DecorationSettings.json", "CostMedals", "cost1")
 _r("DecorationSettings.json", "NeedStageId", "zero")
-
-# =====================================================================
-# 22. HQ
-# =====================================================================
 _r("HQSettings.json", "NeedExp", "zero")
 _r("HQSettings.json", "CostGold", "zero")
 _r("HQSettings.json", "CostMedal", "cost1")
 
-# =====================================================================
-# 23. SHOP / PRODUCTS
-#     Price intentionally excluded — promotions can subtract, and
-#     uint32(1 - N) wraps to a huge number.
-# =====================================================================
 for _fn in ("ProductSettings.json", "ShopSettings.json"):
     _r(_fn, "CostMedal", "cost1")
     _r(_fn, "CostMedals", "cost1")
@@ -298,20 +202,8 @@ for _fn in ("ProductSettings.json", "ShopSettings.json"):
     _r(_fn, "UnlockId", "zero")
     _r(_fn, "NeedId", "clear")
 
-# =====================================================================
-# 24. WAR ZONE
-# =====================================================================
 _r("WarZoneStageSetting.json", "UnlockStageId", "clear")
-
-# =====================================================================
-# 25. ELITE PASS
-# =====================================================================
 _r("ElitePassSettings.json", "Point", "cost1")
-
-
-# ---------------------------------------------------------------------------
-# Engine
-# ---------------------------------------------------------------------------
 
 
 def apply_op(obj: dict[str, Any], field: str, op: str, val: Any) -> bool:
@@ -322,13 +214,12 @@ def apply_op(obj: dict[str, Any], field: str, op: str, val: Any) -> bool:
         case "set":
             obj[field] = val
         case "set_nz":
-            # bool check first: isinstance(True, int) is True in Python
             if isinstance(old, (int, float)) and not isinstance(old, bool) and old != 0:
                 obj[field] = val
             else:
                 return False
         case "zero":
-            if isinstance(old, bool):  # must precede int — bool is subclass of int
+            if isinstance(old, bool):
                 obj[field] = False
             elif isinstance(old, (int, float)):
                 obj[field] = 0
@@ -429,7 +320,7 @@ def main() -> None:
             results[p] = exc if exc is not None else fut.result()
 
     total = touched = 0
-    for path, _ in tasks:  # iterate in sorted order for deterministic CI output
+    for path, _ in tasks:
         match results.get(path):
             case BaseException() as e:
                 print(f"  ERR    {path.name}: {e}", file=sys.stderr)
@@ -447,4 +338,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-
