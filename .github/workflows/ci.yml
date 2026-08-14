@@ -58,6 +58,10 @@ jobs:
             -p '*.apk' \
             -D base-apk \
             --skip-existing
+          APK=$(ls base-apk/*.apk | head -1)
+          if [ "$APK" != "base-apk/original.apk" ]; then
+            mv -f "$APK" base-apk/original.apk
+          fi
           ls -la base-apk/
 
       - name: Cache decompiled source & tools
