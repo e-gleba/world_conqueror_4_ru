@@ -29,15 +29,19 @@ No new field is added to force wonder blueprints open. Their availability is sav
 
 ## Validation
 
-Run:
+Run directly (no decompiled tree needed — it uses compact fixtures):
 
 ```bash
-python3 tests/test_unlock_regressions.py
+python3 patches/enable_all/test_unlock.py
 ```
+
+or via ctest after a build (`enable_all_unlock`).
 
 Checks:
 
-1. elite facility requirements remain byte-for-byte equivalent by entry ID
-2. naval elite requirements still point to ports
-3. all wonder resource costs become zero and medal costs remain in `0..1`
-4. wonder effects stay within the original schema range
+1. the rule registry never touches `RequireCityType` or `Price`
+2. elite facility requirements remain byte-for-byte equivalent by entry ID
+3. naval elite requirements still point to ports
+4. all wonder resource costs become zero and medal costs remain in `0..1`
+5. wonder effects stay within the original schema range
+6. re-running the unlock on a patched tree is a no-op (idempotence)
