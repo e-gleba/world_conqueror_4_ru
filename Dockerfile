@@ -4,7 +4,7 @@
 #   docker build -t wc4-builder .
 #   docker run --rm -v $(pwd):/workspace wc4-builder cmake --build build --target build
 
-FROM ubuntu:24.04
+FROM ubuntu:26.04
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV PATH="/usr/local/bin:${PATH}"
