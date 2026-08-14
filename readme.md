@@ -76,7 +76,7 @@ cmake --build build --target decompile patches
 ctest --test-dir build --output-on-failure   # or: ctest --preset default
 ```
 
-`ru_translation_stringtable_parity` compares the RU stringtable template against every `stringtable_*.ini` in the patched assets — entry counts and key sets only, never values — and prints the differing keys per file on mismatch. CI runs it after every build.
+`ru_translation_stringtable_parity` verifies that every hijacked slot table (`-Dwc4_ru_target_slots`) mirrors the RU template exactly — entry counts and key sets only, never values. The remaining stock tables are compared too, but their key drift is printed as informational key-only hints: stock locales legitimately diverge upstream (cn carries anti-addiction keys, de uses `dialogue_2297` where the others use `dialogue_2301`). CI runs it after every build.
 
 ## Saves
 

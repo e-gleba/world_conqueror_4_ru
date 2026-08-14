@@ -91,10 +91,12 @@ if(wc4_ru_font_rebuild)
     endif()
 endif()
 
-# ctest: key parity between the RU template and every stringtable in the
-# patched mod tree — entry counts and key sets only, values are never
-# compared. Reads decompiled/assets/stringtable_*.ini, so build the
-# decompile + patch-ru_translation targets before running ctest.
+# ctest: every hijacked slot table (wc4_ru_target_slots) must mirror the
+# RU template — entry counts and key sets only, values are never
+# compared. Stock tables of untouched slots are compared too, but their
+# key drift is only printed as informational hints (stock locales
+# legitimately diverge upstream). Reads decompiled/assets/stringtable_*.ini,
+# so build the decompile + patch-ru_translation targets before ctest.
 if(BUILD_TESTING)
     add_test(
         NAME ru_translation_stringtable_parity
@@ -105,5 +107,7 @@ if(BUILD_TESTING)
             "${CMAKE_CURRENT_LIST_DIR}/${wc4_ru_stringtable_template}"
             --dir
             "${decompiled_dir}/assets"
+            --slots
+            ${wc4_ru_target_slots}
     )
 endif()
