@@ -142,7 +142,7 @@
 
     move-result-object v0
 
-    invoke-virtual {v0, p1}, Landroid/util/DisplayMetrics;->getRealMetrics(Landroid/util/DisplayMetrics;)V
+    invoke-virtual {v0, p1}, Landroid/view/Display;->getRealMetrics(Landroid/util/DisplayMetrics;)V
 
     invoke-virtual {p0}, Lcom/fiveplay/mod/RMS/Recovery;->getWindowManager()Landroid/view/WindowManager;
 
@@ -178,7 +178,7 @@
 
     sget v0, Landroid/os/Build$VERSION;->SDK_INT:I
 
-    const/16 v0, 0x13
+    const/16 v1, 0x13
 
     if-lt v0, v1, :cond_0
 
@@ -208,7 +208,7 @@
 
     move-result-object v0
 
-    invoke-virtual {v0, p1}, Landroid/util/DisplayMetrics;->getRealMetrics(Landroid/util/DisplayMetrics;)V
+    invoke-virtual {v0, p1}, Landroid/view/Display;->getRealMetrics(Landroid/util/DisplayMetrics;)V
 
     invoke-virtual {p0}, Lcom/fiveplay/mod/RMS/Recovery;->getWindowManager()Landroid/view/WindowManager;
 
