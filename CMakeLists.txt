@@ -2,18 +2,53 @@ cmake_minimum_required(VERSION 4.2...4.2)
 
 project(
     apk_reverse_engineering
-    VERSION 1.0.0
+    VERSION 2.0.0
     DESCRIPTION "APK reverse-engineering and patching pipeline"
     HOMEPAGE_URL "https://github.com/e-gleba/world_conqueror_4_ru"
     LANGUAGES NONE)
 
+# ---------------------------------------------------------------------------
+# 3-state pipeline:
+#
+#   1. configure  fetch + verify inputs, decompile + decrypt => decompiled/
+#   2. build      per variant: fresh copy + patches + encrypt + compile + sign
+#   3. deploy     install one signed variant via waydroid or adb
+#
+# decompiled/ is PRISTINE — patches never touch it. Every variant builds
+# from a fresh copy under build/<variant>/tree, so toggling patches
+# (-DWC4_PATCH_<NAME>=OFF) or editing patch payloads rebuilds only that
+# copy, never a re-decompile.
+# ---------------------------------------------------------------------------
+
+# --- inputs -----------------------------------------------------------------
+
 set(apk_default_url
     "https://github.com/e-gleba/world_conqueror_4_ru/releases/download/v1.24.2_ru/original_5play_mod.apk"
 )
+# SHA-256 of the asset above (digest published on GitHub release v1.24.2_ru).
+set(apk_default_sha256
+    "3c86937dc5a4de5cefd0e5303ae3824957085d14a0e3b2a318a9d7789df99b96")
 
 set(apk_input
     ""
     CACHE FILEPATH "Path to source .apk (empty = auto-download)")
+set(apk_input_sha256
+    ""
+    CACHE STRING "Expected SHA-256 of apk_input (empty = print actual only)")
+
+set(apktool_version
+    "3.0.3"
+    CACHE STRING "apktool version")
+set(uber_signer_version
+    "1.3.0"
+    CACHE STRING "uber-apk-signer version")
+set(apktool_sha256
+    ""
+    CACHE STRING "Expected SHA-256 of the apktool jar (empty = skip)")
+set(uber_signer_sha256
+    ""
+    CACHE STRING "Expected SHA-256 of the uber-apk-signer jar (empty = skip)")
+
 set(java_bin
     "java"
     CACHE FILEPATH "Java binary")
@@ -26,14 +61,6 @@ set(waydroid_bin
 set(adb_bin
     "adb"
     CACHE FILEPATH "adb binary (deploy-adb)")
-
-set(apktool_version
-    "3.0.3"
-    CACHE STRING "apktool version")
-set(uber_signer_version
-    "1.3.0"
-    CACHE STRING "uber-apk-signer version")
-
 set(adb_serial
     ""
     CACHE STRING "adb device serial for deploy-adb (empty = default device)")
@@ -41,33 +68,27 @@ set(adb_serial
 set(wc4_crypt
     "${CMAKE_CURRENT_SOURCE_DIR}/scripts/wc4_crypt.py"
     CACHE FILEPATH "wc4 encrypt/decrypt script")
-set(wc4_unlock
-    "${CMAKE_CURRENT_SOURCE_DIR}/patches/enable_all/wc4_unlock.py"
-    CACHE FILEPATH "wc4 unlock-all script (enable_all patch)")
 set(wc4_header
     "MD5_SIZE"
     CACHE STRING "wc4-crypt header format")
+set(wc4_package
+    "com.easytech.wc4"
+    CACHE STRING "android package name (deploy)")
 
 set(decompiled_dir
     "${CMAKE_CURRENT_SOURCE_DIR}/decompiled"
-    CACHE PATH "Shared working tree (gitignored)")
+    CACHE PATH "Pristine decompiled tree (gitignored; patches never touch it)")
+set(deploy_variant
+    "ru_mod"
+    CACHE STRING "Variant installed by the deploy-* targets")
 
 set(tools_dir "${CMAKE_CURRENT_BINARY_DIR}/tools")
-set(stage_mod "${CMAKE_CURRENT_BINARY_DIR}/stage_mod")
-set(build_ru_dir "${CMAKE_CURRENT_BINARY_DIR}/build_ru")
-set(build_mod_dir "${CMAKE_CURRENT_BINARY_DIR}/build_mod")
 set(assets_data_rel "assets/data")
-
 set(apktool_jar "${tools_dir}/apktool_${apktool_version}.jar")
 set(signer_jar "${tools_dir}/uber-apk-signer-${uber_signer_version}.jar")
-
-set(apk_ru_unsigned "${CMAKE_CURRENT_BINARY_DIR}/wc4_ru.apk")
-set(apk_mod_unsigned "${CMAKE_CURRENT_BINARY_DIR}/wc4_ru_mod.apk")
-set(signed_ru "${CMAKE_CURRENT_BINARY_DIR}/wc4_ru-aligned-debugSigned.apk")
-set(signed_mod "${CMAKE_CURRENT_BINARY_DIR}/wc4_ru_mod-aligned-debugSigned.apk")
-
+set(crypt_script "${CMAKE_CURRENT_SOURCE_DIR}/cmake/crypt_json.cmake")
+set(deploy_script "${CMAKE_CURRENT_SOURCE_DIR}/cmake/deploy_apk.cmake")
 set(stamp_decompiled "${CMAKE_CURRENT_BINARY_DIR}/decompiled.stamp")
-set(stamp_stage_mod "${CMAKE_CURRENT_BINARY_DIR}/stage_mod.stamp")
 
 set(apktool_url
     "https://github.com/iBotPeaches/Apktool/releases/download/v${apktool_version}/apktool_${apktool_version}.jar"
@@ -76,37 +97,36 @@ set(signer_url
     "https://github.com/patrickfav/uber-apk-signer/releases/download/v${uber_signer_version}/uber-apk-signer-${uber_signer_version}.jar"
 )
 
-foreach(
-    path_var IN
-    ITEMS apk_input
-          wc4_crypt
-          wc4_unlock
-          decompiled_dir)
-    if(NOT
-       "${${path_var}}"
-       STREQUAL
-       "")
-        if(NOT IS_ABSOLUTE "${${path_var}}")
-            cmake_path(
-                ABSOLUTE_PATH
-                ${path_var}
-                BASE_DIRECTORY
-                "${CMAKE_CURRENT_SOURCE_DIR}"
-                NORMALIZE)
-        else()
-            cmake_path(NORMAL_PATH ${path_var})
-        endif()
+foreach(path_var IN ITEMS apk_input wc4_crypt decompiled_dir)
+    if(NOT "${${path_var}}" STREQUAL "" AND NOT IS_ABSOLUTE "${${path_var}}")
+        cmake_path(
+            ABSOLUTE_PATH
+            ${path_var}
+            BASE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+            NORMALIZE)
     endif()
 endforeach()
 
-foreach(path_var IN ITEMS wc4_crypt wc4_unlock)
-    if(NOT EXISTS "${${path_var}}")
-        message(FATAL_ERROR "'${path_var}' does not exist: ${${path_var}}")
-    endif()
-endforeach()
+if(NOT EXISTS "${wc4_crypt}")
+    message(FATAL_ERROR "'wc4_crypt' does not exist: ${wc4_crypt}")
+endif()
 
-function(download_file_if_missing url output)
+# --- fetch helper: download once, verify SHA-256 when provided --------------
+
+function(wc4_fetch url output expected_sha256)
     if(EXISTS "${output}")
+        if(NOT expected_sha256 STREQUAL "")
+            file(SHA256 "${output}" actual)
+            if(NOT actual STREQUAL expected_sha256)
+                message(
+                    FATAL_ERROR
+                        "SHA-256 mismatch: ${output}\n"
+                        "  expected: ${expected_sha256}\n"
+                        "  actual:   ${actual}\n"
+                        "  fix: delete the file and re-configure, or correct the hash"
+                )
+            endif()
+        endif()
         return()
     endif()
 
@@ -115,37 +135,35 @@ function(download_file_if_missing url output)
         output
         PARENT_PATH
         output_dir)
-    cmake_path(
-        GET
-        output
-        FILENAME
-        output_name)
     file(MAKE_DIRECTORY "${output_dir}")
 
-    message(STATUS "downloading '${output_name}'")
+    set(hash_args)
+    if(NOT expected_sha256 STREQUAL "")
+        list(APPEND hash_args EXPECTED_HASH "SHA256=${expected_sha256}")
+    endif()
+
+    message(STATUS "downloading '${url}'")
     file(
         DOWNLOAD "${url}" "${output}"
         SHOW_PROGRESS
-        STATUS download_status)
+        STATUS status
+        ${hash_args})
     list(
         GET
-        download_status
+        status
         0
-        download_rc)
-    if(download_rc)
+        rc)
+    if(rc)
         file(REMOVE "${output}")
-        message(
-            FATAL_ERROR "download failed ('${output_name}'): ${download_status}"
-        )
+        message(FATAL_ERROR "download failed: ${url}\n${status}")
     endif()
 endfunction()
 
+# --- input APK: auto-download (pinned hash) or verify user-provided ---------
+
 if(apk_input STREQUAL "")
     set(apk_input "${CMAKE_CURRENT_BINARY_DIR}/original.apk")
-    if(NOT EXISTS "${apk_input}")
-        message(STATUS "apk_input not set => downloading original.apk")
-        download_file_if_missing("${apk_default_url}" "${apk_input}")
-    endif()
+    wc4_fetch("${apk_default_url}" "${apk_input}" "${apk_default_sha256}")
 elseif(NOT EXISTS "${apk_input}")
     message(
         FATAL_ERROR
@@ -154,155 +172,34 @@ elseif(NOT EXISTS "${apk_input}")
             " or leave empty to auto-download")
 endif()
 
+file(SHA256 "${apk_input}" apk_input_actual)
+if(NOT apk_input_sha256 STREQUAL ""
+   AND NOT apk_input_actual STREQUAL apk_input_sha256)
+    message(
+        FATAL_ERROR
+            "apk_input SHA-256 mismatch: ${apk_input}\n"
+            "  expected: ${apk_input_sha256}\n"
+            "  actual:   ${apk_input_actual}")
+endif()
+message(STATUS "apk_input: ${apk_input} (SHA-256: ${apk_input_actual})")
+
 file(MAKE_DIRECTORY "${tools_dir}")
-download_file_if_missing("${apktool_url}" "${apktool_jar}")
-download_file_if_missing("${signer_url}" "${signer_jar}")
+wc4_fetch("${apktool_url}" "${apktool_jar}" "${apktool_sha256}")
+wc4_fetch("${signer_url}" "${signer_jar}" "${uber_signer_sha256}")
 
 execute_process(
-    COMMAND "${python3_bin}" "${wc4_crypt}" --version COMMAND_ECHO STDOUT
+    COMMAND "${python3_bin}" "${wc4_crypt}" --version
+    COMMAND_ECHO STDOUT
     OUTPUT_QUIET ERROR_QUIET
-    RESULT_VARIABLE py_rc COMMAND_ERROR_IS_FATAL NONE)
+    RESULT_VARIABLE py_rc
+    COMMAND_ERROR_IS_FATAL NONE)
 if(py_rc)
     message(WARNING "python 'cryptography' module missing\n"
                     "  fix: ${python3_bin} -m pip install cryptography")
 endif()
 
-# Silent on success: per-file command output is captured and printed only
-# on failure (fatal). Two summary lines per run, nothing else.
-file(
-    WRITE "${CMAKE_CURRENT_BINARY_DIR}/crypt_json.cmake"
-    [=[
-cmake_minimum_required(VERSION 4.2...4.2)
+# --- state 1: decompile + decrypt => pristine decompiled/ -------------------
 
-foreach(req IN ITEMS PYTHON3 WCRYPT MODE DIR)
-    if(NOT DEFINED ${req} OR "${${req}}" STREQUAL "")
-        message(FATAL_ERROR "'${req}' is required")
-    endif()
-endforeach()
-
-if(NOT EXISTS "${DIR}")
-    message(FATAL_ERROR "directory does not exist: ${DIR}")
-endif()
-
-file(GLOB json_files LIST_DIRECTORIES FALSE "${DIR}/*.json")
-list(SORT json_files)
-list(LENGTH json_files count)
-
-if(count EQUAL 0)
-    message(WARNING "no .json files in '${DIR}'")
-    return()
-endif()
-
-message(STATUS "${MODE} ${count} .json files in '${DIR}'")
-set(ok 0)
-
-foreach(f IN LISTS json_files)
-    if(MODE STREQUAL "encrypt" AND DEFINED HEADER AND NOT HEADER STREQUAL "")
-        set(cmd "${PYTHON3}" "${WCRYPT}" "${MODE}" "${f}" -o "${f}" --header "${HEADER}")
-    else()
-        set(cmd "${PYTHON3}" "${WCRYPT}" "${MODE}" "${f}" -o "${f}")
-    endif()
-
-    execute_process(
-        COMMAND ${cmd}
-        RESULT_VARIABLE crypt_rc
-        OUTPUT_VARIABLE crypt_out
-        ERROR_VARIABLE crypt_err
-        COMMAND_ERROR_IS_FATAL NONE
-    )
-    if(crypt_rc)
-        string(REPLACE ";" " " cmd_str "${cmd}")
-        message(
-            FATAL_ERROR
-            "wc4_crypt ${MODE} failed (exit ${crypt_rc}): ${f}\n"
-            "  cmd: ${cmd_str}\n"
-            "${crypt_out}${crypt_err}"
-        )
-    endif()
-
-    math(EXPR ok "${ok} + 1")
-endforeach()
-
-message(STATUS "${MODE} done => ${ok}/${count} ok")
-]=])
-
-# COMMAND_ECHO STDOUT already prints each command as it runs — no manual
-# STATUS narration. Remove is best-effort, install is fatal on failure.
-file(
-    WRITE "${CMAKE_CURRENT_BINARY_DIR}/deploy_apk.cmake"
-    [=[
-cmake_minimum_required(VERSION 4.2...4.2)
-
-foreach(req IN ITEMS PKG APK BACKEND)
-    if(NOT DEFINED ${req} OR "${${req}}" STREQUAL "")
-        message(FATAL_ERROR "'${req}' is required")
-    endif()
-endforeach()
-
-if(NOT DEFINED WAYDROID_BIN OR WAYDROID_BIN STREQUAL "")
-    set(WAYDROID_BIN waydroid)
-endif()
-if(NOT DEFINED ADB_BIN OR ADB_BIN STREQUAL "")
-    set(ADB_BIN adb)
-endif()
-
-if(NOT EXISTS "${APK}")
-    message(FATAL_ERROR "APK does not exist: ${APK}")
-endif()
-
-if(BACKEND STREQUAL "waydroid")
-    execute_process(
-        COMMAND "${WAYDROID_BIN}" session start
-        COMMAND_ECHO STDOUT
-        OUTPUT_QUIET
-        ERROR_QUIET
-        COMMAND_ERROR_IS_FATAL NONE
-    )
-    set(remove_cmd "${WAYDROID_BIN}" app remove)
-    set(install_cmd "${WAYDROID_BIN}" app install)
-elseif(BACKEND STREQUAL "adb")
-    set(adb "${ADB_BIN}")
-    if(DEFINED ADB_SERIAL AND NOT ADB_SERIAL STREQUAL "")
-        list(APPEND adb -s "${ADB_SERIAL}")
-    endif()
-    set(remove_cmd ${adb} uninstall)
-    set(install_cmd ${adb} install)
-else()
-    message(
-        FATAL_ERROR
-        "unknown BACKEND: '${BACKEND}' (expected waydroid|adb)"
-    )
-endif()
-
-execute_process(
-    COMMAND ${remove_cmd} "${PKG}"
-    COMMAND_ECHO STDOUT
-    OUTPUT_QUIET
-    ERROR_QUIET
-    COMMAND_ERROR_IS_FATAL NONE
-)
-
-execute_process(
-    COMMAND ${install_cmd} "${APK}"
-    COMMAND_ECHO STDOUT
-    COMMAND_ERROR_IS_FATAL ANY
-)
-]=])
-
-# Pipeline artifacts are real files tracked by the generator: each step
-# reruns only when its inputs changed. Directory trees are tracked via
-# stamp files + CONFIGURE_DEPENDS globs. Delete build/ to force everything.
-# Progress text lives in COMMENT (printed by the generator per build edge);
-# one-shot external tools (apktool, signer, unlock) also echo their exact
-# command line ('+ cmd ...') before running. crypt_json stays silent on
-# success — it runs hundreds of commands, output is shown only on failure.
-file(
-    GLOB_RECURSE decompiled_files CONFIGURE_DEPENDS
-    LIST_DIRECTORIES FALSE
-    "${decompiled_dir}/*")
-
-# Base tree: decompile + decrypt only. Named patches (patches/) install
-# on top of this tree — see the `patches` / `patch-<name>` targets.
 add_custom_command(
     OUTPUT "${stamp_decompiled}"
     COMMAND "${CMAKE_COMMAND}" -E rm -rf "${decompiled_dir}"
@@ -316,127 +213,72 @@ add_custom_command(
     COMMAND
         "${CMAKE_COMMAND}" "-DPYTHON3=${python3_bin}" "-DWCRYPT=${wc4_crypt}"
         "-DMODE=decrypt" "-DDIR=${decompiled_dir}/${assets_data_rel}" -P
-        "${CMAKE_CURRENT_BINARY_DIR}/crypt_json.cmake"
+        "${crypt_script}"
     COMMAND "${CMAKE_COMMAND}" -E touch "${stamp_decompiled}"
     DEPENDS "${apk_input}"
             "${apktool_jar}"
             "${wc4_crypt}"
-            "${CMAKE_CURRENT_BINARY_DIR}/crypt_json.cmake"
+            "${crypt_script}"
     COMMENT "decompile => decompiled/ (apktool d + decrypt json)"
-    USES_TERMINAL VERBATIM)
+    USES_TERMINAL
+    VERBATIM)
 
-# ctest-based patch validation: patch manifests register their tests
-# (see patches/ru_translation). Run with: ctest --test-dir build
+add_custom_target(decompile DEPENDS "${stamp_decompiled}")
+
+# Manual edits in decompiled/ rebuild the variant trees (re-globbed per build).
+file(
+    GLOB_RECURSE decompiled_files
+    CONFIGURE_DEPENDS
+    LIST_DIRECTORIES FALSE
+    "${decompiled_dir}/*")
+
 option(BUILD_TESTING "enable ctest tests (patch validation)" ON)
-
 if(BUILD_TESTING)
     enable_testing()
 endif()
 
-# Named patches: each patches/<name>/CMakeLists.txt manifest declares
-# install rules; the framework generates one `cmake -P` install script
-# per patch and registers its stamp in wc4_decompiled_stamps /
-# wc4_stage_stamps (mod variant). Also produces the stage_mod/ copy.
-add_subdirectory(patches)
+# --- state 2: variants = copy + patch + encrypt + compile + sign ------------
+# One decompiled APK => any combination of signed APKs. Patches are
+# auto-discovered from patches/<name>/ and toggled with -DWC4_PATCH_<NAME>=OFF
+# (all ON by default). Add your own combination with one line:
+#   wc4_add_variant(<name> PATCHES <patch>...)
 
-get_property(decompiled_stamps GLOBAL PROPERTY wc4_decompiled_stamps)
-get_property(stage_stamps GLOBAL PROPERTY wc4_stage_stamps)
+include(cmake/wc4_patches.cmake)
+wc4_discover_patches()
 
-if(NOT stage_stamps)
+wc4_add_variant(ru PATCHES ru_translation anti_gdpr anti_5play anti_save)
+wc4_add_variant(
+    ru_mod
+    PATCHES ru_translation anti_gdpr anti_5play anti_save enable_all)
+
+get_property(all_apks GLOBAL PROPERTY wc4_all_apks)
+if(NOT all_apks)
+    message(FATAL_ERROR "no variants defined — add a wc4_add_variant() call")
+endif()
+add_custom_target(apks DEPENDS ${all_apks})
+
+# --- state 3: deploy --------------------------------------------------------
+
+get_property(known_variants GLOBAL PROPERTY wc4_variants)
+if(NOT deploy_variant IN_LIST known_variants)
     message(
         FATAL_ERROR
-            "no stage_mod patch registered (enable_all) — cannot build the mod variant"
+            "deploy_variant '${deploy_variant}' is not a variant (known: ${known_variants})"
     )
 endif()
 
-add_custom_command(
-    OUTPUT "${signed_ru}"
-    COMMAND "${CMAKE_COMMAND}" -E rm -rf "${build_ru_dir}"
-    COMMAND
-        "${CMAKE_COMMAND}" -E copy_directory "${decompiled_dir}"
-        "${build_ru_dir}"
-    COMMAND
-        "${CMAKE_COMMAND}" "-DPYTHON3=${python3_bin}" "-DWCRYPT=${wc4_crypt}"
-        "-DMODE=encrypt" "-DDIR=${build_ru_dir}/${assets_data_rel}"
-        "-DHEADER=${wc4_header}" -P
-        "${CMAKE_CURRENT_BINARY_DIR}/crypt_json.cmake"
-    COMMAND
-        "${CMAKE_COMMAND}" -E echo
-        "+ ${java_bin} -jar ${apktool_jar} b ${build_ru_dir} -o ${apk_ru_unsigned}"
-    COMMAND
-        "${java_bin}" -jar "${apktool_jar}" b "${build_ru_dir}" -o
-        "${apk_ru_unsigned}"
-    COMMAND
-        "${CMAKE_COMMAND}" -E echo
-        "+ ${java_bin} -jar ${signer_jar} -a ${apk_ru_unsigned} --out ${CMAKE_CURRENT_BINARY_DIR} --allowResign"
-    COMMAND
-        "${java_bin}" -jar "${signer_jar}" -a "${apk_ru_unsigned}" --out
-        "${CMAKE_CURRENT_BINARY_DIR}" --allowResign
-    DEPENDS "${wc4_crypt}"
-            "${CMAKE_CURRENT_BINARY_DIR}/crypt_json.cmake"
-            "${apktool_jar}"
-            "${signer_jar}"
-            ${decompiled_stamps}
-            ${decompiled_files}
-    COMMENT
-        "wc4_ru: encrypt + apktool b + sign => wc4_ru-aligned-debugSigned.apk"
-    USES_TERMINAL VERBATIM)
-
-add_custom_command(
-    OUTPUT "${signed_mod}"
-    COMMAND "${CMAKE_COMMAND}" -E rm -rf "${build_mod_dir}"
-    COMMAND
-        "${CMAKE_COMMAND}" -E copy_directory "${stage_mod}" "${build_mod_dir}"
-    COMMAND
-        "${CMAKE_COMMAND}" "-DPYTHON3=${python3_bin}" "-DWCRYPT=${wc4_crypt}"
-        "-DMODE=encrypt" "-DDIR=${build_mod_dir}/${assets_data_rel}"
-        "-DHEADER=${wc4_header}" -P
-        "${CMAKE_CURRENT_BINARY_DIR}/crypt_json.cmake"
-    COMMAND
-        "${CMAKE_COMMAND}" -E echo
-        "+ ${java_bin} -jar ${apktool_jar} b ${build_mod_dir} -o ${apk_mod_unsigned}"
-    COMMAND
-        "${java_bin}" -jar "${apktool_jar}" b "${build_mod_dir}" -o
-        "${apk_mod_unsigned}"
-    COMMAND
-        "${CMAKE_COMMAND}" -E echo
-        "+ ${java_bin} -jar ${signer_jar} -a ${apk_mod_unsigned} --out ${CMAKE_CURRENT_BINARY_DIR} --allowResign"
-    COMMAND
-        "${java_bin}" -jar "${signer_jar}" -a "${apk_mod_unsigned}" --out
-        "${CMAKE_CURRENT_BINARY_DIR}" --allowResign
-    DEPENDS ${stage_stamps}
-            "${wc4_crypt}"
-            "${CMAKE_CURRENT_BINARY_DIR}/crypt_json.cmake"
-            "${apktool_jar}"
-            "${signer_jar}"
-    COMMENT
-        "wc4_ru_mod: encrypt + apktool b + sign => wc4_ru_mod-aligned-debugSigned.apk"
-    USES_TERMINAL VERBATIM)
-
-add_custom_target(decompile DEPENDS "${stamp_decompiled}")
-
-add_custom_target(
-    build
-    DEPENDS "${signed_ru}" "${signed_mod}"
-    COMMAND "${CMAKE_COMMAND}" -E echo "=== build complete ==="
-    COMMAND "${CMAKE_COMMAND}" -E echo "  ${signed_ru}"
-    COMMAND "${CMAKE_COMMAND}" -E echo "  ${signed_mod}"
-    COMMENT "build both APK variants (encrypt + apktool b + sign)"
-    USES_TERMINAL VERBATIM)
-
-# Deploy installs the mod variant only. Depends on the signed APK file
-# directly, not the whole 'build' target — deploying never builds wc4_ru.
 function(add_deploy_target target backend)
     add_custom_target(
         ${target}
-        DEPENDS "${signed_mod}"
+        DEPENDS "${wc4_variant_${deploy_variant}_apk}"
         COMMAND
-            "${CMAKE_COMMAND}" "-DPKG=com.easytech.wc4" "-DAPK=${signed_mod}"
-            "-DBACKEND=${backend}" "-DADB_SERIAL=${adb_serial}"
-            "-DWAYDROID_BIN=${waydroid_bin}" "-DADB_BIN=${adb_bin}" -P
-            "${CMAKE_CURRENT_BINARY_DIR}/deploy_apk.cmake"
-        COMMENT "install wc4_ru_mod-aligned-debugSigned.apk via ${backend}"
-        USES_TERMINAL VERBATIM)
+            "${CMAKE_COMMAND}" "-DPKG=${wc4_package}"
+            "-DAPK=${wc4_variant_${deploy_variant}_apk}" "-DBACKEND=${backend}"
+            "-DADB_SERIAL=${adb_serial}" "-DWAYDROID_BIN=${waydroid_bin}"
+            "-DADB_BIN=${adb_bin}" -P "${deploy_script}"
+        COMMENT "deploy ${deploy_variant} => ${backend}"
+        USES_TERMINAL
+        VERBATIM)
 endfunction()
 
 add_deploy_target(deploy-waydroid waydroid)

@@ -10,27 +10,25 @@
 #   assets/<slot>.lproj/                  <= ru.lproj/
 #
 # and rewrites the lang_<slot>= menu entry in every stringtable found in
-# the mod assets to wc4_ru_language_name — so the hijacked slot shows up
+# the tree assets to wc4_ru_language_name — so the hijacked slot shows up
 # as "Русский" in the language menu whatever the current locale is.
 # Untouched slots keep their stock files from the APK — only the RU
 # payload is shipped by this patch.
 
 set(wc4_ru_stringtable_template
     "stringtable_ru.ini"
-    CACHE STRING
-    "RU stringtable template — the single translation payload"
-)
+    CACHE STRING "RU stringtable template — the single translation payload")
 
 set(wc4_ru_target_slots
     "de"
-    CACHE STRING
-    "locale postfixes hijacked by the RU payload: stringtable_<slot>.ini, image/tex_title_hd_<slot>.webp, <slot>.lproj"
+    CACHE
+        STRING
+        "locale postfixes hijacked by the RU payload: stringtable_<slot>.ini, image/tex_title_hd_<slot>.webp, <slot>.lproj"
 )
 
 set(wc4_ru_language_name
     "Русский"
-    CACHE STRING
-    "language-menu label written into lang_<slot>= of every stringtable"
+    CACHE STRING "language-menu label written into lang_<slot>= of every stringtable"
 )
 
 if(wc4_ru_target_slots STREQUAL "")
@@ -48,12 +46,11 @@ wc4_patch_run(
         --lproj
         "@PATCH_DIR@/ru.lproj"
         --assets
-        "@ROOT@/assets"
+        "@TREE@/assets"
         --replace
         ${wc4_ru_target_slots}
         --lang-name
-        "${wc4_ru_language_name}"
-)
+        "${wc4_ru_language_name}")
 
 # Cyrillic font, two mutually exclusive sources:
 #
@@ -63,15 +60,14 @@ wc4_patch_run(
 #
 #   wc4_ru_font_rebuild=ON (needs fontforge + fontTools): clean rebuild
 #   — patch_lang_notosans.py merges RU glyphs from a donor Noto Sans
-#   into the STOCK font of the decompiled tree. The checked-in copy is
-#   NOT installed in this mode: installs land before run steps, so
-#   copying it first would re-patch an already-patched font instead of
-#   the clean stock one.
+#   into the STOCK font of the variant tree. The checked-in copy is NOT
+#   installed in this mode: installs land before run steps, so copying it
+#   first would re-patch an already-patched font instead of the clean
+#   stock one.
 option(
     wc4_ru_font_rebuild
     "rebuild cyrillic glyphs during the ru_translation patch (needs fontforge + fontTools)"
-    OFF
-)
+    OFF)
 
 if(wc4_ru_font_rebuild)
     find_program(fontforge_bin NAMES fontforge)
@@ -79,44 +75,40 @@ if(wc4_ru_font_rebuild)
     if(NOT fontforge_bin)
         message(
             STATUS
-            "ru_translation: fontforge not found — keeping checked-in font"
+                "ru_translation: fontforge not found — keeping checked-in font"
         )
     endif()
 endif()
 
 if(wc4_ru_font_rebuild AND fontforge_bin)
     wc4_patch_run(
-        COMMAND
-            "${fontforge_bin}" -script
-            "@PATCH_DIR@/patch_lang_notosans.py"
-            "@ROOT@/assets/font/NotoSans_Lang.otf"
-    )
+        COMMAND "${fontforge_bin}" -script
+                "@PATCH_DIR@/patch_lang_notosans.py"
+                "@TREE@/assets/font/NotoSans_Lang.otf")
 else()
     wc4_patch_files(
         FILES
             font/NotoSans_Lang.otf
         DESTINATION
-            assets/font
-    )
+            assets/font)
 endif()
 
 # ctest: every hijacked slot table (wc4_ru_target_slots) must mirror the
 # RU template — entry counts and key sets only, values are never
 # compared. Stock tables of untouched slots are compared too, but their
 # key drift is only printed as informational hints (stock locales
-# legitimately diverge upstream). Reads decompiled/assets/stringtable_*.ini,
-# so build the decompile + patch-ru_translation targets before ctest.
-if(BUILD_TESTING)
-    add_test(
-        NAME ru_translation_stringtable_parity
-        COMMAND
-            "${python3_bin}"
-            "${CMAKE_CURRENT_LIST_DIR}/test_stringtables.py"
-            --reference
-            "${CMAKE_CURRENT_LIST_DIR}/${wc4_ru_stringtable_template}"
-            --dir
-            "${decompiled_dir}/assets"
-            --slots
-            ${wc4_ru_target_slots}
-    )
-endif()
+# legitimately diverge upstream). Reads <variant tree>/assets of the
+# first variant that applies this patch, so build the apks target before
+# ctest.
+wc4_patch_test(
+    NAME
+        ru_translation_stringtable_parity
+    COMMAND
+        "${python3_bin}"
+        "@PATCH_DIR@/test_stringtables.py"
+        --reference
+        "@PATCH_DIR@/${wc4_ru_stringtable_template}"
+        --dir
+        "@TREE@/assets"
+        --slots
+        ${wc4_ru_target_slots})
