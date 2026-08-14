@@ -396,8 +396,10 @@ execute_process(
 # Pipeline artifacts are real files tracked by the generator: each step
 # reruns only when its inputs changed. Directory trees are tracked via
 # stamp files + CONFIGURE_DEPENDS globs. Delete build/ to force everything.
-# Progress text lives in COMMENT (printed by the generator per build edge),
-# not in manual echo commands.
+# Progress text lives in COMMENT (printed by the generator per build edge);
+# one-shot external tools (apktool, signer, unlock) also echo their exact
+# command line ('+ cmd ...') before running. crypt_json stays silent on
+# success — it runs hundreds of commands, output is shown only on failure.
 file(
     GLOB_RECURSE decompiled_files
     CONFIGURE_DEPENDS
@@ -417,6 +419,9 @@ add_custom_command(
         "${CMAKE_COMMAND}" -E rm -rf "${decompiled_dir}"
     COMMAND
         "${CMAKE_COMMAND}" -E make_directory "${decompiled_dir}"
+    COMMAND
+        "${CMAKE_COMMAND}" -E echo
+        "+ ${java_bin} -jar ${apktool_jar} d ${apk_input} -o ${decompiled_dir} -f"
     COMMAND
         "${java_bin}" -jar "${apktool_jar}" d "${apk_input}" -o
         "${decompiled_dir}" -f
@@ -447,6 +452,9 @@ add_custom_command(
     COMMAND
         "${CMAKE_COMMAND}" -E rm -rf "${orig_dir}"
     COMMAND
+        "${CMAKE_COMMAND}" -E echo
+        "+ ${java_bin} -jar ${apktool_jar} d ${apk_input} -o ${orig_dir} -f"
+    COMMAND
         "${java_bin}" -jar "${apktool_jar}" d "${apk_input}" -o "${orig_dir}" -f
     COMMAND
         "${CMAKE_COMMAND}" "-DPYTHON3=${python3_bin}" "-DWCRYPT=${wc4_crypt}"
@@ -473,6 +481,9 @@ add_custom_command(
         "${CMAKE_COMMAND}" -E rm -rf "${stage_mod}"
     COMMAND
         "${CMAKE_COMMAND}" -E copy_directory "${decompiled_dir}" "${stage_mod}"
+    COMMAND
+        "${CMAKE_COMMAND}" -E echo
+        "+ ${python3_bin} ${wc4_unlock} ${stage_mod}/${assets_data_rel}"
     COMMAND
         "${python3_bin}" "${wc4_unlock}" "${stage_mod}/${assets_data_rel}"
     COMMAND
@@ -516,8 +527,14 @@ add_custom_command(
         "-DHEADER=${wc4_header}" -P
         "${CMAKE_CURRENT_BINARY_DIR}/crypt_json.cmake"
     COMMAND
+        "${CMAKE_COMMAND}" -E echo
+        "+ ${java_bin} -jar ${apktool_jar} b ${build_ru_dir} -o ${apk_ru_unsigned}"
+    COMMAND
         "${java_bin}" -jar "${apktool_jar}" b "${build_ru_dir}" -o
         "${apk_ru_unsigned}"
+    COMMAND
+        "${CMAKE_COMMAND}" -E echo
+        "+ ${java_bin} -jar ${signer_jar} -a ${apk_ru_unsigned} --out ${CMAKE_CURRENT_BINARY_DIR} --allowResign"
     COMMAND
         "${java_bin}" -jar "${signer_jar}" -a "${apk_ru_unsigned}" --out
         "${CMAKE_CURRENT_BINARY_DIR}" --allowResign
@@ -545,8 +562,14 @@ add_custom_command(
         "-DHEADER=${wc4_header}" -P
         "${CMAKE_CURRENT_BINARY_DIR}/crypt_json.cmake"
     COMMAND
+        "${CMAKE_COMMAND}" -E echo
+        "+ ${java_bin} -jar ${apktool_jar} b ${build_mod_dir} -o ${apk_mod_unsigned}"
+    COMMAND
         "${java_bin}" -jar "${apktool_jar}" b "${build_mod_dir}" -o
         "${apk_mod_unsigned}"
+    COMMAND
+        "${CMAKE_COMMAND}" -E echo
+        "+ ${java_bin} -jar ${signer_jar} -a ${apk_mod_unsigned} --out ${CMAKE_CURRENT_BINARY_DIR} --allowResign"
     COMMAND
         "${java_bin}" -jar "${signer_jar}" -a "${apk_mod_unsigned}" --out
         "${CMAKE_CURRENT_BINARY_DIR}" --allowResign
@@ -602,25 +625,23 @@ add_custom_target(
     VERBATIM
 )
 
+# Deploy installs the mod variant only. Depends on the signed APK file
+# directly, not the whole 'build' target — deploying never builds wc4_ru.
 function(add_deploy_target target backend)
     add_custom_target(
         ${target}
-        COMMAND
-            "${CMAKE_COMMAND}" "-DPKG=com.easytech.wc4" "-DAPK=${signed_ru}"
-            "-DBACKEND=${backend}" "-DADB_SERIAL=${adb_serial}"
-            "-DWAYDROID_BIN=${waydroid_bin}" "-DADB_BIN=${adb_bin}" -P
-            "${CMAKE_CURRENT_BINARY_DIR}/deploy_apk.cmake"
+        DEPENDS
+            "${signed_mod}"
         COMMAND
             "${CMAKE_COMMAND}" "-DPKG=com.easytech.wc4" "-DAPK=${signed_mod}"
             "-DBACKEND=${backend}" "-DADB_SERIAL=${adb_serial}"
             "-DWAYDROID_BIN=${waydroid_bin}" "-DADB_BIN=${adb_bin}" -P
             "${CMAKE_CURRENT_BINARY_DIR}/deploy_apk.cmake"
         COMMENT
-            "install both APKs via ${backend}"
+            "install wc4_ru_mod-aligned-debugSigned.apk via ${backend}"
         USES_TERMINAL
         VERBATIM
     )
-    add_dependencies(${target} build)
 endfunction()
 
 add_deploy_target(deploy-waydroid waydroid)

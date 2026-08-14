@@ -24,7 +24,7 @@
 - **Decompiles** the APK and **decrypts** its AES-256-CBC game data (5 header formats auto-detected)
 - **Localizes** to Russian via the `diff/` overlay; Noto Sans font patch for Cyrillic rendering
 - **Unlocks** all content — generals, stages, conquests, tech (25 categories, combat stats untouched)
-- **Rebuilds and signs** two APK variants (`wc4_ru`, `wc4_ru_mod`) and **deploys** via Waydroid or adb
+- **Rebuilds and signs** two APK variants (`wc4_ru`, `wc4_ru_mod`) and **deploys** the mod via Waydroid or adb
 - Every step is a file-tracked CMake artifact — rebuilds only what changed, no manual tool juggling
 
 ## Quick start
@@ -44,7 +44,7 @@ python3 scripts/patch_lang_notosans.py decompiled/
 # 4. encrypt + rebuild + sign → build/wc4_ru-aligned-debugSigned.apk (+ _mod)
 cmake --build build --target build
 
-# 5. install both variants to waydroid (or: deploy-adb for an adb device)
+# 5. install the mod variant to waydroid (or: deploy-adb for an adb device)
 cmake --build build --target deploy-waydroid
 ```
 
@@ -57,8 +57,8 @@ All targets are **file-tracked** — rerunning `build` or `deploy-*` redoes only
 | `decompile` | `apktool d` + decrypt JSON + overlay `diff/` → `decompiled/` (skipped when inputs are unchanged) |
 | `sync` | Persist `decompiled/` edits into `diff/`, regenerate the `diff_mod/` unlock delta |
 | `build` | Sync, apply unlock to the mod stage, encrypt, rebuild, sign both APKs — incremental |
-| `deploy-waydroid` | `build` + install both APKs via Waydroid |
-| `deploy-adb` | `build` + install both APKs via adb |
+| `deploy-waydroid` | Build + install the mod APK (`wc4_ru_mod`) via Waydroid |
+| `deploy-adb` | Build + install the mod APK (`wc4_ru_mod`) via adb |
 
 ## Options
 
