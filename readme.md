@@ -24,7 +24,7 @@
 Three-state pipeline:
 
 1. **Configure** — fetch the base APK (SHA-256 verified) and tools, **decompile**, **decrypt** → pristine `decompiled/`
-2. **Build** — per variant: fresh copy of `decompiled/`, **patch** (each patch is a standalone CMake project applied via its install phase), **encrypt**, `apktool b`, **sign**
+2. **Build** — fresh copy of `decompiled/`, **patch** (each patch is a standalone CMake project applied via its install phase), **encrypt**, `apktool b`, **sign**
 3. **Deploy** — install via Waydroid or adb, **launch** the app and **watch the logs**
 
 ## Quick start
@@ -43,6 +43,24 @@ Granular targets: `decompile`, `apks`, `apk-<variant>`, `tree-<variant>`, `deplo
 
 Everything is file-tracked: editing `decompiled/` or a patch payload rebuilds only the affected variant. Delete `build/` to force everything; delete `decompiled/` to force a re-decompile.
 
+## Patch combination (toggles)
+
+The patch set is controlled entirely by feature toggles — there is **no hardcoded per-variant list**. Every discovered patch gets `option(WC4_PATCH_<NAME> ON)`; a variant applies **all enabled** patches. Pick a combination with `-D` flags (CI, release, matrix, or locally):
+
+```bash
+cmake --preset default                                # all patches (mod)
+cmake --preset default -DWC4_PATCH_ENABLE_ALL=OFF     # clean (no unlock)
+cmake --preset default -DWC4_PATCH_ANTI_SAVE=OFF      # drop one patch
+```
+
+A variant is one line in `CMakeLists.txt`:
+
+```cmake
+wc4_add_variant(wc4)   # build/wc4_wc4-aligned-debugSigned.apk from all enabled patches
+```
+
+So one decompiled APK → any combination of signed APKs, driven by the toggles. CI builds the all-in-one (mod) APK; release builds mod + clean (see `release.yml`).
+
 ## Deploy & log watch
 
 Deploy targets install the APK, force-stop any stale instance, then launch the main activity explicitly (`am start -W -n <pkg>/.WC4Activity`, from `AndroidManifest.xml`) — a launch failure fails the deploy. Logs are scoped to the app's PID (`adb logcat --pid`), so even an instant crash is captured:
@@ -56,28 +74,17 @@ cmake --preset default -Ddeploy_debug_adb=OFF       # bounded watch on the phone
 cmake --preset default -Ddeploy_watch_timeout=20    # longer bounded window
 ```
 
-## Variants
-
-One decompiled APK → any combination of signed APKs. A variant is one line in `CMakeLists.txt`:
-
-```cmake
-wc4_add_variant(ru     PATCHES ru_translation anti_gdpr anti_5play anti_save)
-wc4_add_variant(ru_mod PATCHES ru_translation anti_gdpr anti_5play anti_save enable_all)
-```
-
-Each produces `build/wc4_<name>-aligned-debugSigned.apk`.
-
 ## Patches
 
-Each `patches/<name>/` is a **standalone CMake project** that knows only its own dir. Applying a patch = configuring it with the variant tree as install prefix and running its install phase (the framework does this via ExternalProject):
+Each `patches/<name>/` is a **standalone CMake project** that knows only its own dir. Applying a patch = configuring it with the variant tree and running its install phase (the framework does this via ExternalProject):
 
 ```bash
 # exactly what the framework runs per patch — try it by hand:
-cmake -S patches/anti_gdpr -B /tmp/anti_gdpr -DCMAKE_INSTALL_PREFIX=build/ru/tree
+cmake -S patches/anti_gdpr -B /tmp/anti_gdpr -DWC4_TREE=build/wc4/tree
 cmake --install /tmp/anti_gdpr
 ```
 
-File patches are plain `install(FILES ...)` rules; tool steps (locale rewrite, unlock) run from `install(SCRIPT ...)`. Add a patch = new dir with a `CMakeLists.txt` + payload, listed in the variants that want it. Every patch gets a toggle, all ON by default — `-DWC4_PATCH_ANTI_SAVE=OFF` skips it everywhere; the variant re-stages from a fresh copy, no re-decompile. An optional `patches/<name>/ctest.cmake` registers ctest tests against the first variant tree using the patch.
+File patches are plain `install(FILES ...)` rules; tool steps (locale rewrite, unlock) run from `install(SCRIPT ...)`. Add a patch = new dir with a `CMakeLists.txt` + payload; it's auto-discovered and ON by default — `-DWC4_PATCH_<NAME>=OFF` skips it; the variant re-stages from a fresh copy, no re-decompile. An optional `patches/<name>/ctest.cmake` registers ctest tests against the first variant tree using the patch.
 
 ## Integrity
 
@@ -107,8 +114,8 @@ CI runs them after every build.
 
 ## Notes
 
-- **Releases** ship both signed APKs per version: [Releases](https://github.com/e-gleba/world_conqueror_4_ru/releases). The release workflow builds → smoke-tests on a self-hosted Waydroid runner → publishes.
-- **CI** builds inside the `ghcr.io` builder image; `ci.yml` accepts a `cmake_args` dispatch input for ad-hoc toggle combos (e.g. `-DWC4_PATCH_ENABLE_ALL=OFF`).
+- **Releases** ship the signed APKs per version: [Releases](https://github.com/e-gleba/world_conqueror_4_ru/releases). The release workflow builds mod (all patches) + clean (`enable_all` off) → smoke-tests the mod on a self-hosted Waydroid runner → publishes.
+- **CI** builds the all-in-one (mod) APK inside the `ghcr.io` builder image; `ci.yml` accepts a `cmake_args` dispatch input for ad-hoc toggle combos (e.g. `-DWC4_PATCH_ENABLE_ALL=OFF`).
 
 <div align="center">
 <sub>MIT · Built for the reverse-engineering and modding community. Not affiliated with EasyTech.</sub>
