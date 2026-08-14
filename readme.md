@@ -45,10 +45,10 @@ Everything is file-tracked: editing `decompiled/` or a patch payload rebuilds on
 
 ## Deploy & log watch
 
-Deploy targets install the APK, launch the app (via `monkey`, no hardcoded activity), then tail logcat:
+Deploy targets install the APK, force-stop any stale instance, then launch the main activity explicitly (`am start -W -n <pkg>/.WC4Activity`, from `AndroidManifest.xml`) — a launch failure fails the deploy. Logs are scoped to the app's PID (`adb logcat --pid`), so even an instant crash is captured:
 
-- **debug ON** — infinite log tail, Ctrl+C to stop. Default for `deploy-adb` (real phone — you're watching it).
-- **debug OFF** — CI-style bounded watch: capture `deploy_watch_timeout` seconds (default 10) of logcat, fail on fatal/crash patterns — same idea as the smoke-test workflow, locally. Default for `deploy-waydroid`.
+- **debug ON** — infinite PID-scoped log tail, Ctrl+C to stop. Default for `deploy-adb` (real phone — you're watching it).
+- **debug OFF** — CI-style bounded watch: capture `deploy_watch_timeout` seconds (default 10) of the app's logcat, fail on fatal/crash patterns — same idea as the smoke-test workflow, locally. Default for `deploy-waydroid`.
 
 ```bash
 cmake --preset default -Ddeploy_debug_waydroid=ON   # infinite tail on waydroid
@@ -77,7 +77,7 @@ cmake -S patches/anti_gdpr -B /tmp/anti_gdpr -DCMAKE_INSTALL_PREFIX=build/ru/tre
 cmake --install /tmp/anti_gdpr
 ```
 
-File patches are plain `install(FILES ...)` rules; tool steps (locale rewrite, unlock) run from `install(CODE ...)`. Add a patch = new dir with a `CMakeLists.txt` + payload, listed in the variants that want it. Every patch gets a toggle, all ON by default — `-DWC4_PATCH_ANTI_SAVE=OFF` skips it everywhere; the variant re-stages from a fresh copy, no re-decompile. An optional `patches/<name>/ctest.cmake` registers ctest tests against the first variant tree using the patch.
+File patches are plain `install(FILES ...)` rules; tool steps (locale rewrite, unlock) run from `install(SCRIPT ...)`. Add a patch = new dir with a `CMakeLists.txt` + payload, listed in the variants that want it. Every patch gets a toggle, all ON by default — `-DWC4_PATCH_ANTI_SAVE=OFF` skips it everywhere; the variant re-stages from a fresh copy, no re-decompile. An optional `patches/<name>/ctest.cmake` registers ctest tests against the first variant tree using the patch.
 
 ## Integrity
 
