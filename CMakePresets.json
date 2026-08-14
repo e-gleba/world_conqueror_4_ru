@@ -9,38 +9,53 @@
     },
     "configurePresets": [
         {
-            "$comment": "Base preset — inherit in all others. Override apk_input to skip auto-download.",
+            "$comment": "Base preset — inherit in all others. Override WC4_APK_INPUT to skip auto-download.",
             "name": "default",
             "displayName": "Default",
-            "description": "Out-of-source build under build/",
+            "description": "Ninja, out-of-source under build/; all artifacts stay in build/",
             "generator": "Ninja",
             "binaryDir": "${sourceDir}/build",
             "cacheVariables": {
-                "java_bin": {
+                "WC4_APK_INPUT": {
+                    "$comment": "Leave empty to auto-download the base APK from GitHub releases",
+                    "type": "FILEPATH",
+                    "value": ""
+                },
+                "WC4_APK_SHA256": {
+                    "$comment": "Pin the source APK hash; empty = record on first configure, then keep verifying",
+                    "type": "STRING",
+                    "value": ""
+                },
+                "WC4_VARIANTS": {
+                    "$comment": "APK variants to build: localized, money, unlock_all",
+                    "type": "STRING",
+                    "value": "localized;money;unlock_all"
+                },
+                "WC4_DEPLOY_VARIANT": {
+                    "$comment": "Variant installed by the deploy-* targets",
+                    "type": "STRING",
+                    "value": "unlock_all"
+                },
+                "WC4_JAVA": {
                     "type": "FILEPATH",
                     "value": "java"
                 },
-                "python3_bin": {
+                "WC4_PYTHON": {
                     "type": "FILEPATH",
                     "value": "python3"
                 },
-                "waydroid_bin": {
-                    "type": "FILEPATH",
-                    "value": "waydroid"
-                },
-                "adb_bin": {
+                "WC4_ADB": {
                     "type": "FILEPATH",
                     "value": "adb"
                 },
-                "apk_input": {
-                    "$comment": "Leave empty to auto-download original.apk from GitHub release",
-                    "type": "FILEPATH",
-                    "value": ""
-                },
-                "adb_serial": {
+                "WC4_ADB_SERIAL": {
                     "$comment": "adb device serial for deploy-adb — empty uses the default/only device",
                     "type": "STRING",
                     "value": ""
+                },
+                "WC4_WAYDROID": {
+                    "type": "FILEPATH",
+                    "value": "waydroid"
                 }
             }
         }
@@ -48,35 +63,62 @@
     "buildPresets": [
         {
             "name": "decompile",
-            "displayName": "Decompile APK",
-            "description": "apktool d + decrypt JSON (patches apply via the patches target)",
+            "displayName": "Stage 1 — decompile",
+            "description": "apktool d + decrypt + sha256 manifest => build/decompiled/ (pristine)",
             "configurePreset": "default",
             "targets": [
                 "decompile"
             ]
         },
         {
-            "name": "patches",
-            "displayName": "Apply patches",
-            "description": "Install all patches/ into decompiled/ (per-patch: patch-<name>)",
+            "name": "apk",
+            "displayName": "Stage 2 — patch & build",
+            "description": "patched/ + every variant: patch, encrypt, apktool b, sign => build/dist/",
             "configurePreset": "default",
             "targets": [
-                "patches"
+                "apk"
             ]
         },
         {
-            "name": "build",
-            "displayName": "Build APKs",
-            "description": "Stage, encrypt, apktool b, sign — produces wc4_ru and wc4_ru_mod",
+            "name": "apk-localized",
+            "displayName": "Build variant: localized",
+            "description": "Base patches only — the clean RU build",
             "configurePreset": "default",
             "targets": [
-                "build"
+                "apk-localized"
+            ]
+        },
+        {
+            "name": "apk-money",
+            "displayName": "Build variant: money",
+            "description": "Localized + economy mod (all costs 1, instant build, rich tutorial)",
+            "configurePreset": "default",
+            "targets": [
+                "apk-money"
+            ]
+        },
+        {
+            "name": "apk-unlock-all",
+            "displayName": "Build variant: unlock_all",
+            "description": "Localized + full unlock (generals, stages, conquests, tech)",
+            "configurePreset": "default",
+            "targets": [
+                "apk-unlock_all"
+            ]
+        },
+        {
+            "name": "verify",
+            "displayName": "Verify tree manifests",
+            "description": "Re-check the SHA-256 manifests of decompiled/ and patched/",
+            "configurePreset": "default",
+            "targets": [
+                "verify"
             ]
         },
         {
             "name": "deploy-waydroid",
-            "displayName": "Deploy to Waydroid",
-            "description": "Install both signed APKs via waydroid",
+            "displayName": "Stage 3 — deploy to Waydroid",
+            "description": "Install WC4_DEPLOY_VARIANT via waydroid",
             "configurePreset": "default",
             "targets": [
                 "deploy-waydroid"
@@ -84,8 +126,8 @@
         },
         {
             "name": "deploy-adb",
-            "displayName": "Deploy via adb",
-            "description": "Install both signed APKs via adb (set adb_serial to pick a device)",
+            "displayName": "Stage 3 — deploy via adb",
+            "description": "Install WC4_DEPLOY_VARIANT via adb (set WC4_ADB_SERIAL to pick a device)",
             "configurePreset": "default",
             "targets": [
                 "deploy-adb"
@@ -96,7 +138,7 @@
         {
             "name": "default",
             "displayName": "Patch tests",
-            "description": "ctest patch validation — build the decompile + patches targets first",
+            "description": "ctest patch validation — build any apk target first",
             "configurePreset": "default",
             "output": {
                 "outputOnFailure": true
@@ -108,9 +150,9 @@
     ],
     "workflowPresets": [
         {
-            "$comment": "Full pipeline: configure once, then build + deploy",
-            "name": "release",
-            "displayName": "Build and deploy",
+            "$comment": "Stage 1 only: configure once, then decompile + verify the pristine tree",
+            "name": "prepare",
+            "displayName": "Configure & decompile",
             "steps": [
                 {
                     "type": "configure",
@@ -118,11 +160,41 @@
                 },
                 {
                     "type": "build",
-                    "name": "build"
+                    "name": "decompile"
+                }
+            ]
+        },
+        {
+            "$comment": "Stages 1-2: configure, decompile, patch & build all variants",
+            "name": "build",
+            "displayName": "Build all variants",
+            "steps": [
+                {
+                    "type": "configure",
+                    "name": "default"
                 },
                 {
                     "type": "build",
-                    "name": "deploy-waydroid"
+                    "name": "apk"
+                }
+            ]
+        },
+        {
+            "$comment": "Full pipeline: build + patch tests",
+            "name": "release",
+            "displayName": "Build and test",
+            "steps": [
+                {
+                    "type": "configure",
+                    "name": "default"
+                },
+                {
+                    "type": "build",
+                    "name": "apk"
+                },
+                {
+                    "type": "test",
+                    "name": "default"
                 }
             ]
         }

@@ -39,7 +39,7 @@ endif()
 
 wc4_patch_run(
     COMMAND
-        "${python3_bin}"
+        "${WC4_PYTHON}"
         "@PATCH_DIR@/apply_ru_locale.py"
         --template
         "@PATCH_DIR@/${wc4_ru_stringtable_template}"
@@ -104,18 +104,18 @@ endif()
 # RU template — entry counts and key sets only, values are never
 # compared. Stock tables of untouched slots are compared too, but their
 # key drift is only printed as informational hints (stock locales
-# legitimately diverge upstream). Reads decompiled/assets/stringtable_*.ini,
-# so build the decompile + patch-ru_translation targets before ctest.
+# legitimately diverge upstream). Reads patched/assets/stringtable_*.ini,
+# so build any apk target before ctest.
 if(BUILD_TESTING)
     add_test(
         NAME ru_translation_stringtable_parity
         COMMAND
-            "${python3_bin}"
+            "${WC4_PYTHON}"
             "${CMAKE_CURRENT_LIST_DIR}/test_stringtables.py"
             --reference
             "${CMAKE_CURRENT_LIST_DIR}/${wc4_ru_stringtable_template}"
             --dir
-            "${decompiled_dir}/assets"
+            "${tree_patched}/assets"
             --slots
             ${wc4_ru_target_slots}
     )

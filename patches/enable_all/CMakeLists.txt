@@ -1,13 +1,12 @@
 # enable_all — unlock all content: generals, stages, conquests, tech.
 #
-# Script patch (no file payload): rewrites the decrypted JSON data of
-# the mod-variant stage with wc4_unlock.py (25 categories, combat stats
-# untouched). Applies into stage_mod/ — the plain wc4_ru APK never sees
-# this patch.
-
-wc4_patch_tree(stage_mod)
+# Script patch (no file payload): rewrites the decrypted JSON data of the
+# target tree with wc4_unlock.py (25 categories, combat stats untouched).
+# Registered as a variant patch — the framework applies it to every
+# variants/<name>/ tree whose WC4_VARIANT_<name>_PATCHES lists it
+# (default: unlock_all), so the clean localized APK never sees it.
 
 wc4_patch_run(
     COMMAND
-        "${python3_bin}" "${wc4_unlock}" "@ROOT@/assets/data"
+        "${WC4_PYTHON}" "@PATCH_DIR@/wc4_unlock.py" "@ROOT@/assets/data"
 )

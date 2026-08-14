@@ -1,20 +1,19 @@
 # patches/ — named, self-contained APK patches.
 #
-# Each subdirectory is one patch: a CMakeLists.txt manifest plus its
-# payload files. Manifests are include()d below at configure time (no
-# add_subdirectory) and only DECLARE install rules; the framework then
-# generates a standalone <name>.install.cmake per patch and applies it
-# with `cmake -P` as a file-tracked build edge. Patch dirs stay
-# relocatable: payload paths are relative to the patch dir, and inside
-# a manifest CMAKE_CURRENT_LIST_DIR points at it.
+# Each subdirectory is one patch: a CMakeLists.txt manifest plus payload
+# files. Manifests are include()d at configure time (no add_subdirectory)
+# and only DECLARE install rules; the framework generates one standalone,
+# ROOT-parameterized <name>.install.cmake per patch and applies it with
+# `cmake -P` inside the build edges — there is no separate patch step to
+# run, patching is part of the `apk` targets.
 #
 # Manifest API:
 #
 #   wc4_patch_files(FILES <src>... DESTINATION <apk-rel dir>)
-#       Install payload files into the target tree: files that exist
-#       there are REPLACED, missing ones are ADDED (auto-detected and
-#       logged either way). Sources ending in .patch/.diff are applied
-#       as unified diffs with `git apply` instead of being copied.
+#       Copy payload files into the target tree: files that exist there
+#       are REPLACED, missing ones are ADDED (auto-detected and logged
+#       either way). Sources ending in .patch/.diff route to `git apply`
+#       (strip 1) instead of being copied.
 #
 #   wc4_patch_diff(FILES <diff>... [STRIP <n>])
 #       Explicit unified-diff application; STRIP = git apply -p<n>
@@ -22,39 +21,21 @@
 #
 #   wc4_patch_run(COMMAND <cmd>...)
 #       Extra tool step executed after the files land. Placeholders:
-#       @ROOT@ = target tree, @PATCH_DIR@ = patch source dir.
+#       @ROOT@ = tree being patched (passed as -DROOT= at apply time),
+#       @PATCH_DIR@ = patch source dir.
 #
-#   wc4_patch_tree(<decompiled|stage_mod>)
-#       Target tree, default decompiled. stage_mod is the mod-variant
-#       stage: it is first copied from the fully patched decompiled/
-#       tree, then stage patches apply on top of it.
+# Patch sets (declared in the root CMakeLists.txt):
 #
-# Add a patch: create patches/<name>/CMakeLists.txt + payload and append
-# the dir name to wc4_patches below (comment a line out to disable it).
-# enable_all must stay registered, and last: it produces the mod stage.
+#   WC4_BASE_PATCHES            applied to build/patched/, shared by all
+#   WC4_VARIANT_<name>_PATCHES  applied to build/variants/<name>/ on top
+#
+# Add a patch: create patches/<name>/CMakeLists.txt + payload and list the
+# name in WC4_BASE_PATCHES or in a variant's patch list.
 
-set(wc4_patches
-    ru_translation
-    anti_gdpr
-    anti_5play
-    anti_save
-    enable_all
-)
-
-set(wc4_patch_gen_dir "${CMAKE_CURRENT_BINARY_DIR}/generated")
-file(MAKE_DIRECTORY "${wc4_patch_gen_dir}")
-
-set_property(GLOBAL PROPERTY wc4_decompiled_stamps "")
-set_property(GLOBAL PROPERTY wc4_stage_stamps "")
-
-# Diffs are applied with `git apply`; required only when a patch
-# actually ships .patch/.diff files (checked per patch below).
-find_program(git_bin NAMES git)
-
-# --- manifest commands -------------------------------------------------
+# --- manifest commands ---------------------------------------------------
 # The wc4_patch_* commands run while a manifest is include()d below and
-# only append to the wc4_new_* collectors; the framework turns those
-# into the generated install script after each include().
+# only append to the wc4_new_* collectors; the framework turns those into
+# the generated install script after each include().
 
 function(wc4_patch_files)
     cmake_parse_arguments(arg "" "DESTINATION" "FILES" ${ARGN})
@@ -113,19 +94,32 @@ function(wc4_patch_run)
     set(wc4_new_run_count ${index} PARENT_SCOPE)
 endfunction()
 
-function(wc4_patch_tree tree)
-    if(NOT tree MATCHES "^(decompiled|stage_mod)$")
+# --- registry --------------------------------------------------------------
+
+set(registered_patches ${WC4_BASE_PATCHES})
+foreach(variant IN LISTS WC4_VARIANTS)
+    if(NOT DEFINED WC4_VARIANT_${variant}_PATCHES)
         message(
             FATAL_ERROR
-            "wc4_patch_tree: expected decompiled|stage_mod, got '${tree}'"
+            "unknown variant '${variant}' in WC4_VARIANTS — define"
+            " WC4_VARIANT_${variant}_PATCHES (registered variants:"
+            " localized, money, unlock_all)"
         )
     endif()
-    set(wc4_new_tree "${tree}" PARENT_SCOPE)
-endfunction()
+    list(APPEND registered_patches ${WC4_VARIANT_${variant}_PATCHES})
+endforeach()
+list(REMOVE_DUPLICATES registered_patches)
 
-# --- patch loop: manifest => generated install script => build edge ---
+set(patch_gen_dir "${CMAKE_CURRENT_BINARY_DIR}/generated")
+file(MAKE_DIRECTORY "${patch_gen_dir}")
 
-foreach(name IN LISTS wc4_patches)
+# diffs are applied with `git apply`; required only when a patch actually
+# ships .patch/.diff files (checked per patch below)
+find_program(git_bin NAMES git)
+
+# --- patch loop: manifest => generated install script ----------------------
+
+foreach(name IN LISTS registered_patches)
     set(patch_dir "${CMAKE_CURRENT_SOURCE_DIR}/${name}")
     set(manifest "${patch_dir}/CMakeLists.txt")
 
@@ -133,28 +127,25 @@ foreach(name IN LISTS wc4_patches)
         message(FATAL_ERROR "patch '${name}': missing ${manifest}")
     endif()
 
-    set(wc4_new_tree decompiled)
     set(wc4_new_installs "")
     set(wc4_new_diffs "")
     set(wc4_new_run_count 0)
 
     include("${manifest}")
 
-    if(wc4_new_tree STREQUAL "stage_mod")
-        set(tree_path "${stage_mod}")
-        set(tree_stamp "${stamp_stage_mod}")
-        set(tree_property wc4_stage_stamps)
-    else()
-        set(tree_path "${decompiled_dir}")
-        set(tree_stamp "${stamp_decompiled}")
-        set(tree_property wc4_decompiled_stamps)
-    endif()
-
     # Generate the standalone install script (applied with `cmake -P`).
-    set(script "${wc4_patch_gen_dir}/${name}.install.cmake")
+    # The target tree is NOT baked in — it arrives as -DROOT= at apply
+    # time, so one script serves every tree the patch is applied to.
+    set(script "${patch_gen_dir}/${name}.install.cmake")
     set(
         body
         "# patch '${name}' — generated by patches/CMakeLists.txt; do not edit\n"
+        "if(NOT DEFINED ROOT OR \"\${ROOT}\" STREQUAL \"\")\n"
+        "    message(FATAL_ERROR \"patch '${name}': -DROOT=<tree> is required\")\n"
+        "endif()\n"
+        "if(NOT EXISTS \"\${ROOT}\")\n"
+        "    message(FATAL_ERROR \"patch '${name}': ROOT does not exist: \${ROOT}\")\n"
+        "endif()\n\n"
     )
 
     foreach(entry IN LISTS wc4_new_installs)
@@ -173,20 +164,22 @@ foreach(name IN LISTS wc4_patches)
         cmake_path(GET src FILENAME file_name)
 
         if(dst STREQUAL ".")
-            set(dst_dir "${tree_path}")
+            set(rel "${file_name}")
+            set(dest "\${ROOT}")
         else()
-            set(dst_dir "${tree_path}/${dst}")
+            set(rel "${dst}/${file_name}")
+            set(dest "\${ROOT}/${dst}")
         endif()
 
         string(
             APPEND
             body
-            "if(EXISTS \"${dst_dir}/${file_name}\")\n"
-            "    message(STATUS \"[${name}] replace ${dst}/${file_name}\")\n"
+            "if(EXISTS \"\${ROOT}/${rel}\")\n"
+            "    message(STATUS \"[${name}] replace ${rel}\")\n"
             "else()\n"
-            "    message(STATUS \"[${name}] add ${dst}/${file_name}\")\n"
+            "    message(STATUS \"[${name}] add ${rel}\")\n"
             "endif()\n"
-            "file(INSTALL FILES \"${src_abs}\" DESTINATION \"${dst_dir}\")\n\n"
+            "file(INSTALL FILES \"${src_abs}\" DESTINATION \"${dest}\")\n\n"
         )
     endforeach()
 
@@ -215,7 +208,7 @@ foreach(name IN LISTS wc4_patches)
             "message(STATUS \"[${name}] apply ${src} (-p${strip})\")\n"
             "execute_process(\n"
             "    COMMAND \"${git_bin}\" apply -p${strip} \"${src_abs}\"\n"
-            "    WORKING_DIRECTORY \"${tree_path}\"\n"
+            "    WORKING_DIRECTORY \"\${ROOT}\"\n"
             "    COMMAND_ERROR_IS_FATAL ANY\n"
             ")\n\n"
         )
@@ -226,8 +219,8 @@ foreach(name IN LISTS wc4_patches)
 
         foreach(i RANGE 0 ${last_run})
             set(cmd ${wc4_new_run_${i}})
-            string(REPLACE "@ROOT@" "${tree_path}" cmd "${cmd}")
             string(REPLACE "@PATCH_DIR@" "${patch_dir}" cmd "${cmd}")
+            string(REPLACE "@ROOT@" "\${ROOT}" cmd "${cmd}")
             string(REPLACE ";" "\" \"" cmd_args "${cmd}")
             string(REPLACE ";" " " cmd_log "${cmd}")
 
@@ -243,69 +236,173 @@ foreach(name IN LISTS wc4_patches)
         endforeach()
     endif()
 
-    file(WRITE "${script}" "${body}")
+    # write-if-different: an unchanged script keeps its mtime, so a bare
+    # reconfigure never retriggeres the patch/build edges
+    wc4_write_if_different("${script}" "${body}")
 
-    # Any change inside the patch dir (manifest or payload) re-applies
-    # the patch; the tree stamp orders it after decompile/stage-copy.
+    # any change inside the patch dir (manifest or payload) re-applies the
+    # patch; a manifest edit also forces a reconfigure (script regen)
     file(
         GLOB_RECURSE patch_files
         CONFIGURE_DEPENDS
         LIST_DIRECTORIES FALSE
         "${patch_dir}/*"
     )
+    set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${manifest}")
 
-    set(stamp "${CMAKE_CURRENT_BINARY_DIR}/${name}.stamp")
-
-    add_custom_command(
-        OUTPUT "${stamp}"
-        COMMAND
-            "${CMAKE_COMMAND}" -P "${script}"
-        COMMAND
-            "${CMAKE_COMMAND}" -E touch "${stamp}"
-        DEPENDS
-            "${tree_stamp}"
-            "${manifest}"
-            "${script}"
-            ${patch_files}
-        COMMENT
-            "patch[${name}] => ${wc4_new_tree}/"
-        VERBATIM
-    )
-
-    add_custom_target(patch-${name} DEPENDS "${stamp}")
-
-    get_property(stamps GLOBAL PROPERTY ${tree_property})
-    list(APPEND stamps "${stamp}")
-    set_property(GLOBAL PROPERTY ${tree_property} "${stamps}")
+    set(wc4_patch_payloads_${name} ${patch_files})
 endforeach()
 
-get_property(stage_stamps GLOBAL PROPERTY wc4_stage_stamps)
-get_property(decompiled_stamps GLOBAL PROPERTY wc4_decompiled_stamps)
+# --- stage 2a: patched/ = decompiled/ + base patches -----------------------
 
-if(stage_stamps)
-    # stage_mod = the fully patched decompiled/ tree; stage patches
-    # apply on top of it. Stays DECRYPTED — encryption happens only in
-    # the throwaway build_*/ trees (root CMakeLists).
+set(base_scripts "")
+set(base_payloads "")
+set(base_patch_commands "")
+foreach(name IN LISTS WC4_BASE_PATCHES)
+    list(APPEND base_scripts "${patch_gen_dir}/${name}.install.cmake")
+    list(APPEND base_payloads ${wc4_patch_payloads_${name}})
+    list(
+        APPEND
+        base_patch_commands
+        COMMAND
+            "${CMAKE_COMMAND}" "-DROOT=${tree_patched}" -P
+            "${patch_gen_dir}/${name}.install.cmake"
+    )
+endforeach()
+
+if(WC4_VERIFY_TREES)
+    set(verify_decompiled_command
+        COMMAND
+            "${CMAKE_COMMAND}" "-DROOT=${tree_decompiled}"
+            "-DMANIFEST=${hashes_dir}/decompiled.sha256" "-DNAME=decompiled"
+            -P "${hash_tree}"
+    )
+else()
+    set(verify_decompiled_command "")
+endif()
+
+add_custom_command(
+    OUTPUT "${stamps_dir}/patched.stamp"
+    ${verify_decompiled_command}
+    COMMAND "${CMAKE_COMMAND}" -E rm -rf "${tree_patched}"
+    COMMAND
+        "${CMAKE_COMMAND}" -E copy_directory "${tree_decompiled}"
+        "${tree_patched}"
+    ${base_patch_commands}
+    COMMAND
+        "${CMAKE_COMMAND}" "-DROOT=${tree_patched}"
+        "-DOUT=${hashes_dir}/patched.sha256" "-DNAME=patched" -P
+        "${hash_tree}"
+    COMMAND "${CMAKE_COMMAND}" -E touch "${stamps_dir}/patched.stamp"
+    DEPENDS
+        "${stamps_dir}/decompiled.stamp"
+        "${hash_tree}"
+        ${base_scripts}
+        ${base_payloads}
+        ${decompiled_files}
+    COMMENT "patch => build/patched/ (base: ${WC4_BASE_PATCHES})"
+    USES_TERMINAL
+    VERBATIM
+)
+
+# --- stage 2b: one edge per variant — patch + encrypt + build + sign -------
+
+file(
+    GLOB_RECURSE patched_files
+    CONFIGURE_DEPENDS
+    LIST_DIRECTORIES FALSE
+    "${tree_patched}/*"
+)
+
+if(WC4_VERIFY_TREES)
+    set(verify_patched_command
+        COMMAND
+            "${CMAKE_COMMAND}" "-DROOT=${tree_patched}"
+            "-DMANIFEST=${hashes_dir}/patched.sha256" "-DNAME=patched" -P
+            "${hash_tree}"
+    )
+else()
+    set(verify_patched_command "")
+endif()
+
+set(variant_apks "")
+foreach(variant IN LISTS WC4_VARIANTS)
+    set(tree "${variants_dir}/${variant}")
+    set(unsigned "${dist_dir}/wc4-ru-${variant}.unsigned.apk")
+    set(signed_raw
+        "${dist_dir}/wc4-ru-${variant}.unsigned-aligned-debugSigned.apk"
+    )
+    set(apk "${dist_dir}/wc4-ru-${variant}.apk")
+
+    set(variant_scripts "")
+    set(variant_payloads "")
+    set(variant_patch_commands "")
+    foreach(name IN LISTS WC4_VARIANT_${variant}_PATCHES)
+        list(APPEND variant_scripts "${patch_gen_dir}/${name}.install.cmake")
+        list(APPEND variant_payloads ${wc4_patch_payloads_${name}})
+        list(
+            APPEND
+            variant_patch_commands
+            COMMAND
+                "${CMAKE_COMMAND}" "-DROOT=${tree}" -P
+                "${patch_gen_dir}/${name}.install.cmake"
+        )
+    endforeach()
+
     add_custom_command(
-        OUTPUT "${stamp_stage_mod}"
+        OUTPUT "${apk}"
+        ${verify_patched_command}
+        COMMAND "${CMAKE_COMMAND}" -E rm -rf "${tree}"
         COMMAND
-            "${CMAKE_COMMAND}" -E rm -rf "${stage_mod}"
+            "${CMAKE_COMMAND}" -E copy_directory "${tree_patched}" "${tree}"
+        ${variant_patch_commands}
         COMMAND
-            "${CMAKE_COMMAND}" -E copy_directory "${decompiled_dir}"
-            "${stage_mod}"
+            "${CMAKE_COMMAND}" "-DPYTHON3=${WC4_PYTHON}"
+            "-DWCRYPT=${wc4_crypt}" "-DMODE=encrypt"
+            "-DDIR=${tree}/${assets_data_rel}" "-DHEADER=${WC4_CRYPT_HEADER}"
+            -P "${crypt_json}"
         COMMAND
-            "${CMAKE_COMMAND}" -E touch "${stamp_stage_mod}"
+            "${CMAKE_COMMAND}" -E echo
+            "+ ${WC4_JAVA} -jar ${apktool_jar} b ${tree} -o ${unsigned}"
+        COMMAND
+            "${WC4_JAVA}" -jar "${apktool_jar}" b "${tree}" -o "${unsigned}"
+        COMMAND
+            "${CMAKE_COMMAND}" -E echo
+            "+ ${WC4_JAVA} -jar ${signer_jar} -a ${unsigned} --out ${dist_dir} --allowResign"
+        COMMAND
+            "${WC4_JAVA}" -jar "${signer_jar}" -a "${unsigned}" --out
+            "${dist_dir}" --allowResign
+        COMMAND "${CMAKE_COMMAND}" -E rename "${signed_raw}" "${apk}"
+        COMMAND "${CMAKE_COMMAND}" -E rm -f "${unsigned}"
+        COMMAND
+            "${CMAKE_COMMAND}" "-DFILE=${apk}" "-DOUT=${apk}.sha256" -P
+            "${sha256_file}"
         DEPENDS
-            "${stamp_decompiled}"
-            ${decompiled_stamps}
-            ${decompiled_files}
-        COMMENT
-            "stage_mod: copy patched decompiled/"
+            "${stamps_dir}/patched.stamp"
+            "${crypt_json}"
+            "${sha256_file}"
+            "${apktool_jar}"
+            "${signer_jar}"
+            ${variant_scripts}
+            ${variant_payloads}
+            ${patched_files}
+        COMMENT "apk[${variant}] => dist/wc4-ru-${variant}.apk"
         USES_TERMINAL
         VERBATIM
     )
-endif()
 
-add_custom_target(patches DEPENDS ${decompiled_stamps})
+    add_custom_target(apk-${variant} DEPENDS "${apk}")
+    list(APPEND variant_apks "${apk}")
+endforeach()
 
-message(STATUS "registered patches: ${wc4_patches}")
+# single entry point: patch + build every enabled variant in one step
+add_custom_target(
+    apk
+    DEPENDS ${variant_apks}
+    COMMAND "${CMAKE_COMMAND}" -E echo "=== dist/ ==="
+    COMMAND "${CMAKE_COMMAND}" -E echo "${variant_apks}"
+    COMMENT "build all variants: ${WC4_VARIANTS}"
+    VERBATIM
+)
+
+message(STATUS "base patches: ${WC4_BASE_PATCHES}")
