@@ -168,7 +168,7 @@
 
     move-result-object v0
 
-    invoke-virtual {v0}, Landroid/view/Display;->getRefreshRate()F
+    invoke-virtual {v0, p1}, Landroid/view/Display;->getRefreshRate()F
 
     move-result v0
 
@@ -182,9 +182,7 @@
 
     sput p1, Lcom/fiveplay/mod/RMS/Recovery;->screenHeight:I
 
-    const-string p1, "RMS"
-
-    invoke-static {p1}, Ljava/lang/System;->loadLibrary(Ljava/lang/String;)V
+    invoke-direct {p0}, Lcom/fiveplay/mod/RMS/Recovery;->afterRecovery()V
 
     return-void
 .end method
@@ -244,7 +242,7 @@
 
     move-result-object v0
 
-    invoke-virtual {v0}, Landroid/view/Display;->getRefreshRate()F
+    invoke-virtual {v0, p1}, Landroid/view/Display;->getRefreshRate()F
 
     move-result v0
 

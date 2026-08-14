@@ -4,7 +4,11 @@
 # activity; the patched version just restarts the game via the .StartApp
 # intent. Pure install(FILES) rule — no scripts.
 #
-# (1_4_28/ holds the previous-version patch for reference; not installed.)
+# Payload: 1_4_28/Recovery.smali — stock 1.4.28 file with the
+# System.loadLibrary("RMS") call in onCreate replaced by an
+# afterRecovery() call (same change as the previous version, see
+# 1_4_28/previouse_version_patch.patch; the obfuscated ".StartApp"
+# string in afterRecovery decrypts at runtime, no deobfuscation needed).
 
 cmake_minimum_required(VERSION 4.2)
 project(wc4_patch_anti_5play LANGUAGES NONE)
@@ -21,4 +25,4 @@ if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
         CACHE PATH "install prefix" FORCE)
 endif()
 
-install(FILES Recovery.smali DESTINATION smali_classes5/com/fiveplay/mod/RMS)
+install(FILES 1_4_28/Recovery.smali DESTINATION smali_classes5/com/fiveplay/mod/RMS)
