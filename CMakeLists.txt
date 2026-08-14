@@ -16,6 +16,8 @@ set(apk_default_url
 set(apk_input "" CACHE FILEPATH "Path to source .apk (empty = auto-download)")
 set(java_bin "java" CACHE FILEPATH "Java binary")
 set(python3_bin "python3" CACHE FILEPATH "Python 3 binary")
+set(git_bin "git" CACHE FILEPATH "Git binary")
+set(adb_bin "adb" CACHE FILEPATH "adb binary (deploy-android target)")
 
 set(apktool_version "3.0.1" CACHE STRING "apktool version")
 set(uber_signer_version "1.3.0" CACHE STRING "uber-apk-signer version")
@@ -30,17 +32,17 @@ set(wc4_unlock
     CACHE FILEPATH
     "wc4 unlock-all script"
 )
+set(wc4_patches
+    "${CMAKE_CURRENT_SOURCE_DIR}/scripts/wc4_patches.py"
+    CACHE FILEPATH
+    "wc4 per-file patch generate/apply script"
+)
 set(wc4_header "MD5_SIZE" CACHE STRING "wc4-crypt header format")
 
-set(diff_dir
-    "${CMAKE_CURRENT_SOURCE_DIR}/diff"
+set(patches_dir
+    "${CMAKE_CURRENT_SOURCE_DIR}/patches"
     CACHE PATH
-    "Overlay: ru translation vs vanilla"
-)
-set(diff_mod_dir
-    "${CMAKE_CURRENT_SOURCE_DIR}/diff_mod"
-    CACHE PATH
-    "Overlay: unlock delta vs ru (auto-generated)"
+    "Per-file patches: money/ over the pristine decompile, money_and_assets/ over the ru tree"
 )
 set(decompiled_dir
     "${CMAKE_CURRENT_SOURCE_DIR}/decompiled"
@@ -76,8 +78,8 @@ foreach(
         apk_input
         wc4_crypt
         wc4_unlock
-        diff_dir
-        diff_mod_dir
+        wc4_patches
+        patches_dir
         decompiled_dir
 )
     if(NOT "${${path_var}}" STREQUAL "")
@@ -93,7 +95,7 @@ foreach(
     endif()
 endforeach()
 
-foreach(path_var IN ITEMS wc4_crypt wc4_unlock)
+foreach(path_var IN ITEMS wc4_crypt wc4_unlock wc4_patches)
     if(NOT EXISTS "${${path_var}}")
         message(FATAL_ERROR "'${path_var}' does not exist: ${${path_var}}")
     endif()
@@ -205,104 +207,6 @@ message(STATUS "${MODE} done => ${ok}/${count} ok")
 )
 
 file(
-    WRITE "${CMAKE_CURRENT_BINARY_DIR}/diff_sync.cmake"
-    [=[
-cmake_minimum_required(VERSION 4.2...4.2)
-
-foreach(req IN ITEMS SRC ORIG DIFF)
-    if(NOT DEFINED ${req} OR "${${req}}" STREQUAL "")
-        message(FATAL_ERROR "'${req}' is required")
-    endif()
-endforeach()
-
-if(NOT EXISTS "${SRC}")
-    message(FATAL_ERROR "SRC does not exist: ${SRC}")
-endif()
-
-if(NOT EXISTS "${ORIG}")
-    message(FATAL_ERROR "ORIG does not exist: ${ORIG}")
-endif()
-
-file(MAKE_DIRECTORY "${DIFF}")
-
-file(GLOB_RECURSE src_files RELATIVE "${SRC}" "${SRC}/*")
-list(SORT src_files)
-
-set(updated 0)
-set(removed 0)
-set(unchanged 0)
-
-foreach(rel IN LISTS src_files)
-    set(src_f "${SRC}/${rel}")
-    set(orig_f "${ORIG}/${rel}")
-    set(diff_f "${DIFF}/${rel}")
-
-    if(IS_DIRECTORY "${src_f}")
-        continue()
-    endif()
-
-    if(NOT EXISTS "${orig_f}")
-        cmake_path(GET diff_f PARENT_PATH parent_dir)
-        file(MAKE_DIRECTORY "${parent_dir}")
-        file(COPY_FILE "${src_f}" "${diff_f}" ONLY_IF_DIFFERENT)
-        math(EXPR updated "${updated} + 1")
-        continue()
-    endif()
-
-    file(MD5 "${src_f}" src_md5)
-    file(MD5 "${orig_f}" orig_md5)
-
-    if(NOT src_md5 STREQUAL orig_md5)
-        cmake_path(GET diff_f PARENT_PATH parent_dir)
-        file(MAKE_DIRECTORY "${parent_dir}")
-        file(COPY_FILE "${src_f}" "${diff_f}" ONLY_IF_DIFFERENT)
-        math(EXPR updated "${updated} + 1")
-    else()
-        if(EXISTS "${diff_f}")
-            file(REMOVE "${diff_f}")
-            math(EXPR removed "${removed} + 1")
-        else()
-            math(EXPR unchanged "${unchanged} + 1")
-        endif()
-    endif()
-endforeach()
-
-file(GLOB_RECURSE diff_files RELATIVE "${DIFF}" "${DIFF}/*")
-list(SORT diff_files)
-
-foreach(rel IN LISTS diff_files)
-    set(diff_f "${DIFF}/${rel}")
-
-    if(IS_DIRECTORY "${diff_f}")
-        continue()
-    endif()
-
-    if(NOT EXISTS "${SRC}/${rel}")
-        file(REMOVE "${diff_f}")
-        math(EXPR removed "${removed} + 1")
-    endif()
-endforeach()
-
-file(GLOB_RECURSE all_diff RELATIVE "${DIFF}" "${DIFF}/*")
-list(SORT all_diff)
-list(REVERSE all_diff)
-
-foreach(rel IN LISTS all_diff)
-    set(candidate "${DIFF}/${rel}")
-    if(IS_DIRECTORY "${candidate}")
-        file(GLOB children "${candidate}/*")
-        list(LENGTH children child_count)
-        if(child_count EQUAL 0)
-            file(REMOVE_RECURSE "${candidate}")
-        endif()
-    endif()
-endforeach()
-
-message(STATUS "diff_sync => '${DIFF}': +${updated} updated, -${removed} removed, ${unchanged} unchanged")
-]=]
-)
-
-file(
     WRITE "${CMAKE_CURRENT_BINARY_DIR}/waydroid_deploy.cmake"
     [=[
 cmake_minimum_required(VERSION 4.2...4.2)
@@ -368,11 +272,10 @@ add_custom_target(
     COMMAND
         "${CMAKE_COMMAND}" -E echo ""
     COMMAND
-        "${CMAKE_COMMAND}" -E echo "=== decompile 3/3: overlay diff/ ==="
+        "${CMAKE_COMMAND}" -E echo "=== decompile 3/3: apply patches/money/ ==="
     COMMAND
-        "${CMAKE_COMMAND}" -E make_directory "${diff_dir}"
-    COMMAND
-        "${CMAKE_COMMAND}" -E copy_directory "${diff_dir}" "${decompiled_dir}"
+        "${python3_bin}" "${wc4_patches}" apply "${patches_dir}/money"
+        "${decompiled_dir}"
     COMMAND
         "${CMAKE_COMMAND}" -E echo ""
     COMMAND
@@ -401,10 +304,10 @@ add_custom_target(
     COMMAND
         "${CMAKE_COMMAND}" -E echo ""
     COMMAND
-        "${CMAKE_COMMAND}" -E echo "=== sync 2/4: decompiled/ => diff/ ==="
+        "${CMAKE_COMMAND}" -E echo "=== sync 2/4: decompiled/ => patches/money/ ==="
     COMMAND
-        "${CMAKE_COMMAND}" "-DSRC=${decompiled_dir}" "-DORIG=${orig_dir}"
-        "-DDIFF=${diff_dir}" -P "${CMAKE_CURRENT_BINARY_DIR}/diff_sync.cmake"
+        "${python3_bin}" "${wc4_patches}" generate "${orig_dir}"
+        "${decompiled_dir}" "${patches_dir}/money"
     COMMAND
         "${CMAKE_COMMAND}" -E echo ""
     COMMAND
@@ -420,19 +323,17 @@ add_custom_target(
     COMMAND
         "${CMAKE_COMMAND}" -E echo ""
     COMMAND
-        "${CMAKE_COMMAND}" -E echo "=== sync 4/4: stage_mod/ => diff_mod/ ==="
+        "${CMAKE_COMMAND}" -E echo
+        "=== sync 4/4: stage_mod/ => patches/money_and_assets/ ==="
     COMMAND
-        "${CMAKE_COMMAND}" "-DSRC=${stage_mod}" "-DORIG=${stage_ru}"
-        "-DDIFF=${diff_mod_dir}" -P
-        "${CMAKE_CURRENT_BINARY_DIR}/diff_sync.cmake"
+        "${python3_bin}" "${wc4_patches}" generate "${stage_ru}" "${stage_mod}"
+        "${patches_dir}/money_and_assets"
     COMMAND
         "${CMAKE_COMMAND}" -E echo ""
     COMMAND
         "${CMAKE_COMMAND}" -E echo "=== sync complete ==="
     COMMAND
-        "${CMAKE_COMMAND}" -E echo "  diff     => '${diff_dir}'"
-    COMMAND
-        "${CMAKE_COMMAND}" -E echo "  diff_mod => '${diff_mod_dir}'"
+        "${CMAKE_COMMAND}" -E echo "  patches => '${patches_dir}'"
     COMMAND
         "${CMAKE_COMMAND}" -E echo ""
     USES_TERMINAL
@@ -444,7 +345,7 @@ add_custom_target(
     COMMAND
         "${CMAKE_COMMAND}" -E echo ""
     COMMAND
-        "${CMAKE_COMMAND}" -E echo "=== build 1/6: sync diff/ ==="
+        "${CMAKE_COMMAND}" -E echo "=== build 1/6: sync patches/money/ ==="
     COMMAND
         "${CMAKE_COMMAND}" -E rm -rf "${orig_dir}"
     COMMAND
@@ -454,8 +355,8 @@ add_custom_target(
         "-DMODE=decrypt" "-DDIR=${orig_dir}/${assets_data_rel}" -P
         "${CMAKE_CURRENT_BINARY_DIR}/crypt_json.cmake"
     COMMAND
-        "${CMAKE_COMMAND}" "-DSRC=${decompiled_dir}" "-DORIG=${orig_dir}"
-        "-DDIFF=${diff_dir}" -P "${CMAKE_CURRENT_BINARY_DIR}/diff_sync.cmake"
+        "${python3_bin}" "${wc4_patches}" generate "${orig_dir}"
+        "${decompiled_dir}" "${patches_dir}/money"
     COMMAND
         "${CMAKE_COMMAND}" -E echo ""
     COMMAND
@@ -477,11 +378,11 @@ add_custom_target(
     COMMAND
         "${CMAKE_COMMAND}" -E echo ""
     COMMAND
-        "${CMAKE_COMMAND}" -E echo "=== build 4/6: diff_mod/ (unlock audit) ==="
+        "${CMAKE_COMMAND}" -E echo
+        "=== build 4/6: patches/money_and_assets/ (unlock audit) ==="
     COMMAND
-        "${CMAKE_COMMAND}" "-DSRC=${stage_mod}" "-DORIG=${stage_ru}"
-        "-DDIFF=${diff_mod_dir}" -P
-        "${CMAKE_CURRENT_BINARY_DIR}/diff_sync.cmake"
+        "${python3_bin}" "${wc4_patches}" generate "${stage_ru}" "${stage_mod}"
+        "${patches_dir}/money_and_assets"
     COMMAND
         "${CMAKE_COMMAND}" -E echo ""
     COMMAND
@@ -527,29 +428,56 @@ add_custom_target(
 )
 
 add_custom_target(
-    deploy
+    deploy-waydroid
     COMMAND
         "${CMAKE_COMMAND}" -E echo ""
     COMMAND
-        "${CMAKE_COMMAND}" -E echo "=== deploy ru ==="
+        "${CMAKE_COMMAND}" -E echo "=== deploy-waydroid: wc4_ru ==="
     COMMAND
         "${CMAKE_COMMAND}" "-DPKG=com.easytech.wc4" "-DAPK=${signed_ru}" -P
         "${CMAKE_CURRENT_BINARY_DIR}/waydroid_deploy.cmake"
     COMMAND
         "${CMAKE_COMMAND}" -E echo ""
     COMMAND
-        "${CMAKE_COMMAND}" -E echo "=== deploy mod ==="
+        "${CMAKE_COMMAND}" -E echo "=== deploy-waydroid: wc4_ru_mod ==="
     COMMAND
         "${CMAKE_COMMAND}" "-DPKG=com.easytech.wc4" "-DAPK=${signed_mod}" -P
         "${CMAKE_CURRENT_BINARY_DIR}/waydroid_deploy.cmake"
     COMMAND
         "${CMAKE_COMMAND}" -E echo ""
     COMMAND
-        "${CMAKE_COMMAND}" -E echo "=== deploy complete ==="
+        "${CMAKE_COMMAND}" -E echo "=== deploy-waydroid complete ==="
     COMMAND
         "${CMAKE_COMMAND}" -E echo ""
     USES_TERMINAL
     VERBATIM
 )
 
-add_dependencies(deploy build)
+add_custom_target(
+    deploy-android
+    COMMAND
+        "${CMAKE_COMMAND}" -E echo ""
+    COMMAND
+        "${CMAKE_COMMAND}" -E echo
+        "=== deploy-android 1/2: adb install wc4_ru ==="
+    COMMAND
+        "${adb_bin}" install -r "${signed_ru}"
+    COMMAND
+        "${CMAKE_COMMAND}" -E echo ""
+    COMMAND
+        "${CMAKE_COMMAND}" -E echo
+        "=== deploy-android 2/2: adb install wc4_ru_mod ==="
+    COMMAND
+        "${adb_bin}" install -r "${signed_mod}"
+    COMMAND
+        "${CMAKE_COMMAND}" -E echo ""
+    COMMAND
+        "${CMAKE_COMMAND}" -E echo "=== deploy-android complete ==="
+    COMMAND
+        "${CMAKE_COMMAND}" -E echo ""
+    USES_TERMINAL
+    VERBATIM
+)
+
+add_dependencies(deploy-waydroid build)
+add_dependencies(deploy-android build)

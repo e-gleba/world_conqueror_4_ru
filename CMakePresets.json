@@ -36,7 +36,7 @@
         {
             "name": "decompile",
             "displayName": "Decompile APK",
-            "description": "apktool d + decrypt JSON + overlay diff/",
+            "description": "apktool d + decrypt JSON + apply patches/money/",
             "configurePreset": "default",
             "targets": [
                 "decompile"
@@ -44,8 +44,8 @@
         },
         {
             "name": "sync",
-            "displayName": "Sync diff overlays",
-            "description": "Rebuild orig/ baseline, sync diff/ and diff_mod/",
+            "displayName": "Sync patches",
+            "description": "Rebuild orig/ baseline, regenerate patches/ from the working tree",
             "configurePreset": "default",
             "targets": [
                 "sync"
@@ -61,12 +61,21 @@
             ]
         },
         {
-            "name": "deploy",
+            "name": "deploy-waydroid",
             "displayName": "Deploy to Waydroid",
             "description": "Install both signed APKs via waydroid",
             "configurePreset": "default",
             "targets": [
-                "deploy"
+                "deploy-waydroid"
+            ]
+        },
+        {
+            "name": "deploy-android",
+            "displayName": "Deploy to Android (adb)",
+            "description": "Install both signed APKs via adb install -r",
+            "configurePreset": "default",
+            "targets": [
+                "deploy-android"
             ]
         }
     ],
@@ -86,7 +95,7 @@
                 },
                 {
                     "type": "build",
-                    "name": "deploy"
+                    "name": "deploy-waydroid"
                 }
             ]
         }

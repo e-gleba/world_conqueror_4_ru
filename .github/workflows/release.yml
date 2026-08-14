@@ -57,7 +57,7 @@ jobs:
           path: |
             decompiled
             build/tools
-          key: wc4-build-${{ env.BASE_RELEASE }}-${{ hashFiles('CMakeLists.txt', 'diff/**', 'diff_mod/**') }}
+          key: wc4-build-${{ env.BASE_RELEASE }}-${{ hashFiles('CMakeLists.txt', 'patches/**') }}
           restore-keys: |
             wc4-build-${{ env.BASE_RELEASE }}-
 
