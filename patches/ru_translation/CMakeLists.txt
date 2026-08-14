@@ -1,19 +1,48 @@
 # ru_translation — RU localization.
 #
-# Replaces the stock stringtables, title image and de.lproj plist with
-# the RU variants and installs the cyrillic-capable Noto Sans font.
+# Ships ONE Russian stringtable template (wc4_ru_stringtable_template).
+# At patch time apply_stringtables.py installs it over every language
+# slot listed in wc4_ru_stringtable_replace (stringtable file postfixes)
+# and rewrites the lang_<slot>= menu entry in every stringtable found in
+# the mod assets to wc4_ru_language_name — so the hijacked slot shows up
+# as "Русский" in the language menu whatever the current locale is.
+# Untouched slots keep their stock stringtables from the APK — only the
+# template payload is shipped by this patch.
 
-wc4_patch_files(
-    FILES
-        stringtable_cn.ini
-        stringtable_de.ini
-        stringtable_en.ini
-        stringtable_es.ini
-        stringtable_ja.ini
-        stringtable_ko.ini
-        stringtable_tw.ini
-    DESTINATION
-        assets
+set(wc4_ru_stringtable_template
+    "stringtable_de.ini"
+    CACHE STRING
+    "RU stringtable template — the single translation payload"
+)
+
+set(wc4_ru_stringtable_replace
+    "de"
+    CACHE STRING
+    "stringtable postfixes replaced by the RU template (de = hijack the German locale slot)"
+)
+
+set(wc4_ru_language_name
+    "Русский"
+    CACHE STRING
+    "language-menu label written into lang_<postfix>= of every stringtable"
+)
+
+if(wc4_ru_stringtable_replace STREQUAL "")
+    message(FATAL_ERROR "ru_translation: wc4_ru_stringtable_replace is empty")
+endif()
+
+wc4_patch_run(
+    COMMAND
+        "${python3_bin}"
+        "@PATCH_DIR@/apply_stringtables.py"
+        --template
+        "@PATCH_DIR@/${wc4_ru_stringtable_template}"
+        --assets
+        "@ROOT@/assets"
+        --replace
+        ${wc4_ru_stringtable_replace}
+        --lang-name
+        "${wc4_ru_language_name}"
 )
 
 wc4_patch_files(
@@ -64,4 +93,21 @@ if(wc4_ru_font_rebuild)
             "ru_translation: fontforge not found — keeping checked-in font"
         )
     endif()
+endif()
+
+# ctest: key parity between the RU template and every stringtable in the
+# patched mod tree — entry counts and key sets only, values are never
+# compared. Reads decompiled/assets/stringtable_*.ini, so build the
+# decompile + patch-ru_translation targets before running ctest.
+if(BUILD_TESTING)
+    add_test(
+        NAME ru_translation_stringtable_parity
+        COMMAND
+            "${python3_bin}"
+            "${CMAKE_CURRENT_LIST_DIR}/test_stringtables.py"
+            --reference
+            "${CMAKE_CURRENT_LIST_DIR}/${wc4_ru_stringtable_template}"
+            --dir
+            "${decompiled_dir}/assets"
+    )
 endif()

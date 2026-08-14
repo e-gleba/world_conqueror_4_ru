@@ -56,7 +56,7 @@ Each patch is a directory under `patches/` with a `CMakeLists.txt` **manifest** 
 
 | Patch | Installs | Destination | Effect |
 | --- | --- | --- | --- |
-| `ru_translation` | `stringtable_*.ini` ×7 | `assets/` | RU localization |
+| `ru_translation` | `stringtable_de.ini` RU template → `stringtable_*.ini` slots (`-Dwc4_ru_stringtable_replace`, default `de`; other slots get `lang_<slot>=Русский`) | `assets/` | RU localization |
 | | `de.lproj/InfoPlist.strings` | `assets/de.lproj/` | locale plist |
 | | `font/NotoSans_Lang.otf` | `assets/font/` | cyrillic font (pre-patched; `-Dwc4_ru_font_rebuild=ON` rebuilds glyphs via fontforge) |
 | | `image/tex_title_hd_de.webp` | `assets/image/` | title art |
