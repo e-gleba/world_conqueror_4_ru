@@ -1,0 +1,4 @@
+smali_classes15/com/easytech/wc4/android/WC4Activity$53.smali
+
+
+so we need to work with it
