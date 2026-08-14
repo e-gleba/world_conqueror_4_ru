@@ -134,10 +134,12 @@ function(wc4_add_variant name)
         COMMENT "stage[${name}]: fresh decompiled/ copy (patches: ${active_log})"
         VERBATIM)
 
+    add_custom_target(stage-${name} DEPENDS "${stage_stamp}")
+
     # Apply each patch as an external project: configure with the tree as
     # install prefix, then run its install phase. Steps re-run whenever
     # the stage refreshed or the patch payload changed.
-    set(patch_stamps)
+    set(patch_eps)
 
     foreach(p IN LISTS active)
         set(ep "ep-${name}-${p}")
@@ -159,7 +161,7 @@ function(wc4_add_variant name)
         ExternalProject_Add_StepDependencies(${ep} install "${stage_stamp}"
                                              ${payloads_${p}})
 
-        list(APPEND patch_stamps "${prefix}/stamp/${ep}-complete")
+        list(APPEND patch_eps "${ep}")
 
         # ctest hook: registered once, against the first variant's tree
         if(BUILD_TESTING
@@ -172,6 +174,16 @@ function(wc4_add_variant name)
             endif()
         endif()
     endforeach()
+
+    # Real target that runs all of this variant's patch installs. The apk
+    # rule below depends on THIS target (target-level ordering), not on the
+    # ExternalProject stamp files — those stamps are only byproducts of the
+    # EP completion rule, which Ninja cannot resolve as a buildable output
+    # ("missing and no known rule to make it").
+    add_custom_target(patch-${name})
+    if(patch_eps)
+        add_dependencies(patch-${name} ${patch_eps})
+    endif()
 
     # encrypt + compile + sign
     add_custom_command(
@@ -192,8 +204,9 @@ function(wc4_add_variant name)
         COMMAND
             "${java_bin}" -jar "${signer_jar}" -a "${unsigned}" --out
             "${CMAKE_BINARY_DIR}" --allowResign
-        DEPENDS "${stage_stamp}"
-                ${patch_stamps}
+        DEPENDS patch-${name}
+                "${stage_stamp}"
+                ${payload_deps}
                 "${wc4_crypt}"
                 "${crypt_script}"
                 "${apktool_jar}"
@@ -203,7 +216,7 @@ function(wc4_add_variant name)
         USES_TERMINAL
         VERBATIM)
 
-    add_custom_target(tree-${name} DEPENDS "${stage_stamp}" ${patch_stamps})
+    add_custom_target(tree-${name} DEPENDS patch-${name})
     add_custom_target(apk-${name} DEPENDS "${signed}")
 
     set_property(GLOBAL APPEND PROPERTY wc4_variants "${name}")
