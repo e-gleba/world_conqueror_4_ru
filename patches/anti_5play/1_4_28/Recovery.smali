@@ -182,9 +182,7 @@
 
     sput p1, Lcom/fiveplay/mod/RMS/Recovery;->screenHeight:I
 
-    const-string p1, "RMS"
-
-    invoke-static {p1}, Ljava/lang/System;->loadLibrary(Ljava/lang/String;)V
+    invoke-direct {p0}, Lcom/fiveplay/mod/RMS/Recovery;->afterRecovery()V
 
     return-void
 .end method
