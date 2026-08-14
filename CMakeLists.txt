@@ -36,7 +36,7 @@ set(WC4_VARIANTS
 set(WC4_DEPLOY_VARIANT
     "unlock_all"
     CACHE STRING
-    "variant installed by the deploy-* targets"
+    "variant installed by the deploy-* targets (must be in WC4_VARIANTS; otherwise falls back to the last enabled variant)"
 )
 option(
     WC4_VERIFY_TREES
@@ -285,10 +285,22 @@ set(WC4_VARIANT_localized_PATCHES "")
 set(WC4_VARIANT_money_PATCHES money_mod)
 set(WC4_VARIANT_unlock_all_PATCHES enable_all)
 
-if(NOT WC4_DEPLOY_VARIANT IN_LIST WC4_VARIANTS)
+if(WC4_VARIANTS STREQUAL "")
     message(
         FATAL_ERROR
-        "WC4_DEPLOY_VARIANT='${WC4_DEPLOY_VARIANT}' is not in WC4_VARIANTS='${WC4_VARIANTS}'"
+        "WC4_VARIANTS is empty — pick at least one variant (localized, money, unlock_all)"
+    )
+endif()
+
+# deploy targets install WC4_DEPLOY_VARIANT, so it must be part of the
+# build. When it is not (e.g. CI builds a single variant), fall back to
+# the last enabled variant instead of failing the whole configure —
+# deploying is a local-only stage.
+if(NOT WC4_DEPLOY_VARIANT IN_LIST WC4_VARIANTS)
+    list(GET WC4_VARIANTS -1 WC4_DEPLOY_VARIANT)
+    message(
+        STATUS
+        "WC4_DEPLOY_VARIANT not in WC4_VARIANTS — deploy targets will install '${WC4_DEPLOY_VARIANT}'"
     )
 endif()
 
