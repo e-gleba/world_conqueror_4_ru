@@ -1,339 +1,87 @@
 <div align="center">
 
-# World Conqueror 4 — Russian Localization & Unlock Patch
+<img src=".github/logo.svg" width="96" alt="WC4 RU logo">
 
-**A CMake-driven reverse-engineering pipeline for patching, localizing, and unlocking World Conqueror 4 (Android).**
+# World Conqueror 4 — RU Localization & Unlock Patch
+
+**A CMake pipeline that decompiles, decrypts, patches, and re-signs the World Conqueror 4 Android APK.**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./license)
+[![ci](https://img.shields.io/github/actions/workflow/status/e-gleba/world_conqueror_4_ru/ci.yml?branch=main&label=ci)](https://github.com/e-gleba/world_conqueror_4_ru/actions/workflows/ci.yml)
+[![release](https://img.shields.io/github/v/release/e-gleba/world_conqueror_4_ru)](https://github.com/e-gleba/world_conqueror_4_ru/releases)
 [![CMake](https://img.shields.io/badge/CMake-4.2+-064F8C?logo=cmake)](https://cmake.org)
 [![Python](https://img.shields.io/badge/Python-3.12+-3776AB?logo=python&logoColor=white)](https://python.org)
-[![CI](https://img.shields.io/github/actions/workflow/status/e-gleba/world_conqueror_4_ru/ci.yml?branch=main&label=CI)](https://github.com/e-gleba/world_conqueror_4_ru/actions/workflows/ci.yml)
+[![Platform](https://img.shields.io/badge/Platform-Android_·_Waydroid-3DDC84?logo=android&logoColor=white)](https://waydro.id)
+
+[![▶ run release](https://img.shields.io/badge/%E2%96%B6_run-release-2ea44f)](https://github.com/e-gleba/world_conqueror_4_ru/actions/workflows/release.yml)
+[![▶ run smoke-test](https://img.shields.io/badge/%E2%96%B6_run-smoke--test-2ea44f)](https://github.com/e-gleba/world_conqueror_4_ru/actions/workflows/smoke-test.yml)
+[![▶ run publish-docker](https://img.shields.io/badge/%E2%96%B6_run-publish--docker-2ea44f)](https://github.com/e-gleba/world_conqueror_4_ru/actions/workflows/publish-docker.yml)
 
 </div>
 
----
+## What it does
 
-## Overview
+- **Decompiles** the APK and **decrypts** its AES-256-CBC game data (5 header formats auto-detected)
+- **Localizes** to Russian via the `diff/` overlay; Noto Sans font patch for Cyrillic rendering
+- **Unlocks** all content — generals, stages, conquests, tech (25 categories, combat stats untouched)
+- **Rebuilds and signs** two APK variants (`wc4_ru`, `wc4_ru_mod`) and **deploys** to Waydroid
+- Every step is an idempotent CMake target — no manual tool juggling
 
-This repository provides a complete toolchain for:
+## Quick start
 
-1. **Decompiling** the World Conqueror 4 APK.
-2. **Decrypting** its encrypted JSON game-data blobs.
-3. **Patching** strings for Russian localization.
-4. **Unlocking** all in-game content (generals, stages, conquests, tech, etc.).
-5. **Recompiling, signing, and deploying** the modified APK.
-
-The entire workflow is orchestrated through CMake targets so that every step is reproducible, scriptable, and idempotent.
-
----
-
-## Architecture
-
-```mermaid
-flowchart TD
-    A[Original APK] -->|apktool d| B[Decompiled Smali + Assets]
-    B -->|wc4_crypt.py decrypt| C[Plaintext JSON Data]
-    C -->|wc4_unlock.py| D[Unlocked Game Data]
-    C -->|Manual Edit| E[RU String Tables]
-    D -->|wc4_crypt.py encrypt| F[Re-encrypted Assets]
-    E --> F
-    F -->|apktool b| G[Unsigned APK]
-    G -->|uber-apk-signer| H[Signed Debug APK]
-    H -->|waydroid| I[Installed on Device]
-```
-
----
-
-## Features
-
-| Capability | Tool | Detail |
-|---|---|---|
-| **APK De/Re-compilation** | `apktool` | Automated via CMake; version pinned to `3.0.1`. |
-| **AES-256-CBC Crypto** | `wc4_crypt.py` | Auto-detects 5 header variants; supports encrypt, decrypt, query, edit, grep, verify. |
-| **Full Content Unlock** | `wc4_unlock.py` | Patches 25 JSON categories in-place. Zeroes costs, removes HQ locks, preserves stat balance. |
-| **Cyrillic Font Fix** | `patch_lang_notosans.py` | Replaces the built-in font with Noto Sans for proper Russian rendering. |
-| **Stat Dump** | `wc_spec_dump.py` | Exports unit/general stats to Markdown tables for analysis. |
-| **Deploy Target** | `waydroid` | One-command install after signing. |
-
----
-
-## Prerequisites
-
-| Dependency | Minimum Version | Installation |
-|---|---|---|
-| Java | 11+ | `sudo apt install default-jdk` |
-| Python | 3.12 | System package or `pyenv` |
-| `cryptography` | Any | `pip install cryptography` |
-| CMake | 4.2 | [cmake.org](https://cmake.org) |
-| apktool | 3.0.1 | **Auto-downloaded** by CMake |
-| uber-apk-signer | 1.3.0 | **Auto-downloaded** by CMake |
-| Waydroid | Any | Only required for the `deploy` target |
-
----
-
-## Quick Start
+**Requires:** Java 11+, Python 3.12+ (`pip install cryptography`), CMake 4.2+. apktool and uber-apk-signer are auto-downloaded; Waydroid is only needed for `deploy`.
 
 ```bash
-# 1. Configure (downloads apktool & signer automatically)
-cmake --preset default \
-  -Dapk_input=/path/to/wc4.apk \
-  -Dapk_pkg=com.easytech.wc4
+# 1. configure (empty apk_input auto-downloads the base APK from releases)
+cmake --preset default -Dapk_input=/path/to/wc4.apk
 
-# 2. Decompile + decrypt
-cmake --build build --target update
+# 2. decompile + decrypt + apply RU overlay → decompiled/
+cmake --build build --target decompile
 
-# 3. Apply full unlock + font patch
-python3 scripts/wc4_unlock.py build/src/assets/data/
-python3 scripts/patch_lang_notosans.py build/src/
+# 3. optional: edit translation in decompiled/, fix cyrillic font
+python3 scripts/patch_lang_notosans.py decompiled/
 
-# 4. Recompile, encrypt, and sign
+# 4. encrypt + rebuild + sign → build/wc4_ru-aligned-debugSigned.apk (+ _mod)
 cmake --build build --target build
 
-# 5. Install on Waydroid
+# 5. install both variants to waydroid
 cmake --build build --target deploy
 ```
 
-> **Output:** `build/wc4_ru-aligned-debugSigned.apk` and/or `wc4_ru_mod-aligned-debugSigned.apk`
+## Targets
 
----
-
-## Build Targets
-
-```mermaid
-flowchart LR
-    subgraph User["User Edit Phase"]
-        U1["Edit src/assets/data/*.json<br/>Edit src/assets/strings/*.xml<br/>Run unlock/font scripts"]
-    end
-
-    update["cmake --build --target update"] --> U1
-    U1 --> build["cmake --build --target build"]
-    build --> deploy["cmake --build --target deploy"]
-
-    style update fill:#e1f5fe
-    style build fill:#e8f5e9
-    style deploy fill:#fff3e0
-```
-
-| Target | Purpose | Idempotent |
-|---|---|---|
-| `update` | Decompiles the APK and decrypts `assets/data/*.json` into `src/`. | Yes |
-| `build` | Stages `src/`, re-encrypts JSON, recompiles the APK, and signs it. | Yes |
-| `deploy` | Runs `build`, then pushes both RU and MOD variants to Waydroid. | Yes |
-
----
-
-## CMake Options
-
-| Variable | Default | Description |
-|---|---|---|
-| `apk_input` | *(empty)* | Path to the original `.apk`. If omitted, the build auto-downloads the baseline APK from releases. |
-| `apk_pkg` | *(empty)* | Android package name, e.g. `com.easytech.wc4`. |
-| `java_bin` | `java` | Java executable name or path. |
-| `python3_bin` | `python3` | Python 3 executable name or path. |
-| `apktool_version` | `3.0.1` | Pin for the apktool JAR. |
-| `uber_signer_version` | `1.3.0` | Pin for the signer JAR. |
-| `wc4_header` | `MD5_SIZE` | Header format used when re-encrypting game data. |
-
----
-
-## Tooling Reference
-
-### `scripts/wc4_crypt.py` — Encryption Engine
-
-The game stores all `assets/data/*.json` as AES-256-CBC encrypted blobs. The script handles five header formats and supports both interactive and batch operations.
-
-**Supported formats:**
-
-| Format | Structure |
+| Target | Purpose |
 |---|---|
-| `EASY_MD5_SIZE` | `EASY(4) + ver(4) + len(4) + md5(16) + origsize(4) + ct` |
-| `EASY_MD5` | `EASY(4) + ver(4) + len(4) + md5(16) + ct` |
-| `MD5_SIZE` | `md5(16) + origsize(4) + ct` *(default for re-encryption)* |
-| `MD5` | `md5(16) + ct` |
-| `RAW` | `ct` only |
+| `decompile` | `apktool d` + decrypt JSON + overlay `diff/` → `decompiled/` |
+| `sync` | Persist `decompiled/` edits into `diff/`, regenerate the `diff_mod/` unlock delta |
+| `build` | Sync, apply unlock to the mod stage, encrypt, rebuild, sign both APKs |
+| `deploy` | `build` + install both APKs to Waydroid |
 
-**Common commands:**
+## Options
 
-```bash
-# Decrypt a single file
-python3 scripts/wc4_crypt.py decrypt ArmySettings.json -o army.json --pretty
-
-# Batch decrypt an entire directory
-python3 scripts/wc4_crypt.py decrypt assets/data/ -o decrypted/
-
-# Query a field without writing to disk (works on encrypted files)
-python3 scripts/wc4_crypt.py query ArmySettings.json 'units.0.name'
-
-# Edit a field in-place
-python3 scripts/wc4_crypt.py edit ArmySettings.json \
-  --set 'units.0.hp=9999' --encrypt -o ArmySettings.json
-
-# Verify integrity across all files
-python3 scripts/wc4_crypt.py verify assets/data/
-
-# Roundtrip test
-python3 scripts/wc4_crypt.py roundtrip ArmySettings.json
-```
-
-### `scripts/wc4_unlock.py` — Full Unlock Patcher
-
-Patches all plaintext JSON data files inside `src/assets/data/` to remove progression locks. **Does not alter combat stats.**
-
-```bash
-python3 scripts/wc4_unlock.py src/assets/data/
-```
-
-**Categories patched (25 total):**
-
-- **Generals** — stats → 6, skills → 5, costs → 1 medal / 0 gold, all legendary.
-- **Promotions** — zeroed costs; `AdvanceID` linked-list preserved.
-- **Skills** — 1 medal, unlocked by default, stage/scenario gates removed.
-- **Technology** — costs zeroed, HQ requirements removed.
-- **Stages / Campaigns** — all opened; tutorial (Id=10001) grants 10M EXP + 1M medals.
-- **Conquests** — all visible, country costs zeroed.
-- **Army Purchase** — 1 money, zero gear/atomic/build-time.
-- **Facilities, Wonders, Legion, Corps, Elite, Frontier, HQ, Shop** — costs minimized, locks cleared.
-
-### `scripts/patch_lang_notosans.py` — Font Patch
-
-Replaces the APK's original font with Noto Sans so Cyrillic glyphs render correctly.
-
-```bash
-python3 scripts/patch_lang_notosans.py src/
-```
-
-Run after `update`, before `build`.
-
-### `scripts/wc_spec_dump.py` — Stat Extractor
-
-Generates human-readable Markdown tables from decrypted JSON for spreadsheet-style analysis.
-
-```bash
-python3 scripts/wc_spec_dump.py src/assets/data/ -o specs.md
-```
-
----
-
-## Project Layout
-
-```
-world_conqueror_4_ru/
-├── CMakeLists.txt                 # Build orchestration (LANGUAGES NONE)
-├── CMakePresets.json              # Default configure / build presets
-├── Dockerfile                     # CI build environment (Ubuntu 24.04 + OpenJDK + Python)
-├── scripts/
-│   ├── wc4_crypt.py               # AES-256-CBC toolkit
-│   ├── wc4_unlock.py              # Full-unlock patcher
-│   ├── patch_lang_notosans.py     # Cyrillic font replacement
-│   └── wc_spec_dump.py            # Stat dump → Markdown
-├── .github/workflows/
-│   ├── ci.yml                     # Push / PR build & validation
-│   ├── release.yml                # Manual release with APK publishing
-│   ├── smoke-test.yml             # Waydroid self-hosted runner smoke test
-│   └── publish-docker.yml         # Builder image → ghcr.io
-├── diff/                          # RU translation overlay (vs vanilla)
-├── diff_mod/                      # Unlock delta (auto-generated)
-├── schemas/                       # JSON schemas for game data files
-├── src/                           # Decompiled APK tree (gitignored, created by update)
-└── build/                         # CMake build directory (gitignored)
-```
-
----
-
-## Typical Development Workflow
-
-```bash
-# --- Phase 1: Setup ---
-cmake --preset default -Dapk_input=~/wc4.apk -Dapk_pkg=com.easytech.wc4
-
-# --- Phase 2: Decompile & Decrypt ---
-cmake --build build --target update
-
-# --- Phase 3: Patch (customize here) ---
-python3 scripts/wc4_unlock.py build/src/assets/data/   # full unlock
-python3 scripts/patch_lang_notosans.py build/src/      # font fix
-# ... edit build/src/assets/strings/*.xml for RU text ...
-
-# --- Phase 4: Build & Sign ---
-cmake --build build --target build
-
-# --- Phase 5: Deploy ---
-cmake --build build --target deploy
-```
-
----
-
-## CI / CD
-
-All automation lives in `.github/workflows/`. The builder image is published to `ghcr.io` so CI and local builds use the exact same environment.
-
-| Workflow | Trigger | What it does |
+| Option | Default | Description |
 |---|---|---|
-| `ci.yml` | Push / PR | Builds all APK variants, validates file structure, uploads **each APK as a separate artifact** with `compression-level: 0`. |
-| `release.yml` | Manual (`workflow_dispatch`) | Creates a versioned GitHub Release and attaches **every `build/*.apk` as an individual asset** using its original filename. |
-| `smoke-test.yml` | Manual | Downloads a selected APK artifact by exact name on a self-hosted Waydroid runner, installs, launches, and watches for crashes. |
-| `publish-docker.yml` | Push to `Dockerfile` | Rebuilds and pushes the builder image to `ghcr.io`. |
+| `apk_input` | auto-download | Path to the source APK |
+| `wc4_header` | `MD5_SIZE` | Header format for re-encryption |
+| `apktool_version` | `3.0.1` | apktool pin |
+| `uber_signer_version` | `1.3.0` | uber-apk-signer pin |
+| `java_bin` / `python3_bin` | `java` / `python3` | Tool paths |
 
-### Releasing a new version
+## Scripts
 
-1. Go to **Actions → Release**.
-2. Click **Run workflow** and enter a tag (e.g. `v1.24.2_ru3`).
-3. The workflow downloads the base APK from the first release, builds all variants, creates an annotated tag, and publishes the release with every APK attached as an individual asset.
+| Script | Purpose |
+|---|---|
+| `wc4_crypt.py` | AES-256-CBC toolkit: `decrypt` `encrypt` `query` `edit` `grep` `verify` `roundtrip` |
+| `wc4_unlock.py` | Full-unlock patcher (runs automatically inside `build`) |
+| `patch_lang_notosans.py` | Cyrillic font fix — run on `decompiled/` |
+| `wc_spec_dump.py` | Dump unit/general stats to Markdown tables |
 
-### Smoke-testing a specific artifact
+## Notes
 
-1. Trigger **Actions → Smoke Test**.
-2. Enter a CI run ID and the exact artifact name (e.g. `wc4_ru-aligned-debugSigned`).
-3. The self-hosted Waydroid runner downloads that artifact, installs the APK, launches the game, and monitors logcat for 10 seconds.
-
-### Adding a Waydroid smoke-test runner
-
-The `smoke-test.yml` workflow expects a self-hosted runner with the labels `[self-hosted, waydroid]`. To register one:
-
-```bash
-# On a Linux machine with Waydroid already configured
-curl -fsSL https://github.com/actions/runner/releases/latest/download/actions-runner-linux-x64.tar.gz | tar xz
-./config.sh --url https://github.com/e-gleba/world_conqueror_4_ru --token <TOKEN> --labels waydroid
-./run.sh
-```
-
----
-
-## Save Data
-
-- Save files are stored in **public external storage** (Android 11+ scoped-storage requirement).
-- On first launch, the game automatically migrates saves from the legacy path.
-- **Always export saves via the in-game export function before reinstalling.**
-
----
-
-## Releases
-
-| Version | Date | Highlights |
-|---|---|---|
-| `v1.24.2_ru2` | 2026-03-22 | Save-export support, GDPR crash fix, overbuf mod fix, translation fixes |
-| `v1.24.2_ru1` | 2026-03-15 | Initial public release |
-
----
-
-## Troubleshooting
-
-| Symptom | Likely Cause | Fix |
-|---|---|---|
-| `cryptography module missing` | Python dependency not installed | `pip install cryptography` |
-| `apktool d` fails | APK path is wrong or contains spaces | Quote the path: `-Dapk_input="/path/to/wc4.apk"` |
-| Font shows squares instead of Cyrillic | Font patch not applied | Run `patch_lang_notosans.py` before `build` |
-| Waydroid install hangs | Session not started | `waydroid session start` manually, then retry `deploy` |
-| Re-encrypted JSON crashes game | Wrong header format selected | Use the default `wc4_header=MD5_SIZE`; verify with `roundtrip` |
-
----
-
-## License
-
-MIT — see [`license`](license).
-
----
+- **Saves** live in public external storage (Android 11+) — export in-game before reinstalling.
+- **Releases** ship both signed APKs per version: [Releases](https://github.com/e-gleba/world_conqueror_4_ru/releases).
+- **CI** builds inside the `ghcr.io` builder image; use the ▶ buttons above to run workflows manually.
 
 <div align="center">
-  <sub>Built for the reverse-engineering and modding community. Not affiliated with EasyTech.</sub>
+<sub>MIT · Built for the reverse-engineering and modding community. Not affiliated with EasyTech.</sub>
 </div>
