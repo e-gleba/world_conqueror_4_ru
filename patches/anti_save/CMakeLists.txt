@@ -11,4 +11,4 @@ wc4_patch_files(
         "."
 )
 
-wc4_patch_diff(FILES smali/com/easytech/wc4/android/WC4Activity.smali.patch)
+wc4_patch_diff(FILES WC4Activity.smali.patch)

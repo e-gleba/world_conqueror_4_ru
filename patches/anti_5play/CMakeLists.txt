@@ -3,4 +3,4 @@
 # Recovery (smali_classes5) is 5play's crash-recovery activity; the
 # patch makes it just restart the game via the .StartApp intent.
 
-wc4_patch_diff(FILES smali_classes5/com/fiveplay/mod/RMS/Recovery.smali.patch)
+wc4_patch_diff(FILES Recovery.smali.patch)

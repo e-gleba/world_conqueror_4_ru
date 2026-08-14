@@ -4,4 +4,4 @@
 # success()/failed() into immediate no-ops, so startup never blocks on
 # the consent dialog.
 
-wc4_patch_diff(FILES "smali/com/easytech/wc4/android/WC4Activity$53.smali.patch")
+wc4_patch_diff(FILES "WC4Activity$53.smali.patch")

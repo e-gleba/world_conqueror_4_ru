@@ -3,9 +3,11 @@
 
 For every patches/<name>/**/*.smali payload, diff it against its vanilla
 counterpart in the decompiled/ tree (payload layout mirrors the APK
-tree), write <payload>.patch next to it and remove the payload. The
-.patch files apply at the decompiled root with `git apply -p1` — exactly
-how the patch framework consumes them (patches/CMakeLists.txt,
+tree), write patches/<name>/<basename>.patch and remove the payload,
+pruning the mirror dirs it leaves empty. The diff carries its own
+a/ b/ target paths, so the .patch sits flat in the patch dir root and
+still applies at the decompiled root with `git apply -p1` — exactly how
+the patch framework consumes it (patches/CMakeLists.txt,
 wc4_patch_diff). Non-smali payloads (AndroidManifest.xml, assets, ...)
 are left untouched.
 
@@ -112,12 +114,25 @@ def main() -> int:
         print("no .smali payloads under patches/ — nothing to do")
         return 0
 
-    written = skipped = 0
+    # output: one <basename>.patch per patch dir root — bail on collisions
+    outputs = {}
     for payload in payloads:
+        name = payload.relative_to(patches).parts[0]
+        out = patches / name / f"{payload.name}.patch"
+        if out in outputs:
+            print(
+                f"error: {payload} and {outputs[out]}\n"
+                f"  would both produce {out} — rename one payload first",
+                file=sys.stderr,
+            )
+            return 1
+        outputs[out] = payload
+
+    written = skipped = 0
+    for out, payload in outputs.items():
         name = payload.relative_to(patches).parts[0]  # patch dir name
         rel = payload.relative_to(patches / name)  # path inside the APK tree
         vanilla = decompiled / rel
-        out = payload.with_name(payload.name + ".patch")
 
         old = vanilla.read_text(encoding="utf-8") if vanilla.is_file() else None
         new = payload.read_text(encoding="utf-8")
@@ -139,6 +154,15 @@ def main() -> int:
         out.write_text(patch, encoding="utf-8", newline="\n")
         payload.unlink()
         written += 1
+
+        # prune mirror dirs left empty by the removal (never the patch dir)
+        directory = payload.parent
+        while directory != patches / name:
+            try:
+                directory.rmdir()
+            except OSError:
+                break  # not empty — stop climbing
+            directory = directory.parent
 
         added = sum(
             1
