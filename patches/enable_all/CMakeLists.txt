@@ -9,9 +9,15 @@ project(wc4_patch_enable_all LANGUAGES NONE)
 
 find_package(Python3 REQUIRED COMPONENTS Interpreter)
 
-# install(SCRIPT) runs a configured script at install time: @VARS@ are
-# baked in now (configure time), ${CMAKE_CURRENT_LIST_DIR} resolves the
-# payload at install time. Plain CMake — no install(CODE) escaping.
+# The target tree is passed explicitly as -DWC4_TREE=<tree> (the framework
+# does this per variant). It is baked into the install script at configure
+# time — deterministic, no reliance on the install prefix (ExternalProject
+# does not forward -DCMAKE_INSTALL_PREFIX to the install step, so the
+# prefix would stay the /usr/local default).
+set(WC4_TREE
+    "${CMAKE_INSTALL_PREFIX}"
+    CACHE PATH "decompiled tree this patch installs into")
+
 set(script "${CMAKE_CURRENT_BINARY_DIR}/install_enable_all.cmake")
 configure_file(install_enable_all.cmake.in "${script}" @ONLY)
 install(SCRIPT "${script}")

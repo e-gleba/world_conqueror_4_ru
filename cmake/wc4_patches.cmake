@@ -2,15 +2,17 @@
 #
 # A patch is a patches/<name>/ directory that is a STANDALONE CMake
 # project (own cmake_minimum_required + project) knowing only its own
-# dir. Applying a patch = configuring it with the variant tree as the
-# install prefix and running its install phase:
+# dir. Applying a patch = configuring it with the variant tree passed as
+# -DWC4_TREE=<tree> and running its install phase:
 #
-#   cmake -S patches/<name> -B <build> -DCMAKE_INSTALL_PREFIX=<tree>
+#   cmake -S patches/<name> -B <build> -DWC4_TREE=<tree>
 #   cmake --install <build>
 #
-# File patches are plain install(FILES ...) rules; tool steps live in
-# install(CODE ...) blocks. Test a patch by hand with the two commands
-# above — that is exactly what the framework runs per patch.
+# File patches are plain install(FILES ...) rules (their CMakeLists
+# redirects the /usr/local default prefix to WC4_TREE); tool steps live
+# in install(SCRIPT) scripts configured with @WC4_TREE@. Test a patch by
+# hand with the two commands above — that is exactly what the framework
+# runs per patch.
 #
 # Discovery is automatic: every patches/<name>/ gets a feature toggle
 # option(WC4_PATCH_<NAME> ... ON) — all enabled by default.
@@ -136,9 +138,9 @@ function(wc4_add_variant name)
 
     add_custom_target(stage-${name} DEPENDS "${stage_stamp}")
 
-    # Apply each patch as an external project: configure with the tree as
-    # install prefix, then run its install phase. Steps re-run whenever
-    # the stage refreshed or the patch payload changed.
+    # Apply each patch as an external project: configure with the variant
+    # tree passed as -DWC4_TREE=<tree>, then run its install phase. Steps
+    # re-run whenever the stage refreshed or the patch payload changed.
     set(patch_eps)
 
     foreach(p IN LISTS active)
@@ -154,6 +156,7 @@ function(wc4_add_variant name)
             DOWNLOAD_COMMAND ""
             UPDATE_COMMAND ""
             BUILD_COMMAND ""
+            CMAKE_CACHE_ARGS "-DWC4_TREE:PATH=${tree}"
             INSTALL_COMMAND "${CMAKE_COMMAND}" --install <BINARY_DIR>)
         ExternalProject_Add_StepDependencies(${ep} configure
                                              "${stage_stamp}"

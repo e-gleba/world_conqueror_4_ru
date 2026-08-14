@@ -1,13 +1,12 @@
 # Install-time script for the ru_translation locale step (configured @ONLY@).
-# @VARS@ are baked at configure time; ${CMAKE_INSTALL_PREFIX} resolves at
-# INSTALL time to the real prefix (see enable_all note).
+# @WC4_TREE@ is the variant tree, passed to the patch as -DWC4_TREE=<tree>.
 execute_process(
     COMMAND "@Python3_EXECUTABLE@"
             "@CMAKE_CURRENT_SOURCE_DIR@/apply_ru_locale.py"
             --template "@CMAKE_CURRENT_SOURCE_DIR@/stringtable_ru.ini"
             --title-image "@CMAKE_CURRENT_SOURCE_DIR@/image/tex_title_hd_ru.webp"
             --lproj "@CMAKE_CURRENT_SOURCE_DIR@/ru.lproj"
-            --assets "${CMAKE_INSTALL_PREFIX}/assets"
+            --assets "@WC4_TREE@/assets"
             --replace @WC4_RU_TARGET_SLOTS@
             --lang-name "@WC4_RU_LANGUAGE_NAME@"
     COMMAND_ERROR_IS_FATAL ANY)

@@ -5,9 +5,9 @@
 # installs the payload over every locale slot in WC4_RU_TARGET_SLOTS
 # (default de = hijack the German slot):
 #
-#   <prefix>/assets/stringtable_<slot>.ini         <= stringtable_ru.ini
-#   <prefix>/assets/image/tex_title_hd_<slot>.webp <= image/tex_title_hd_ru.webp
-#   <prefix>/assets/<slot>.lproj/                  <= ru.lproj/
+#   <tree>/assets/stringtable_<slot>.ini         <= stringtable_ru.ini
+#   <tree>/assets/image/tex_title_hd_<slot>.webp <= image/tex_title_hd_ru.webp
+#   <tree>/assets/<slot>.lproj/                  <= ru.lproj/
 #
 # and rewrites the lang_<slot>= menu entry in every stringtable to
 # WC4_RU_LANGUAGE_NAME — the hijacked slot shows up as "Русский" in the
@@ -15,13 +15,20 @@
 # their stock files from the APK.
 #
 # Test standalone:
-#   cmake -S patches/ru_translation -B /tmp/ru -DCMAKE_INSTALL_PREFIX=<tree>
+#   cmake -S patches/ru_translation -B /tmp/ru -DWC4_TREE=<tree>
 #   cmake --install /tmp/ru
 
 cmake_minimum_required(VERSION 4.2)
 project(wc4_patch_ru_translation LANGUAGES NONE)
 
 find_package(Python3 REQUIRED COMPONENTS Interpreter)
+
+# The target tree is passed explicitly as -DWC4_TREE=<tree> (the framework
+# does this per variant) and baked into the install scripts at configure
+# time — deterministic, no reliance on the install prefix.
+set(WC4_TREE
+    "${CMAKE_INSTALL_PREFIX}"
+    CACHE PATH "decompiled tree this patch installs into")
 
 set(WC4_RU_TARGET_SLOTS
     "de"
@@ -34,9 +41,6 @@ if(WC4_RU_TARGET_SLOTS STREQUAL "")
     message(FATAL_ERROR "ru_translation: WC4_RU_TARGET_SLOTS is empty")
 endif()
 
-# install(SCRIPT) runs a configured script at install time: @VARS@ are
-# baked in now (configure time), the payload is referenced via the
-# configured source dir. Plain CMake — no install(CODE) escaping.
 set(locale_script "${CMAKE_CURRENT_BINARY_DIR}/install_ru_locale.cmake")
 configure_file(install_ru_locale.cmake.in "${locale_script}" @ONLY)
 install(SCRIPT "${locale_script}")
@@ -69,5 +73,11 @@ if(WC4_RU_FONT_REBUILD AND FONTFORGE_BIN)
     configure_file(install_ru_font.cmake.in "${font_script}" @ONLY)
     install(SCRIPT "${font_script}")
 else()
+    # File install: redirect the /usr/local default prefix to the tree.
+    if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+        set(CMAKE_INSTALL_PREFIX
+            "${WC4_TREE}"
+            CACHE PATH "install prefix" FORCE)
+    endif()
     install(FILES font/NotoSans_Lang.otf DESTINATION assets/font)
 endif()
