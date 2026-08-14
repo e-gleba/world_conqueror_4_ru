@@ -396,11 +396,20 @@ foreach(variant IN LISTS WC4_VARIANTS)
 endforeach()
 
 # single entry point: patch + build every enabled variant in one step
+set(apk_summary_commands "")
+foreach(apk_file IN LISTS variant_apks)
+    list(
+        APPEND
+        apk_summary_commands
+        COMMAND "${CMAKE_COMMAND}" -E echo "  ${apk_file}"
+    )
+endforeach()
+
 add_custom_target(
     apk
     DEPENDS ${variant_apks}
     COMMAND "${CMAKE_COMMAND}" -E echo "=== dist/ ==="
-    COMMAND "${CMAKE_COMMAND}" -E echo "${variant_apks}"
+    ${apk_summary_commands}
     COMMENT "build all variants: ${WC4_VARIANTS}"
     VERBATIM
 )
