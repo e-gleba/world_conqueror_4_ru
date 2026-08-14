@@ -26,7 +26,7 @@ project(
 # --- inputs -----------------------------------------------------------------
 
 set(apk_default_url
-    "https://github.com/e-gleba/world_conqueror_4_ru/releases/download/v1.24.2_ru/original_5play_mod.apk"
+    "https://github.com/e-gleba/world_conqueror_4_ru/releases/download/v1.28.0_pdalife/world-conqueror-4-ww2-strategy-v1-28-0-mod.apk"
 )
 # SHA-256 of the asset above (digest published on GitHub release v1.24.2_ru).
 set(apk_default_sha256
@@ -99,11 +99,16 @@ set(signer_url
 )
 
 foreach(path_var IN ITEMS apk_input wc4_crypt decompiled_dir)
-    if(NOT "${${path_var}}" STREQUAL "" AND NOT IS_ABSOLUTE "${${path_var}}")
+    if(NOT
+       "${${path_var}}"
+       STREQUAL
+       ""
+       AND NOT IS_ABSOLUTE "${${path_var}}")
         cmake_path(
             ABSOLUTE_PATH
             ${path_var}
-            BASE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+            BASE_DIRECTORY
+            "${CMAKE_CURRENT_SOURCE_DIR}"
             NORMALIZE)
     endif()
 endforeach()
@@ -114,11 +119,21 @@ endif()
 
 # --- fetch helper: download once, verify SHA-256 when provided --------------
 
-function(wc4_fetch url output expected_sha256)
+function(
+    wc4_fetch
+    url
+    output
+    expected_sha256)
     if(EXISTS "${output}")
-        if(NOT expected_sha256 STREQUAL "")
+        if(NOT
+           expected_sha256
+           STREQUAL
+           "")
             file(SHA256 "${output}" actual)
-            if(NOT actual STREQUAL expected_sha256)
+            if(NOT
+               actual
+               STREQUAL
+               expected_sha256)
                 message(
                     FATAL_ERROR
                         "SHA-256 mismatch: ${output}\n"
@@ -139,8 +154,15 @@ function(wc4_fetch url output expected_sha256)
     file(MAKE_DIRECTORY "${output_dir}")
 
     set(hash_args)
-    if(NOT expected_sha256 STREQUAL "")
-        list(APPEND hash_args EXPECTED_HASH "SHA256=${expected_sha256}")
+    if(NOT
+       expected_sha256
+       STREQUAL
+       "")
+        list(
+            APPEND
+            hash_args
+            EXPECTED_HASH
+            "SHA256=${expected_sha256}")
     endif()
 
     message(STATUS "downloading '${url}'")
@@ -174,8 +196,14 @@ elseif(NOT EXISTS "${apk_input}")
 endif()
 
 file(SHA256 "${apk_input}" apk_input_actual)
-if(NOT apk_input_sha256 STREQUAL ""
-   AND NOT apk_input_actual STREQUAL apk_input_sha256)
+if(NOT
+   apk_input_sha256
+   STREQUAL
+   ""
+   AND NOT
+       apk_input_actual
+       STREQUAL
+       apk_input_sha256)
     message(
         FATAL_ERROR
             "apk_input SHA-256 mismatch: ${apk_input}\n"
@@ -189,11 +217,9 @@ wc4_fetch("${apktool_url}" "${apktool_jar}" "")
 wc4_fetch("${signer_url}" "${signer_jar}" "")
 
 execute_process(
-    COMMAND "${python3_bin}" "${wc4_crypt}" --version
-    COMMAND_ECHO STDOUT
+    COMMAND "${python3_bin}" "${wc4_crypt}" --version COMMAND_ECHO STDOUT
     OUTPUT_QUIET ERROR_QUIET
-    RESULT_VARIABLE py_rc
-    COMMAND_ERROR_IS_FATAL NONE)
+    RESULT_VARIABLE py_rc COMMAND_ERROR_IS_FATAL NONE)
 if(py_rc)
     message(WARNING "python 'cryptography' module missing\n"
                     "  fix: ${python3_bin} -m pip install cryptography")
@@ -221,15 +247,13 @@ add_custom_command(
             "${wc4_crypt}"
             "${crypt_script}"
     COMMENT "decompile => decompiled/ (apktool d + decrypt json)"
-    USES_TERMINAL
-    VERBATIM)
+    USES_TERMINAL VERBATIM)
 
 add_custom_target(decompile DEPENDS "${stamp_decompiled}")
 
 # Manual edits in decompiled/ rebuild the variant trees (re-globbed per build).
 file(
-    GLOB_RECURSE decompiled_files
-    CONFIGURE_DEPENDS
+    GLOB_RECURSE decompiled_files CONFIGURE_DEPENDS
     LIST_DIRECTORIES FALSE
     "${decompiled_dir}/*")
 
@@ -266,14 +290,21 @@ set(deploy_watch_timeout
     CACHE STRING "logcat watch window in seconds when deploy debug is OFF")
 
 get_property(known_variants GLOBAL PROPERTY wc4_variants)
-if(NOT deploy_variant IN_LIST known_variants)
+if(NOT
+   deploy_variant
+   IN_LIST
+   known_variants)
     message(
         FATAL_ERROR
             "deploy_variant '${deploy_variant}' is not a variant (known: ${known_variants})"
     )
 endif()
 
-function(add_deploy_target target backend debug_default)
+function(
+    add_deploy_target
+    target
+    backend
+    debug_default)
     option(
         deploy_debug_${backend}
         "deploy-${backend}: infinite logcat tail after launch (OFF = ${deploy_watch_timeout}s crash watch)"
@@ -287,13 +318,11 @@ function(add_deploy_target target backend debug_default)
             "-DAPK=${wc4_variant_${deploy_variant}_apk}" "-DBACKEND=${backend}"
             "-DDEBUG=$<BOOL:${deploy_debug_${backend}}>"
             "-DTIMEOUT=${deploy_watch_timeout}" "-DADB_SERIAL=${adb_serial}"
-            "-DWAYDROID_BIN=${waydroid_bin}"
-            "-DADB_BIN=${adb_bin}" -P
+            "-DWAYDROID_BIN=${waydroid_bin}" "-DADB_BIN=${adb_bin}" -P
             "${deploy_script}"
         COMMENT
             "deploy ${deploy_variant} => ${backend} (install + launch + log)"
-        USES_TERMINAL
-        VERBATIM)
+        USES_TERMINAL VERBATIM)
 endfunction()
 
 # waydroid defaults to the bounded watch (emulator, usually CI-like);
