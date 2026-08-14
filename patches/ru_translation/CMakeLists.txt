@@ -55,18 +55,18 @@ wc4_patch_run(
         "${wc4_ru_language_name}"
 )
 
-wc4_patch_files(
-    FILES
-        font/NotoSans_Lang.otf
-    DESTINATION
-        assets/font
-)
-
-# Cyrillic font rebuild: merges RU glyphs from a donor Noto Sans into
-# the installed font (needs fontforge + fontTools). The checked-in font
-# is already cyrillic-patched, so the rebuild is OFF by default to keep
-# the dependency footprint minimal — enable with
-# -Dwc4_ru_font_rebuild=ON after editing the font payload.
+# Cyrillic font, two mutually exclusive sources:
+#
+#   wc4_ru_font_rebuild=OFF (default): ship the checked-in
+#   font/NotoSans_Lang.otf — already cyrillic-patched, no extra tools
+#   needed.
+#
+#   wc4_ru_font_rebuild=ON (needs fontforge + fontTools): clean rebuild
+#   — patch_lang_notosans.py merges RU glyphs from a donor Noto Sans
+#   into the STOCK font of the decompiled tree. The checked-in copy is
+#   NOT installed in this mode: installs land before run steps, so
+#   copying it first would re-patch an already-patched font instead of
+#   the clean stock one.
 option(
     wc4_ru_font_rebuild
     "rebuild cyrillic glyphs during the ru_translation patch (needs fontforge + fontTools)"
@@ -76,19 +76,28 @@ option(
 if(wc4_ru_font_rebuild)
     find_program(fontforge_bin NAMES fontforge)
 
-    if(fontforge_bin)
-        wc4_patch_run(
-            COMMAND
-                "${fontforge_bin}" -script
-                "@PATCH_DIR@/patch_lang_notosans.py"
-                "@ROOT@/assets/font/NotoSans_Lang.otf"
-        )
-    else()
+    if(NOT fontforge_bin)
         message(
             STATUS
             "ru_translation: fontforge not found — keeping checked-in font"
         )
     endif()
+endif()
+
+if(wc4_ru_font_rebuild AND fontforge_bin)
+    wc4_patch_run(
+        COMMAND
+            "${fontforge_bin}" -script
+            "@PATCH_DIR@/patch_lang_notosans.py"
+            "@ROOT@/assets/font/NotoSans_Lang.otf"
+    )
+else()
+    wc4_patch_files(
+        FILES
+            font/NotoSans_Lang.otf
+        DESTINATION
+            assets/font
+    )
 endif()
 
 # ctest: every hijacked slot table (wc4_ru_target_slots) must mirror the
