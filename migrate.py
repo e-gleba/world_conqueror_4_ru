@@ -32,9 +32,8 @@ wc4_patches = repo_root / "scripts" / "wc4_patches.py"
 wc4_crypt = repo_root / "scripts" / "wc4_crypt.py"
 
 
-def run(cmd: list, quiet: bool = False) -> None:
-    if not quiet:
-        print(f"+ {' '.join(str(c) for c in cmd)}")
+def run(cmd: list) -> None:
+    print(f"+ {' '.join(str(c) for c in cmd)}")
     proc = subprocess.run([str(c) for c in cmd], cwd=repo_root)
     if proc.returncode != 0:
         sys.exit(f"error: command failed with code {proc.returncode}")
@@ -48,6 +47,17 @@ def cmake_cache(var: str) -> str | None:
         if line.startswith(f"{var}:"):
             return line.split("=", 1)[1]
     return None
+
+
+def find_apk() -> Path:
+    """apk_input from the cmake cache, else the auto-download location."""
+    cached = cmake_cache("apk_input")
+    apk = Path(cached) if cached else build_dir / "original.apk"
+    if not apk.is_absolute():
+        apk = repo_root / apk
+    if not apk.exists():
+        sys.exit("error: apk not found — pass -Dapk_input=<path to .apk>")
+    return apk
 
 
 def trees_identical(a: Path, b: Path) -> bool:
@@ -67,19 +77,14 @@ def main() -> int:
     print("== 1/6: cmake configure ==")
     run(["cmake", "--preset", "default", *sys.argv[1:]])
 
-    apk = cmake_cache("apk_input")
-    if not apk or not Path(apk).exists():
-        sys.exit("error: apk_input not found — pass -Dapk_input=<path to .apk>")
     jars = sorted((build_dir / "tools").glob("apktool_*.jar"))
     if not jars:
         sys.exit("error: apktool jar not found under build/tools/")
 
     print("== 2/6: pristine baseline build/orig/ ==")
-    run([cmake_cache("java_bin") or "java", "-jar", jars[-1], "d", apk, "-o", orig_dir, "-f"])
-    jsons = sorted((orig_dir / "assets" / "data").glob("*.json"))
-    print(f"decrypt {len(jsons)} .json files in '{orig_dir}/assets/data'")
-    for j in jsons:
-        run([sys.executable, wc4_crypt, "decrypt", j, "-o", j], quiet=True)
+    run([cmake_cache("java_bin") or "java", "-jar", jars[-1], "d", find_apk(), "-o", orig_dir, "-f"])
+    data_dir = orig_dir / "assets" / "data"
+    run([sys.executable, wc4_crypt, "decrypt", data_dir, "-o", data_dir, "--glob", "*.json"])
 
     print("== 3/6: materialize trees ==")
     if decompiled_dir.exists():
