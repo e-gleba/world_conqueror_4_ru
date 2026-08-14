@@ -8,10 +8,10 @@ on:
         required: true
         type: string
       apk_artifact_name:
-        description: 'Artifact name to test (wc4_ru-aligned-debugSigned or wc4_ru_mod-aligned-debugSigned)'
+        description: 'Artifact to test (wc4-ru-localized, wc4-ru-money, wc4-ru-unlock_all)'
         required: true
         type: string
-        default: 'wc4_ru-aligned-debugSigned'
+        default: 'wc4-ru-unlock_all'
 
 jobs:
   waydroid:

@@ -21,102 +21,21 @@ permissions:
   contents: read
   packages: read
 
-env:
-  REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}/build-env
-  BASE_RELEASE: v1.24.2_ru
-
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v7
+  localized:
+    uses: ./.github/workflows/build.yml
+    with:
+      variant: localized
+    secrets: inherit
 
-      - uses: docker/login-action@v4
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+  money:
+    uses: ./.github/workflows/build.yml
+    with:
+      variant: money
+    secrets: inherit
 
-      - name: Prepare builder image
-        run: |
-          docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest 2>/dev/null || \
-          docker build -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest .
-
-      - name: Download base APK
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          mkdir -p base-apk
-          gh release download ${{ env.BASE_RELEASE }} \
-            --repo ${{ github.repository }} \
-            -p 'original.apk' \
-            -D base-apk \
-            --skip-existing || \
-          gh release download ${{ env.BASE_RELEASE }} \
-            --repo ${{ github.repository }} \
-            -p '*.apk' \
-            -D base-apk \
-            --skip-existing
-          APK=$(ls base-apk/*.apk | head -1)
-          if [ "$APK" != "base-apk/original.apk" ]; then
-            mv -f "$APK" base-apk/original.apk
-          fi
-          ls -la base-apk/
-
-      - name: Cache decompiled source & tools
-        uses: actions/cache@v6
-        with:
-          path: |
-            decompiled
-            build/tools
-          key: wc4-build-${{ env.BASE_RELEASE }}-${{ hashFiles('CMakeLists.txt', 'patches/**') }}
-          restore-keys: |
-            wc4-build-${{ env.BASE_RELEASE }}-
-
-      - name: Configure & build APKs in container
-        run: |
-          docker run --rm \
-            -v "${{ github.workspace }}:/workspace" \
-            -w /workspace \
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest \
-            bash -c '
-              cmake --preset default \
-                -Dapk_input=/workspace/base-apk/original.apk && \
-              cmake --build build --target decompile && \
-              cmake --build build --target build
-            '
-
-      - name: Run patch tests (ctest)
-        run: |
-          docker run --rm \
-            -v "${{ github.workspace }}:/workspace" \
-            -w /workspace \
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest \
-            ctest --test-dir build --output-on-failure
-
-      - name: Validate APK outputs
-        run: |
-          ls -la build/*.apk
-          for apk in build/wc4_ru-aligned-debugSigned.apk build/wc4_ru_mod-aligned-debugSigned.apk; do
-            test -f "$apk" || { echo "Missing $apk"; exit 1; }
-            test -s "$apk" || { echo "$apk is empty"; exit 1; }
-            file "$apk"
-          done
-          echo "✅ Both debug-signed APKs built and validated."
-
-      - name: Upload wc4_ru-aligned-debugSigned APK
-        uses: actions/upload-artifact@v7
-        with:
-          name: wc4_ru-aligned-debugSigned
-          path: build/wc4_ru-aligned-debugSigned.apk
-          compression-level: 0
-          retention-days: 7
-
-      - name: Upload wc4_ru_mod-aligned-debugSigned APK
-        uses: actions/upload-artifact@v7
-        with:
-          name: wc4_ru_mod-aligned-debugSigned
-          path: build/wc4_ru_mod-aligned-debugSigned.apk
-          compression-level: 0
-          retention-days: 7
+  unlock_all:
+    uses: ./.github/workflows/build.yml
+    with:
+      variant: unlock_all
+    secrets: inherit

@@ -1,0 +1,112 @@
+name: build
+
+# Reusable per-variant build. Callers: ci.yml (all variants) and the
+# release-*.yml workflows (one variant each).
+
+on:
+  workflow_call:
+    inputs:
+      variant:
+        description: 'APK variant: localized, money, or unlock_all'
+        required: true
+        type: string
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}/build-env
+  BASE_RELEASE: v1.24.2_ru
+
+jobs:
+  build:
+    name: ${{ inputs.variant }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: docker/login-action@v4
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Prepare builder image
+        run: |
+          docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest 2>/dev/null || \
+          docker build -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest .
+
+      - name: Download base APK
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p base-apk
+          gh release download ${{ env.BASE_RELEASE }} \
+            --repo ${{ github.repository }} \
+            -p 'original.apk' \
+            -D base-apk \
+            --skip-existing || \
+          gh release download ${{ env.BASE_RELEASE }} \
+            --repo ${{ github.repository }} \
+            -p '*.apk' \
+            -D base-apk \
+            --skip-existing
+          APK=$(ls base-apk/*.apk | head -1)
+          if [ "$APK" != "base-apk/original.apk" ]; then
+            mv -f "$APK" base-apk/original.apk
+          fi
+          sha256sum base-apk/original.apk
+
+      # The decompiled tree is the expensive artifact; it is hash-gated by
+      # the pipeline itself, so a cache hit skips apktool d entirely.
+      - name: Cache decompiled tree & tools
+        uses: actions/cache@v6
+        with:
+          path: |
+            build/decompiled
+            build/hashes
+            build/stamps
+            build/tools
+          key: wc4-${{ inputs.variant }}-${{ env.BASE_RELEASE }}-${{ hashFiles('CMakeLists.txt', 'patches/**', 'cmake/**', 'scripts/**') }}
+          restore-keys: |
+            wc4-${{ inputs.variant }}-${{ env.BASE_RELEASE }}-
+
+      - name: Configure & build variant in container
+        run: |
+          docker run --rm \
+            -v "${{ github.workspace }}:/workspace" \
+            -w /workspace \
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest \
+            bash -c "\
+              cmake --preset default \
+                -DWC4_APK_INPUT=/workspace/base-apk/original.apk \
+                -DWC4_VARIANTS=${{ inputs.variant }} && \
+              cmake --build build --target apk"
+
+      # Patch tests read build/patched/, which every variant build produces
+      # identically — running them once (on localized) is enough.
+      - name: Run patch tests (ctest)
+        if: inputs.variant == 'localized'
+        run: |
+          docker run --rm \
+            -v "${{ github.workspace }}:/workspace" \
+            -w /workspace \
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest \
+            ctest --test-dir build --output-on-failure
+
+      - name: Validate APK output
+        run: |
+          APK=build/dist/wc4-ru-${{ inputs.variant }}.apk
+          ls -la build/dist/
+          test -s "$APK" || { echo "Missing or empty: $APK"; exit 1; }
+          test -s "$APK.sha256" || { echo "Missing checksum: $APK.sha256"; exit 1; }
+          file "$APK"
+          cat "$APK.sha256"
+
+      - name: Upload wc4-ru-${{ inputs.variant }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: wc4-ru-${{ inputs.variant }}
+          path: |
+            build/dist/wc4-ru-${{ inputs.variant }}.apk
+            build/dist/wc4-ru-${{ inputs.variant }}.apk.sha256
+          compression-level: 0
+          retention-days: 7
