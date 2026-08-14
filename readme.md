@@ -55,7 +55,7 @@ All targets are **file-tracked** — rerunning `build` or `deploy-*` redoes only
 Each patch is a directory under `patches/` with a `CMakeLists.txt` **manifest** plus its payload files. Manifests are not `add_subdirectory`d — the framework (`patches/CMakeLists.txt`) `include()`s them at configure time, generates a standalone `<name>.install.cmake` per patch, and applies it with `cmake -P` as a file-tracked build edge (`file(INSTALL)` inside). Patch dirs are relocatable: payload paths are relative to the patch dir.
 
 | Patch | Installs | Destination | Effect |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | `ru_translation` | `stringtable_*.ini` ×7 | `assets/` | RU localization |
 | | `de.lproj/InfoPlist.strings` | `assets/de.lproj/` | locale plist |
 | | `font/NotoSans_Lang.otf` | `assets/font/` | cyrillic font (pre-patched; `-Dwc4_ru_font_rebuild=ON` rebuilds glyphs via fontforge) |
@@ -67,63 +67,6 @@ Each patch is a directory under `patches/` with a `CMakeLists.txt` **manifest** 
 | `enable_all` | — (script patch) | `stage_mod/` tree | runs `wc4_unlock.py` on the mod-variant data |
 
 Per-patch targets exist as `patch-<name>`; the aggregate `patches` target applies every `decompiled/` patch. `enable_all` targets the `stage_mod/` tree instead — it is copied from the fully patched `decompiled/` first, so the plain `wc4_ru` APK never sees it.
-
-### Writing a patch
-
-```cmake
-# patches/<name>/CMakeLists.txt — the manifest
-wc4_patch_files(
-    FILES
-        some_file.smali
-    DESTINATION
-        smali/com/example
-)
-
-wc4_patch_run(
-    COMMAND
-        "${python3_bin}" "@PATCH_DIR@/helper.py" "@ROOT@/assets/data"
-)
-```
-
-1. Create `patches/<name>/` and drop the payload in (any layout).
-2. Declare the install rules in its `CMakeLists.txt`:
-   - `wc4_patch_files(FILES ... DESTINATION <apk-rel dir>)` — **replace** files that exist in the tree, **add** missing ones (auto-detected, logged either way). Sources ending in `.patch`/`.diff` are **applied as unified diffs** with `git apply` instead of copied.
-   - `wc4_patch_diff(FILES ... [STRIP n])` — explicit diff application (`git apply -p<n>`, default 1).
-   - `wc4_patch_run(COMMAND ...)` — extra tool step after the files land; `@ROOT@` = target tree, `@PATCH_DIR@` = patch dir.
-   - `wc4_patch_tree(stage_mod)` — redirect the patch to the mod-variant stage.
-3. Register the directory in `patches/CMakeLists.txt` (the `wc4_patches` list). Comment the line out to disable the patch.
-
-## Targets
-
-| Target | Purpose |
-|---|---|
-| `decompile` | `apktool d` + decrypt JSON → `decompiled/` (skipped when inputs are unchanged) |
-| `patches` | Apply all `patches/` to `decompiled/` (per-patch: `patch-<name>`) |
-| `build` | Apply patches + unlock to the mod stage, encrypt, rebuild, sign both APKs — incremental |
-| `deploy-waydroid` | Build + install the mod APK (`wc4_ru_mod`) via Waydroid |
-| `deploy-adb` | Build + install the mod APK (`wc4_ru_mod`) via adb |
-
-## Options
-
-| Option | Default | Description |
-|---|---|---|
-| `apk_input` | auto-download | Path to the source APK |
-| `wc4_header` | `MD5_SIZE` | Header format for re-encryption |
-| `wc4_ru_font_rebuild` | `OFF` | Rebuild cyrillic glyphs during the ru_translation patch (needs fontforge + fontTools; the checked-in font is already patched) |
-| `apktool_version` | `3.0.1` | apktool pin |
-| `uber_signer_version` | `1.3.0` | uber-apk-signer pin |
-| `java_bin` / `python3_bin` | `java` / `python3` | Tool paths |
-| `waydroid_bin` / `adb_bin` | `waydroid` / `adb` | Deploy tool paths |
-| `adb_serial` | default device | adb serial for `deploy-adb` |
-
-## Scripts
-
-| Script | Purpose |
-|---|---|
-| `scripts/wc4_crypt.py` | AES-256-CBC toolkit: `decrypt` `encrypt` `query` `edit` `grep` `verify` `roundtrip` |
-| `patches/enable_all/wc4_unlock.py` | Full-unlock patcher (runs as the `enable_all` patch inside `build`) |
-| `patches/ru_translation/patch_lang_notosans.py` | Cyrillic font fix (opt-in via `-Dwc4_ru_font_rebuild=ON`) |
-| `scripts/wc_spec_dump.py` | Dump unit/general stats to Markdown tables |
 
 ## Saves
 
