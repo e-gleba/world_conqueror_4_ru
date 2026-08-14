@@ -185,23 +185,11 @@
 
     const-string v6, ""
 
-    const v7, 0x6f062f7d
+    const-string v7, "facebook"
 
-    invoke-static {v7}, L۶ۻۀۈ۵۠ۑ۩۷۩۔۠ۄۗۛ;->ێۨۂ۲۳۩۝ۜۿۀۻۜۯہۇ۽ۂۛ(I)Ljava/lang/String;
+    const-string v4, "share_type_1"
 
-    move-result-object v7
-
-    const v4, 0x2061ad02
-
-    invoke-static {v4}, Lۭېۅۃۏەۛ۴ۮۀ۰ۨ۰ۼ۠۰ۥۏ۩۪ۼۢۚۑ;->ۘۚۃہ۳۹ۢ(I)Ljava/lang/String;
-
-    move-result-object v4
-
-    const v5, 0x636bd237
-
-    invoke-static {v5}, Lۃۮیێۡ;->۫ی۔ۯۜۇۆۺۂ۵۠ۘۅێۼ(I)Ljava/lang/String;
-
-    move-result-object v5
+    const-string v5, "com.facebook.katana"
 
     move-object v2, v8
 
@@ -215,23 +203,11 @@
 
     const-string v13, ""
 
-    const v14, 0x1bb6a9a
+    const-string v14, "Instagram"
 
-    invoke-static {v14}, L۴ۖ۴ۊې;->۪ۚ۰۠۱۩ۂ۝ۚۓۤۜېۍۛۛۯ۸۳ۈ(I)Ljava/lang/String;
+    const-string v11, "share_type_2"
 
-    move-result-object v14
-
-    const v11, 0x657f4d08
-
-    invoke-static {v11}, Lۉۉ۟یێ۬۸;->۶ۛ۔ۈ۟ۑەۛۧۃۇہیۘ۰۝(I)Ljava/lang/String;
-
-    move-result-object v11
-
-    const v12, 0x3d95b7a8
-
-    invoke-static {v12}, Lۦۙۧۻۗۇ۾ۤېۧۀۤۚەۥ۴۝ۈۈۈۭ;->ۆۓې۰ۀ۰ۺ۱(I)Ljava/lang/String;
-
-    move-result-object v12
+    const-string v12, "com.instagram.android"
 
     move-object v9, v1
 
@@ -247,23 +223,11 @@
 
     const-string v7, ""
 
-    const v8, 0x31545a03
+    const-string v8, "tweet"
 
-    invoke-static {v8}, Lۭۛۅ۞۾;->ۄیۉۻۀۮۚۃ۩۱ۜۗۺۧ۔ۖۆۜےۓ۪ۧۆ(I)Ljava/lang/String;
+    const-string v5, "share_type_3"
 
-    move-result-object v8
-
-    const v5, 0x1b38e526
-
-    invoke-static {v5}, L۟ێ۾۶ۿېۆ۶ۣۄۼ۾۱ۉۗ۹ۍۆ;->۔ۢ۶۰ۭۗ۔۩ی(I)Ljava/lang/String;
-
-    move-result-object v5
-
-    const v6, 0x5142fc0f
-
-    invoke-static {v6}, Lۑ۪۟ۦۺۋۓۧ۶ۂ۟ۨ۸۝;->۝ۭۿۀ۟(I)Ljava/lang/String;
-
-    move-result-object v6
+    const-string v6, "com.twitter.android"
 
     move-object v3, v1
 
@@ -282,6 +246,24 @@
 
 .method private static ContainsDoc(Ljava/lang/String;)Z
     .locals 5
+
+    nop
+
+    const/4 v0, 0x1
+
+    const-string v0, "d37ed3DF553d"
+
+    nop
+
+    const v0, 0x7fffffff
+
+    nop
+
+    const-string v0, "D60f32EAfF9eea CR"
+
+    const v0, 0x7fffffff
+
+    const/4 v0, 0x0
 
     new-instance v0, Ljava/io/File;
 
@@ -320,43 +302,23 @@
 
     invoke-direct {p0}, Ljava/util/ArrayList;-><init>()V
 
-    const v2, 0x2c56506f
-
-    invoke-static {v2}, Lۼۡە۶۪ۂ;->ۛۃۊ۹ۆۉېۻ۠۬ې۩ۺ۪ۡۨۿ۔ۯ۵ۓە۞(I)Ljava/lang/String;
-
-    move-result-object v2
+    const-string v2, "headquarter.bak"
 
     invoke-virtual {p0, v2}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
 
-    const v2, 0x64c5621e
-
-    invoke-static {v2}, L۪ۛۑ۳۩ۈ۬ێەۖ۹ۃۉۄۯ۱;->یے۪۰ۜۡۑ۹ە(I)Ljava/lang/String;
-
-    move-result-object v2
+    const-string v2, "headquarter.sav"
 
     invoke-virtual {p0, v2}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
 
-    const v2, 0x440c6183
-
-    invoke-static {v2}, Lیۨۆۥۗەۭۛۿۇ۶ۣۤۛۤۋ۱ۤ۶ېۀۄۅ;->ۋۈ۳ێ۹ۿۺ(I)Ljava/lang/String;
-
-    move-result-object v2
+    const-string v2, "settings.cfg"
 
     invoke-virtual {p0, v2}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
 
-    const v2, 0x27c1c7e1
-
-    invoke-static {v2}, L۲ہۭېۓ۫۳ۨہ۲ۆەۯۆە۷;->۟ە۟ۑ۹ۈۣ۽ۚۏۡی(I)Ljava/lang/String;
-
-    move-result-object v2
+    const-string v2, "prd.sav"
 
     invoke-virtual {p0, v2}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
 
-    const v2, 0x6774bb6b
-
-    invoke-static {v2}, Lۍۢ۽۲ۚ۷ۺ۞۸ۂۧۿۑ۾۲ۛہ۞ۣۗ۠ۥ۴۔;->۸ۉے۹ۛےۛۍ۳۹۳۱ۓۺۿۜہۜ۝۪ۺ۷(I)Ljava/lang/String;
-
-    move-result-object v2
+    const-string v2, "uuid.sav"
 
     invoke-virtual {p0, v2}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
 
@@ -405,6 +367,24 @@
 .method private Count(I)V
     .locals 9
 
+    nop
+
+    const/4 v0, 0x1
+
+    const-string v0, "C28bf41b"
+
+    nop
+
+    const v0, 0x7fffffff
+
+    nop
+
+    const-string v0, "1EC56A8cEa8Ac8eEC CR"
+
+    const v0, 0x7fffffff
+
+    const/4 v0, 0x0
+
     invoke-static {}, Lcom/easytech/wc4/android/WC4Activity;->GetContext()Landroid/content/Context;
 
     move-result-object v0
@@ -413,11 +393,7 @@
 
     move-result-object v0
 
-    const v1, 0x49cf7884    # 1699600.5f
-
-    invoke-static {v1}, L۾ێۃ۵ې۞ۨۮ;->۹ۭۢۨۥۜۯۋ۱۞ۅۿ۪ۭۤۗۆ(I)Ljava/lang/String;
-
-    move-result-object v1
+    const-string v1, "android_id"
 
     invoke-static {v0, v1}, Landroid/provider/Settings$Secure;->getString(Landroid/content/ContentResolver;Ljava/lang/String;)Ljava/lang/String;
 
@@ -604,6 +580,24 @@
 .method private EmulatorDisable(I)V
     .locals 3
 
+    nop
+
+    const/4 v0, 0x1
+
+    const-string v0, "B6DC6c6D02b31D"
+
+    nop
+
+    const v0, 0x7fffffff
+
+    nop
+
+    const-string v0, "6a552fae7 CR"
+
+    const v0, 0x7fffffff
+
+    const/4 v0, 0x0
+
     new-instance v0, Landroid/os/Message;
 
     invoke-direct {v0}, Landroid/os/Message;-><init>()V
@@ -657,6 +651,26 @@
 .method private Game_Init(Landroid/app/Activity;)V
     .locals 3
 
+    const/4 v0, 0x3
+
+    nop
+
+    const-string v0, "6cEAaebfa1c7A"
+
+    const-string v0, "BD2d5d2"
+
+    const v0, 0x7fffffff
+
+    nop
+
+    const-string v0, "3eBF CR"
+
+    nop
+
+    const v0, 0x7fffffff
+
+    const/4 v0, 0x0
+
     new-instance v0, Lcom/easytech/Billing/BillingClientLifecycle;
 
     invoke-static {}, Lcom/easytech/wc4/android/WC4Activity;->GetActivity()Landroid/app/Activity;
@@ -673,11 +687,7 @@
 
     iget-object v0, p0, Lcom/easytech/wc4/android/WC4Activity;->deviceInfo:Lcom/easytech/lib/ecDevice;
 
-    const v1, 0x3e9788bf
-
-    invoke-static {v1}, Lۗ۩۾ہۤۇۺ;->ۏۦ۽۔ېۄۉۚۘ(I)Ljava/lang/String;
-
-    move-result-object v1
+    const-string v1, "com.google.android.gms"
 
     invoke-virtual {v0, p1, v1}, Lcom/easytech/lib/ecDevice;->isInstall(Landroid/content/Context;Ljava/lang/String;)Z
 
@@ -685,11 +695,7 @@
 
     iget-object v1, p0, Lcom/easytech/wc4/android/WC4Activity;->deviceInfo:Lcom/easytech/lib/ecDevice;
 
-    const v2, 0x23a815f8
-
-    invoke-static {v2}, Lۜۀۭ۟ۉۙ۟ۋ۔۠۟۞ۉۿ۠ۗۿۻۡۉ۠;->ێ۠ۥ۳ۉ۴ۺۡۓۋۅۓۃۈ۩ۊ۵ۧ(I)Ljava/lang/String;
-
-    move-result-object v2
+    const-string v2, "com.android.vending"
 
     invoke-virtual {v1, p1, v2}, Lcom/easytech/lib/ecDevice;->isInstall(Landroid/content/Context;Ljava/lang/String;)Z
 
@@ -732,11 +738,7 @@
 
     move-result-object p1
 
-    const v0, 0x49cf7884    # 1699600.5f
-
-    invoke-static {v0}, L۾ێۃ۵ې۞ۨۮ;->۹ۭۢۨۥۜۯۋ۱۞ۅۿ۪ۭۤۗۆ(I)Ljava/lang/String;
-
-    move-result-object v0
+    const-string v0, "android_id"
 
     invoke-static {p1, v0}, Landroid/provider/Settings$Secure;->getString(Landroid/content/ContentResolver;Ljava/lang/String;)Ljava/lang/String;
 
@@ -783,6 +785,24 @@
 .method public static GetActivity()Landroid/app/Activity;
     .locals 1
 
+    nop
+
+    const/4 v0, 0x1
+
+    const-string v0, "bf4aaD"
+
+    nop
+
+    const v0, 0x7fffffff
+
+    nop
+
+    const-string v0, "dF2Ec7C47138 CR"
+
+    const v0, 0x7fffffff
+
+    const/4 v0, 0x0
+
     sget-object v0, Lcom/easytech/wc4/android/WC4Activity;->objectActivity:Ljava/lang/Object;
 
     check-cast v0, Landroid/app/Activity;
@@ -793,6 +813,26 @@
 .method public static GetContext()Landroid/content/Context;
     .locals 1
 
+    const/4 v0, 0x3
+
+    nop
+
+    const-string v0, "03Fe5a"
+
+    const-string v0, "E0F1Ee0fb7f"
+
+    const v0, 0x7fffffff
+
+    nop
+
+    const-string v0, "D21c1BBf7A92CdBCCA CR"
+
+    nop
+
+    const v0, 0x7fffffff
+
+    const/4 v0, 0x0
+
     sget-object v0, Lcom/easytech/wc4/android/WC4Activity;->objectContext:Ljava/lang/Object;
 
     check-cast v0, Landroid/content/Context;
@@ -802,6 +842,24 @@
 
 .method public static GetDocPath(Ljava/lang/String;)Ljava/lang/String;
     .locals 2
+
+    nop
+
+    const/4 v0, 0x1
+
+    const-string v0, "7DdE327A7a"
+
+    nop
+
+    const v0, 0x7fffffff
+
+    nop
+
+    const-string v0, "B9b2cCcdEcCFe CR"
+
+    const v0, 0x7fffffff
+
+    const/4 v0, 0x0
 
     new-instance v0, Ljava/lang/StringBuilder;
 
@@ -834,6 +892,24 @@
             ">;"
         }
     .end annotation
+
+    nop
+
+    const/4 v0, 0x1
+
+    const-string v0, "9A9eb3D723"
+
+    nop
+
+    const v0, 0x7fffffff
+
+    nop
+
+    const-string v0, "2a0 CR"
+
+    const v0, 0x7fffffff
+
+    const/4 v0, 0x0
 
     new-instance v0, Ljava/util/ArrayList;
 
@@ -911,6 +987,24 @@
 .method public static GetGameActivity()Lcom/easytech/wc4/android/WC4Activity;
     .locals 1
 
+    nop
+
+    const/4 v0, 0x1
+
+    const-string v0, "95dEADF"
+
+    nop
+
+    const v0, 0x7fffffff
+
+    nop
+
+    const-string v0, "983EaAb92493D8 CR"
+
+    const v0, 0x7fffffff
+
+    const/4 v0, 0x0
+
     sget-object v0, Lcom/easytech/wc4/android/WC4Activity;->objectActivity:Ljava/lang/Object;
 
     check-cast v0, Lcom/easytech/wc4/android/WC4Activity;
@@ -928,6 +1022,26 @@
 
 .method public static GetSdcardPath()Ljava/lang/String;
     .locals 8
+
+    const/4 v0, 0x3
+
+    nop
+
+    const-string v0, "2Ce6ee8"
+
+    const-string v0, "B15FbF21"
+
+    const v0, 0x7fffffff
+
+    nop
+
+    const-string v0, "EbDd7bd CR"
+
+    nop
+
+    const v0, 0x7fffffff
+
+    const/4 v0, 0x0
 
     invoke-static {}, Landroid/os/Environment;->getExternalStorageDirectory()Ljava/io/File;
 
@@ -1037,11 +1151,7 @@
     :cond_1
     new-instance v1, Ljava/text/SimpleDateFormat;
 
-    const v2, 0x67785966
-
-    invoke-static {v2}, L۽۴ۨۗۈ۟۔ۆ;->ۗ۰۱۲ۜۛ۶۝ېۉۯۑ۾ۺ۶ۚۼۦۣ(I)Ljava/lang/String;
-
-    move-result-object v2
+    const-string v2, "yyyyMMddHHmmss"
 
     sget-object v3, Ljava/util/Locale;->CHINESE:Ljava/util/Locale;
 
@@ -1065,11 +1175,7 @@
 
     invoke-virtual {v2, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    const v0, 0x4a81eded    # 4257526.5f
-
-    invoke-static {v0}, Lۻۏ۰ۣۛ۵ۏ;->۷۳ۙۼۮ۔ۜۏ۩ۻۜۚۅ۵۷ۄ۹ۿ۹۱ۼی(I)Ljava/lang/String;
-
-    move-result-object v0
+    const-string v0, ".png"
 
     invoke-virtual {v2, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
@@ -1099,6 +1205,24 @@
 .method public static JavaExit()V
     .locals 1
 
+    nop
+
+    const/4 v0, 0x1
+
+    const-string v0, "02dEfe49Ccf90"
+
+    nop
+
+    const v0, 0x7fffffff
+
+    nop
+
+    const-string v0, "f002d5b1ED2a CR"
+
+    const v0, 0x7fffffff
+
+    const/4 v0, 0x0
+
     invoke-static {}, Lcom/easytech/lib/ecNativeLib;->nativeDone()V
 
     const/4 v0, 0x0
@@ -1110,6 +1234,24 @@
 
 .method private LoggingDialog(Z)V
     .locals 3
+
+    nop
+
+    const/4 v0, 0x1
+
+    const-string v0, "BDB1B9cCbC02"
+
+    nop
+
+    const v0, 0x7fffffff
+
+    nop
+
+    const-string v0, "93FF31 CR"
+
+    const v0, 0x7fffffff
+
+    const/4 v0, 0x0
 
     if-eqz p1, :cond_0
 
@@ -1180,15 +1322,31 @@
 .method public static OpenQQGroup(Ljava/lang/String;)Z
     .locals 2
 
+    const/4 v0, 0x3
+
+    nop
+
+    const-string v0, "8D9FF8CFdBF"
+
+    const-string v0, "13c08d841e99c"
+
+    const v0, 0x7fffffff
+
+    nop
+
+    const-string v0, "B05C0AFf65dDF CR"
+
+    nop
+
+    const v0, 0x7fffffff
+
+    const/4 v0, 0x0
+
     new-instance v0, Landroid/content/Intent;
 
     invoke-direct {v0}, Landroid/content/Intent;-><init>()V
 
-    const v1, 0x717b9bff
-
-    invoke-static {v1}, Lۡۥۛ۠ہۗ۹ۦۦۤۘەۖ۔ېۥۚۊے۫;->ۊۂۅۣۘ۫ۡ(I)Ljava/lang/String;
-
-    move-result-object v1
+    const-string v1, "android.intent.action.VIEW"
 
     invoke-virtual {v0, v1}, Landroid/content/Intent;->setAction(Ljava/lang/String;)Landroid/content/Intent;
 
@@ -1220,15 +1378,29 @@
 .method public static OpenQQService(Ljava/lang/String;)Z
     .locals 2
 
+    nop
+
+    const/4 v0, 0x1
+
+    const-string v0, "CFdaB44"
+
+    nop
+
+    const v0, 0x7fffffff
+
+    nop
+
+    const-string v0, "A1E9Ad3CaeC CR"
+
+    const v0, 0x7fffffff
+
+    const/4 v0, 0x0
+
     new-instance v0, Landroid/content/Intent;
 
     invoke-direct {v0}, Landroid/content/Intent;-><init>()V
 
-    const v1, 0x717b9bff
-
-    invoke-static {v1}, Lۡۥۛ۠ہۗ۹ۦۦۤۘەۖ۔ېۥۚۊے۫;->ۊۂۅۣۘ۫ۡ(I)Ljava/lang/String;
-
-    move-result-object v1
+    const-string v1, "android.intent.action.VIEW"
 
     invoke-virtual {v0, v1}, Landroid/content/Intent;->setAction(Ljava/lang/String;)Landroid/content/Intent;
 
@@ -1260,6 +1432,24 @@
 .method private RetryLoadRewardedVideo()V
     .locals 1
 
+    nop
+
+    const/4 v0, 0x1
+
+    const-string v0, "b43cCBE15382e38"
+
+    nop
+
+    const v0, 0x7fffffff
+
+    nop
+
+    const-string v0, "bfdaB6addbF86ccfd2 CR"
+
+    const v0, 0x7fffffff
+
+    const/4 v0, 0x0
+
     new-instance v0, Lcom/easytech/wc4/android/WC4Activity$44;
 
     invoke-direct {v0, p0}, Lcom/easytech/wc4/android/WC4Activity$44;-><init>(Lcom/easytech/wc4/android/WC4Activity;)V
@@ -1272,6 +1462,26 @@
 .method private RetryLoadRewardedVideo2()V
     .locals 1
 
+    const/4 v0, 0x3
+
+    nop
+
+    const-string v0, "D57BD7bf8F"
+
+    const-string v0, "38EdE6CcF5Db"
+
+    const v0, 0x7fffffff
+
+    nop
+
+    const-string v0, "82f0b9aBA62 CR"
+
+    nop
+
+    const v0, 0x7fffffff
+
+    const/4 v0, 0x0
+
     new-instance v0, Lcom/easytech/wc4/android/WC4Activity$49;
 
     invoke-direct {v0, p0}, Lcom/easytech/wc4/android/WC4Activity$49;-><init>(Lcom/easytech/wc4/android/WC4Activity;)V
@@ -1283,6 +1493,24 @@
 
 .method private RewardedCount(I)V
     .locals 2
+
+    nop
+
+    const/4 v0, 0x1
+
+    const-string v0, "eF62b57588Ffb"
+
+    nop
+
+    const v0, 0x7fffffff
+
+    nop
+
+    const-string v0, "bC2d04b792c CR"
+
+    const v0, 0x7fffffff
+
+    const/4 v0, 0x0
 
     new-instance v0, Ljava/lang/Thread;
 
@@ -1299,6 +1527,26 @@
 
 .method public static RewardedVideoInit()V
     .locals 2
+
+    const/4 v0, 0x3
+
+    nop
+
+    const-string v0, "F55FF0E3b6"
+
+    const-string v0, "9bF667a913"
+
+    const v0, 0x7fffffff
+
+    nop
+
+    const-string v0, "43d594c84BEEDCf18 CR"
+
+    nop
+
+    const v0, 0x7fffffff
+
+    const/4 v0, 0x0
 
     invoke-static {}, Lcom/easytech/wc4/android/tradplus/Tradplus;->CheckRewardedVideoSupport()V
 
@@ -1317,6 +1565,26 @@
 
 .method private Show_Game_View(II)V
     .locals 6
+
+    const/4 v0, 0x3
+
+    nop
+
+    const-string v0, "29b0e31a2C193ce1"
+
+    const-string v0, "60dBdCef5Dbf"
+
+    const v0, 0x7fffffff
+
+    nop
+
+    const-string v0, "0e299ca74df4356Deb CR"
+
+    nop
+
+    const v0, 0x7fffffff
+
+    const/4 v0, 0x0
 
     const/4 v0, 0x1
 
@@ -1372,25 +1640,13 @@
 
     iget-object v1, p0, Lcom/easytech/wc4/android/WC4Activity;->APP_INFO:Landroid/content/pm/ApplicationInfo;
 
-    const v4, 0x2b612d25    # 7.999871E-13f
-
-    invoke-static {v4}, Lە۫ۈۭۧۚۮ۹ۈ۬۞ۼۀ۩ۑۖ۠ۨ۷۾ۼ;->ۧۆۋ۱ۭ۾ۄۤۢ۳۸ۜ۫ۊ۫ۺۯۆۿ۫ۦ(I)Ljava/lang/String;
-
-    move-result-object v4
+    const-string v4, "google"
 
     const/4 v5, 0x1
 
-    const v2, 0x4d9a406a    # 3.234891E8f
+    const-string v2, "wc4"
 
-    invoke-static {v2}, L۵۸ۣۘۀۃۮۑۗ۹۠ۃۂۜۻ۬ۯ۵ۣۊ۫ۃ;->۾ۇ۫ۦ۸۰ۿېێۀۍە۹ۊۦۄ(I)Ljava/lang/String;
-
-    move-result-object v2
-
-    const v3, 0x4229e6a7
-
-    invoke-static {v3}, Lۢۡۢۋۇۨ۞۴ۚۏ۶ۂۜۍ۲۔ۥۑ۔۝۶;->ۘ۩ۑۂ۴ۆۂۢۉ۰ۂۖۈۢۂ(I)Ljava/lang/String;
-
-    move-result-object v3
+    const-string v3, "all"
 
     move-object v0, p1
 
@@ -1682,11 +1938,25 @@
 .method private checkPermission()V
     .locals 3
 
-    const v0, 0x3535880
+    nop
 
-    invoke-static {v0}, Lۘۇۙۉ۹ۻێ۰ے۞۩۔ۋ۞ۺۓۓ۲ۄ۝ۯۋ۶۠;->۳ۦ۾۳۔۹ےۃہۮ۽۶ۈ۹ەۃۣ۠(I)Ljava/lang/String;
+    const/4 v0, 0x1
 
-    move-result-object v0
+    const-string v0, "dA6b7C"
+
+    nop
+
+    const v0, 0x7fffffff
+
+    nop
+
+    const-string v0, "dF6 CR"
+
+    const v0, 0x7fffffff
+
+    const/4 v0, 0x0
+
+    const-string v0, "android.permission.WRITE_EXTERNAL_STORAGE"
 
     invoke-static {p0, v0}, Landroidx/core/app/ActivityCompat;->checkSelfPermission(Landroid/content/Context;Ljava/lang/String;)I
 
@@ -1700,11 +1970,7 @@
 
     if-eqz v1, :cond_0
 
-    const v1, 0x583b64ac
-
-    invoke-static {v1}, Lۺۺۿۺېۉۋۯۤۏیې۸۟ۆ۔ې۽۽ۥۗېۉۯ;->ۜۊ۸ۮۙۋ۫ۊۢۯ۸ۦۄۣۊۭۢ۟۲ۡ۬۾۩۳(I)Ljava/lang/String;
-
-    move-result-object v1
+    const-string v1, "Please open the relevant authority"
 
     const/4 v2, 0x0
 
@@ -1728,11 +1994,7 @@
     :cond_1
     sget-object v0, Lcom/easytech/wc4/android/WC4Activity;->TAG:Ljava/lang/String;
 
-    const v1, 0x3caf1017
-
-    invoke-static {v1}, Lۅۭۦۤۈۃۺۅۆۖۆ۰ۋۚۡ;->ۮۀۦۨ۹ۥۓۦۍۯۏ(I)Ljava/lang/String;
-
-    move-result-object v1
+    const-string v1, "Authorized success"
 
     invoke-static {v0, v1}, Lcom/easytech/lib/ecLogUtil;->ecLogDebug(Ljava/lang/String;Ljava/lang/String;)V
 
@@ -1743,17 +2005,31 @@
 .method private checkStatusCode(I)Z
     .locals 1
 
+    nop
+
+    const/4 v0, 0x1
+
+    const-string v0, "DDf9e5eB5EFCD"
+
+    nop
+
+    const v0, 0x7fffffff
+
+    nop
+
+    const-string v0, "Df84A2aC2aa CR"
+
+    const v0, 0x7fffffff
+
+    const/4 v0, 0x0
+
     if-eqz p1, :cond_2
 
     const/16 v0, 0x8
 
     if-eq p1, v0, :cond_1
 
-    const v0, 0x68797575
-
-    invoke-static {v0}, L۬۔ۭۙۛیێ۰;->ۧۤۍێ۞ۼۣۡۇ(I)I
-
-    move-result v0
+    const/16 v0, 0x678a
 
     if-eq p1, v0, :cond_0
 
@@ -1789,6 +2065,24 @@
 .method private createFailureListener(Ljava/lang/String;)Lcom/google/android/gms/tasks/OnFailureListener;
     .locals 1
 
+    nop
+
+    const/4 v0, 0x1
+
+    const-string v0, "EAD1C5CdA44"
+
+    nop
+
+    const v0, 0x7fffffff
+
+    nop
+
+    const-string v0, "eb702460dC CR"
+
+    const v0, 0x7fffffff
+
+    const/4 v0, 0x0
+
     new-instance v0, Lcom/easytech/wc4/android/WC4Activity$32;
 
     invoke-direct {v0, p0, p1}, Lcom/easytech/wc4/android/WC4Activity$32;-><init>(Lcom/easytech/wc4/android/WC4Activity;Ljava/lang/String;)V
@@ -1799,13 +2093,27 @@
 .method private createInstagramIntent(Ljava/lang/String;Ljava/lang/String;)V
     .locals 2
 
+    nop
+
+    const/4 v0, 0x1
+
+    const-string v0, "0be05ae8"
+
+    nop
+
+    const v0, 0x7fffffff
+
+    nop
+
+    const-string v0, "2EEb CR"
+
+    const v0, 0x7fffffff
+
+    const/4 v0, 0x0
+
     new-instance v0, Landroid/content/Intent;
 
-    const v1, 0x3cb94d3c
-
-    invoke-static {v1}, L۳ۑۂ۩ۯۻ۟ۖۼ۷۝ەیۆ;->ەۺۯۄ۹۵ەۍۡۙ۰ۖێ۾۶ۭۜ(I)Ljava/lang/String;
-
-    move-result-object v1
+    const-string v1, "android.intent.action.SEND"
 
     invoke-direct {v0, v1}, Landroid/content/Intent;-><init>(Ljava/lang/String;)V
 
@@ -1837,6 +2145,26 @@
 .method private doLoadRewardedVideo()V
     .locals 2
 
+    const/4 v0, 0x3
+
+    nop
+
+    const-string v0, "20DAd9EFeCF"
+
+    const-string v0, "83fFFeAf6"
+
+    const v0, 0x7fffffff
+
+    nop
+
+    const-string v0, "3c8af1 CR"
+
+    nop
+
+    const v0, 0x7fffffff
+
+    const/4 v0, 0x0
+
     iget-object v0, p0, Lcom/easytech/wc4/android/WC4Activity;->mTpReward:Lcom/tradplus/ads/open/reward/TPReward;
 
     new-instance v1, Lcom/easytech/wc4/android/WC4Activity$42;
@@ -1862,6 +2190,24 @@
 
 .method private doLoadRewardedVideo2()V
     .locals 2
+
+    nop
+
+    const/4 v0, 0x1
+
+    const-string v0, "127e8e8FFFFc0A"
+
+    nop
+
+    const v0, 0x7fffffff
+
+    nop
+
+    const-string v0, "90B8d3e88 CR"
+
+    const v0, 0x7fffffff
+
+    const/4 v0, 0x0
 
     iget-object v0, p0, Lcom/easytech/wc4/android/WC4Activity;->mTpReward2:Lcom/tradplus/ads/open/reward/TPReward;
 
@@ -1889,6 +2235,24 @@
 .method public static getActivity()Landroid/app/Activity;
     .locals 1
 
+    nop
+
+    const/4 v0, 0x1
+
+    const-string v0, "e418B7c2Ec4ef"
+
+    nop
+
+    const v0, 0x7fffffff
+
+    nop
+
+    const-string v0, "08e5D82eb3590 CR"
+
+    const v0, 0x7fffffff
+
+    const/4 v0, 0x0
+
     sget-object v0, Lcom/easytech/wc4/android/WC4Activity;->objectThisActivity:Ljava/lang/Object;
 
     check-cast v0, Lcom/easytech/wc4/android/WC4Activity;
@@ -1898,6 +2262,26 @@
 
 .method public static getContext()Landroid/content/Context;
     .locals 1
+
+    const/4 v0, 0x3
+
+    nop
+
+    const-string v0, "F870E2be99adF4"
+
+    const-string v0, "26EC1AA294E7132B"
+
+    const v0, 0x7fffffff
+
+    nop
+
+    const-string v0, "c5fD CR"
+
+    nop
+
+    const v0, 0x7fffffff
+
+    const/4 v0, 0x0
 
     sget-object v0, Lcom/easytech/wc4/android/WC4Activity;->objectContext:Ljava/lang/Object;
 
@@ -1916,6 +2300,26 @@
 
 .method private getGooglePlayerId()Ljava/lang/String;
     .locals 3
+
+    const/4 v0, 0x3
+
+    nop
+
+    const-string v0, "0FbC13"
+
+    const-string v0, "EF3ADCd4DB6Bed1"
+
+    const v0, 0x7fffffff
+
+    nop
+
+    const-string v0, "3e12D864Da4A1aA5 CR"
+
+    nop
+
+    const v0, 0x7fffffff
+
+    const/4 v0, 0x0
 
     sget-object v0, Lcom/easytech/wc4/android/WC4Activity;->TAG:Ljava/lang/String;
 
@@ -1959,6 +2363,26 @@
 .method private getLoginError(I)V
     .locals 5
 
+    const/4 v0, 0x3
+
+    nop
+
+    const-string v0, "E68B8feD4daE"
+
+    const-string v0, "fB99abd1b4B113D"
+
+    const v0, 0x7fffffff
+
+    nop
+
+    const-string v0, "4d080C8BcaABAf CR"
+
+    nop
+
+    const v0, 0x7fffffff
+
+    const/4 v0, 0x0
+
     invoke-static {}, Lcom/google/android/gms/common/GoogleApiAvailability;->getInstance()Lcom/google/android/gms/common/GoogleApiAvailability;
 
     move-result-object v0
@@ -1997,11 +2421,7 @@
 
     invoke-direct {p1, p0}, Lcom/easytech/wc4/android/WC4Activity$19;-><init>(Lcom/easytech/wc4/android/WC4Activity;)V
 
-    const v2, 0x5e0674ad
-
-    invoke-static {v2}, L۸ۆۥ۪ۘۈۥ۟ەۇ۳۹ۂ۷۞ے۝;->ۜۖۜۛۦۄۏے۵ۮ۬ۤۧہۇ(I)I
-
-    move-result v2
+    const/16 v2, 0x2329
 
     invoke-virtual {v0, p0, v1, v2, p1}, Lcom/google/android/gms/common/GoogleApiAvailability;->getErrorDialog(Landroid/app/Activity;IILandroid/content/DialogInterface$OnCancelListener;)Landroid/app/Dialog;
 
@@ -2118,6 +2538,26 @@
 .method public static getPermissions()V
     .locals 1
 
+    const/4 v0, 0x3
+
+    nop
+
+    const-string v0, "2AF0F48dbE"
+
+    const-string v0, "d326CFac990DD"
+
+    const v0, 0x7fffffff
+
+    nop
+
+    const-string v0, "dC6e48fBA4C71A CR"
+
+    nop
+
+    const v0, 0x7fffffff
+
+    const/4 v0, 0x0
+
     invoke-static {}, Lcom/easytech/wc4/android/WC4Activity;->getActivity()Landroid/app/Activity;
 
     move-result-object v0
@@ -2129,6 +2569,24 @@
 
 .method private handleException(Ljava/lang/Exception;Ljava/lang/String;)V
     .locals 4
+
+    nop
+
+    const/4 v0, 0x1
+
+    const-string v0, "B0f469"
+
+    nop
+
+    const v0, 0x7fffffff
+
+    nop
+
+    const-string v0, "B6f554cFF471 CR"
+
+    const v0, 0x7fffffff
+
+    const/4 v0, 0x0
 
     instance-of v0, p1, Lcom/google/android/gms/common/api/ApiException;
 
@@ -2210,6 +2668,24 @@
 
 .method private handleLoginResult(ZLjava/lang/String;Ljava/lang/String;)V
     .locals 3
+
+    nop
+
+    const/4 v0, 0x1
+
+    const-string v0, "e6DF0CF"
+
+    nop
+
+    const v0, 0x7fffffff
+
+    nop
+
+    const-string v0, "EB94Ff7dF83bcbd4 CR"
+
+    const v0, 0x7fffffff
+
+    const/4 v0, 0x0
 
     const/4 p3, 0x0
 
@@ -2359,6 +2835,26 @@
 .method private loadRewardedVideo()V
     .locals 1
 
+    const/4 v0, 0x3
+
+    nop
+
+    const-string v0, "ffeFFF2E3e8d2A5"
+
+    const-string v0, "ceC69ddbcC9a7aa"
+
+    const v0, 0x7fffffff
+
+    nop
+
+    const-string v0, "c89Ab2eFc CR"
+
+    nop
+
+    const v0, 0x7fffffff
+
+    const/4 v0, 0x0
+
     new-instance v0, Lcom/easytech/wc4/android/WC4Activity$40;
 
     invoke-direct {v0, p0}, Lcom/easytech/wc4/android/WC4Activity$40;-><init>(Lcom/easytech/wc4/android/WC4Activity;)V
@@ -2371,6 +2867,24 @@
 .method private loadRewardedVideo2()V
     .locals 1
 
+    nop
+
+    const/4 v0, 0x1
+
+    const-string v0, "eAaABF5F"
+
+    nop
+
+    const v0, 0x7fffffff
+
+    nop
+
+    const-string v0, "f54eeCAb3D457d CR"
+
+    const v0, 0x7fffffff
+
+    const/4 v0, 0x0
+
     new-instance v0, Lcom/easytech/wc4/android/WC4Activity$45;
 
     invoke-direct {v0, p0}, Lcom/easytech/wc4/android/WC4Activity$45;-><init>(Lcom/easytech/wc4/android/WC4Activity;)V
@@ -2382,6 +2896,26 @@
 
 .method private onConnected(Lcom/google/android/gms/auth/api/signin/GoogleSignInAccount;)V
     .locals 1
+
+    const/4 v0, 0x3
+
+    nop
+
+    const-string v0, "CFD9C97"
+
+    const-string v0, "a4Cdd8"
+
+    const v0, 0x7fffffff
+
+    nop
+
+    const-string v0, "554723CA6f CR"
+
+    nop
+
+    const v0, 0x7fffffff
+
+    const/4 v0, 0x0
 
     invoke-static {}, Lcom/google/android/gms/common/GoogleApiAvailability;->getInstance()Lcom/google/android/gms/common/GoogleApiAvailability;
 
@@ -2431,13 +2965,29 @@
 .method private onDisconnected()V
     .locals 2
 
+    const/4 v0, 0x3
+
+    nop
+
+    const-string v0, "d7E9c88f9A3C"
+
+    const-string v0, "55df7DA7CfdDe8D6"
+
+    const v0, 0x7fffffff
+
+    nop
+
+    const-string v0, "8A0655BB CR"
+
+    nop
+
+    const v0, 0x7fffffff
+
     const/4 v0, 0x0
 
-    const v1, 0x3c6b1545
+    const/4 v0, 0x0
 
-    invoke-static {v1}, Lۛہۛ۴۞ۿۭۛۄۂۢ۲ۺۦۃۖۮ۰;->ےۣ۶۱۱۫۾ۅیے(I)Ljava/lang/String;
-
-    move-result-object v1
+    const-string v1, "failed"
 
     invoke-direct {p0, v0, v1, v1}, Lcom/easytech/wc4/android/WC4Activity;->handleLoginResult(ZLjava/lang/String;Ljava/lang/String;)V
 
@@ -2455,6 +3005,24 @@
 .method private showRewardedVideo()V
     .locals 1
 
+    nop
+
+    const/4 v0, 0x1
+
+    const-string v0, "24C3eCB3"
+
+    nop
+
+    const v0, 0x7fffffff
+
+    nop
+
+    const-string v0, "E5A8aB8ec9d4ED CR"
+
+    const v0, 0x7fffffff
+
+    const/4 v0, 0x0
+
     new-instance v0, Lcom/easytech/wc4/android/WC4Activity$41;
 
     invoke-direct {v0, p0}, Lcom/easytech/wc4/android/WC4Activity$41;-><init>(Lcom/easytech/wc4/android/WC4Activity;)V
@@ -2471,6 +3039,26 @@
 .method private showRewardedVideo2()V
     .locals 1
 
+    const/4 v0, 0x3
+
+    nop
+
+    const-string v0, "Dc68cE"
+
+    const-string v0, "b8fE71e60f62E6"
+
+    const v0, 0x7fffffff
+
+    nop
+
+    const-string v0, "9CaB5Cbd504af33eCD CR"
+
+    nop
+
+    const v0, 0x7fffffff
+
+    const/4 v0, 0x0
+
     new-instance v0, Lcom/easytech/wc4/android/WC4Activity$46;
 
     invoke-direct {v0, p0}, Lcom/easytech/wc4/android/WC4Activity$46;-><init>(Lcom/easytech/wc4/android/WC4Activity;)V
@@ -2486,6 +3074,24 @@
 
 .method private signInSilently()V
     .locals 2
+
+    nop
+
+    const/4 v0, 0x1
+
+    const-string v0, "6eCAf1BcF1b94ed3"
+
+    nop
+
+    const v0, 0x7fffffff
+
+    nop
+
+    const-string v0, "C3ECE3bef CR"
+
+    const v0, 0x7fffffff
+
+    const/4 v0, 0x0
 
     iget-object v0, p0, Lcom/easytech/wc4/android/WC4Activity;->mGoogleSignInClient:Lcom/google/android/gms/auth/api/signin/GoogleSignInClient;
 
@@ -2507,17 +3113,31 @@
 .method public CloseKeyboard()V
     .locals 2
 
+    nop
+
+    const/4 v0, 0x1
+
+    const-string v0, "421D41b0CDEaf"
+
+    nop
+
+    const v0, 0x7fffffff
+
+    nop
+
+    const-string v0, "bbc1BfcE97E CR"
+
+    const v0, 0x7fffffff
+
+    const/4 v0, 0x0
+
     iget-object v0, p0, Lcom/easytech/wc4/android/WC4Activity;->input:Landroid/widget/EditText;
 
     invoke-virtual {v0}, Landroid/widget/EditText;->getContext()Landroid/content/Context;
 
     move-result-object v0
 
-    const v1, 0x3e5739ff
-
-    invoke-static {v1}, Lۆۜ۰۰ۋۀۧۋۡےۖ۩ۚۡۢۻ;->ە۴ۿۢ۲۶ۇ(I)Ljava/lang/String;
-
-    move-result-object v1
+    const-string v1, "input_method"
 
     invoke-virtual {v0, v1}, Landroid/content/Context;->getSystemService(Ljava/lang/String;)Ljava/lang/Object;
 
@@ -2545,6 +3165,24 @@
 
 .method protected ComplainDialog(Ljava/lang/String;Ljava/lang/String;)V
     .locals 2
+
+    nop
+
+    const/4 v0, 0x1
+
+    const-string v0, "8CdDD1962Fd5"
+
+    nop
+
+    const v0, 0x7fffffff
+
+    nop
+
+    const-string v0, "1A109F8A2baF8dE26E CR"
+
+    const v0, 0x7fffffff
+
+    const/4 v0, 0x0
 
     new-instance v0, Landroid/app/AlertDialog$Builder;
 
@@ -2586,6 +3224,26 @@
 .method public CopyText(Ljava/lang/String;)V
     .locals 1
 
+    const/4 v0, 0x3
+
+    nop
+
+    const-string v0, "CfcDe1628eFf8DcC"
+
+    const-string v0, "47DD53bbc8b0E"
+
+    const v0, 0x7fffffff
+
+    nop
+
+    const-string v0, "19Ce77 CR"
+
+    nop
+
+    const v0, 0x7fffffff
+
+    const/4 v0, 0x0
+
     new-instance v0, Lcom/easytech/wc4/android/WC4Activity$54;
 
     invoke-direct {v0, p0, p1}, Lcom/easytech/wc4/android/WC4Activity$54;-><init>(Lcom/easytech/wc4/android/WC4Activity;Ljava/lang/String;)V
@@ -2598,15 +3256,29 @@
 .method public CopyUUID(Ljava/lang/String;)V
     .locals 2
 
+    nop
+
+    const/4 v0, 0x1
+
+    const-string v0, "C7c73F"
+
+    nop
+
+    const v0, 0x7fffffff
+
+    nop
+
+    const-string v0, "f510D3 CR"
+
+    const v0, 0x7fffffff
+
+    const/4 v0, 0x0
+
     new-instance v0, Landroid/os/Message;
 
     invoke-direct {v0}, Landroid/os/Message;-><init>()V
 
-    const v1, 0x2e484a27
-
-    invoke-static {v1}, Lۿېۯ۲ۓ۫ۧۤ۲ۊۅیۂۄۈۯ۪ۛۜ۷۔۟ۢۯ;->۰ۇ۾یۈۮۏۛ۱ۧ۾ۏ۵ےۍ(I)I
-
-    move-result v1
+    const/16 v1, 0x68
 
     iput v1, v0, Landroid/os/Message;->what:I
 
@@ -2621,6 +3293,24 @@
 
 .method public EmulatorDisableDialog(I)V
     .locals 2
+
+    nop
+
+    const/4 v0, 0x1
+
+    const-string v0, "ce48eEfF"
+
+    nop
+
+    const v0, 0x7fffffff
+
+    nop
+
+    const-string v0, "B16081867 CR"
+
+    const v0, 0x7fffffff
+
+    const/4 v0, 0x0
 
     new-instance v0, Landroid/app/AlertDialog$Builder;
 
@@ -2693,6 +3383,26 @@
 .method FinishProduct(I)V
     .locals 1
 
+    const/4 v0, 0x3
+
+    nop
+
+    const-string v0, "14EfdeFb1148004b"
+
+    const-string v0, "D0CACdf8122d"
+
+    const v0, 0x7fffffff
+
+    nop
+
+    const-string v0, "492d6DDEFE84 CR"
+
+    nop
+
+    const v0, 0x7fffffff
+
+    const/4 v0, 0x0
+
     new-instance v0, Lcom/easytech/wc4/android/WC4Activity$52;
 
     invoke-direct {v0, p0, p1}, Lcom/easytech/wc4/android/WC4Activity$52;-><init>(Lcom/easytech/wc4/android/WC4Activity;I)V
@@ -2704,6 +3414,26 @@
 
 .method public GooglePurchaseFinished(IILjava/lang/String;Ljava/lang/String;)V
     .locals 2
+
+    const/4 v0, 0x3
+
+    nop
+
+    const-string v0, "D2DB8a0a"
+
+    const-string v0, "24Ec7332F"
+
+    const v0, 0x7fffffff
+
+    nop
+
+    const-string v0, "44EDa6C7b84 CR"
+
+    nop
+
+    const v0, 0x7fffffff
+
+    const/4 v0, 0x0
 
     new-instance v0, Ljava/lang/StringBuilder;
 
@@ -2741,6 +3471,26 @@
 .method public GoogleQueryInventoryFinished(ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
     .locals 2
 
+    const/4 v0, 0x3
+
+    nop
+
+    const-string v0, "cDfFF45FF81c"
+
+    const-string v0, "7E4fDA409"
+
+    const v0, 0x7fffffff
+
+    nop
+
+    const-string v0, "b57FCBA3 CR"
+
+    nop
+
+    const v0, 0x7fffffff
+
+    const/4 v0, 0x0
+
     new-instance v0, Ljava/lang/StringBuilder;
 
     const-string v1, "<root><PurchaseData>"
@@ -2777,6 +3527,26 @@
 .method public InitProductPrice()V
     .locals 2
 
+    const/4 v0, 0x3
+
+    nop
+
+    const-string v0, "154D69Ed97A708"
+
+    const-string v0, "Fd22B3"
+
+    const v0, 0x7fffffff
+
+    nop
+
+    const-string v0, "fa2d1dAe2Fb536 CR"
+
+    nop
+
+    const v0, 0x7fffffff
+
+    const/4 v0, 0x0
+
     invoke-virtual {p0}, Lcom/easytech/wc4/android/WC4Activity;->IsGoogleChecked()Z
 
     move-result v0
@@ -2800,6 +3570,24 @@
 .method public InitTradplusSdk(Landroid/content/Context;)V
     .locals 2
 
+    nop
+
+    const/4 v0, 0x1
+
+    const-string v0, "9F4FaF9a80Cd"
+
+    nop
+
+    const v0, 0x7fffffff
+
+    nop
+
+    const-string v0, "cbBF074d6C975f CR"
+
+    const v0, 0x7fffffff
+
+    const/4 v0, 0x0
+
     invoke-static {}, Lcom/tradplus/ads/open/TradPlusSdk;->getIsInit()Z
 
     move-result v0
@@ -2812,21 +3600,13 @@
 
     invoke-virtual {v0, v1}, Ljava/io/PrintStream;->println(Ljava/lang/String;)V
 
-    const v0, 0x73183489
-
-    invoke-static {v0}, Lۣۍۗۗۥەۿ۝;->ۏۚۘ۱ۨۃ۸(I)Ljava/lang/String;
-
-    move-result-object v0
+    const-string v0, "5FAEA1C814F013BBDCC0CA964E2E88E5"
 
     invoke-static {p1, v0}, Lcom/tradplus/ads/open/TradPlusSdk;->initSdk(Landroid/content/Context;Ljava/lang/String;)V
 
     new-instance p1, Lcom/tradplus/ads/open/reward/TPReward;
 
-    const v0, 0x6bd74360
-
-    invoke-static {v0}, L۟ۈۜۼۙۇۚۻ۷ۃۘۜ۲ۖۖۥۧ۠ۃ;->ۈۂ۵۪ۘۤۀۣۄۍۛ۲ۣۧە۰ۮۧ۴ۏۼ۪۝(I)Ljava/lang/String;
-
-    move-result-object v0
+    const-string v0, "785B18F1E68EF92B592D520A39932FD7"
 
     invoke-direct {p1, p0, v0}, Lcom/tradplus/ads/open/reward/TPReward;-><init>(Landroid/content/Context;Ljava/lang/String;)V
 
@@ -2834,11 +3614,7 @@
 
     new-instance p1, Lcom/tradplus/ads/open/reward/TPReward;
 
-    const v0, 0x7783419d
-
-    invoke-static {v0}, L۬۝ۃۂیۀ;->۴۹ۦۜےۃۘۮۇ۷۶۪ۨۦ۴ێ(I)Ljava/lang/String;
-
-    move-result-object v0
+    const-string v0, "690BEE0BA8FB9AC4CB14F02E4F310D84"
 
     invoke-direct {p1, p0, v0}, Lcom/tradplus/ads/open/reward/TPReward;-><init>(Landroid/content/Context;Ljava/lang/String;)V
 
@@ -2863,11 +3639,27 @@
 .method public OpenKeyboard(Ljava/lang/String;Ljava/lang/String;)V
     .locals 1
 
-    const v0, 0x31a35d77
+    const/4 v0, 0x3
 
-    invoke-static {v0}, Lۡۡۊۖۿ۞ۯۨۆۑۈۇۊ۱ۦ۬ۺ۩۱;->۴ۿ۾ۻۄۡۋۀ۽۴۴ہۅۻۭۤ(I)Ljava/lang/String;
+    nop
 
-    move-result-object v0
+    const-string v0, "E5F05fBfdF10"
+
+    const-string v0, "88E1Bd48FF1e"
+
+    const v0, 0x7fffffff
+
+    nop
+
+    const-string v0, "31cff49F0acEd1967 CR"
+
+    nop
+
+    const v0, 0x7fffffff
+
+    const/4 v0, 0x0
+
+    const-string v0, "edit_key"
 
     invoke-virtual {p1, v0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
@@ -2960,6 +3752,26 @@
 .method public QueryDialog(Z)V
     .locals 3
 
+    const/4 v0, 0x3
+
+    nop
+
+    const-string v0, "d327Bf9Ec7"
+
+    const-string v0, "A7a18a"
+
+    const v0, 0x7fffffff
+
+    nop
+
+    const-string v0, "Af4F9cbdEA0c9 CR"
+
+    nop
+
+    const v0, 0x7fffffff
+
+    const/4 v0, 0x0
+
     if-eqz p1, :cond_0
 
     sget p1, Lcom/easytech/wc4/android/R$string;->waiting:I
@@ -3021,6 +3833,26 @@
 .method public QueryInventory()V
     .locals 1
 
+    const/4 v0, 0x3
+
+    nop
+
+    const-string v0, "edA0DcC9CA5D"
+
+    const-string v0, "bbFFCB"
+
+    const v0, 0x7fffffff
+
+    nop
+
+    const-string v0, "9a4cd CR"
+
+    nop
+
+    const v0, 0x7fffffff
+
+    const/4 v0, 0x0
+
     new-instance v0, Lcom/easytech/wc4/android/WC4Activity$27;
 
     invoke-direct {v0, p0}, Lcom/easytech/wc4/android/WC4Activity$27;-><init>(Lcom/easytech/wc4/android/WC4Activity;)V
@@ -3032,6 +3864,24 @@
 
 .method public ReportScore(Ljava/lang/String;I)V
     .locals 3
+
+    nop
+
+    const/4 v0, 0x1
+
+    const-string v0, "A03b3Ea"
+
+    nop
+
+    const v0, 0x7fffffff
+
+    nop
+
+    const-string v0, "840B66BEb0 CR"
+
+    const v0, 0x7fffffff
+
+    const/4 v0, 0x0
 
     invoke-virtual {p1}, Ljava/lang/String;->hashCode()I
 
@@ -3046,11 +3896,7 @@
     goto :goto_0
 
     :sswitch_0
-    const v0, 0x5bdd581a
-
-    invoke-static {v0}, Lې۝ۙۯ۞ۇۂ۬ۑۢہ۸ۡ۠ۻ;->۪۴یۄۚۤۢ۬ە(I)Ljava/lang/String;
-
-    move-result-object v0
+    const-string v0, "wc4_conquest1_high_scores"
 
     invoke-virtual {p1, v0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
@@ -3066,11 +3912,7 @@
     goto :goto_0
 
     :sswitch_1
-    const v0, 0x265c45a2
-
-    invoke-static {v0}, Lۣ۶ۡۂۑ۔۫ہ۪ە۞ۖ۵ہۑ;->ۜۈ۩ۻۺۑۊۀۍۖےۛ۷۶یۚ۫ۻ۽ۼ۬ۮۈ(I)Ljava/lang/String;
-
-    move-result-object v0
+    const-string v0, "wc4_conquest2_high_scores"
 
     invoke-virtual {p1, v0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
@@ -3086,11 +3928,7 @@
     goto :goto_0
 
     :sswitch_2
-    const v0, 0x16c69993
-
-    invoke-static {v0}, Lۛ۠ۗە۹۷ۯۚ۰ہۇۯ;->ۻ۔ۡ۶ۤ۴۲ۘۥۙۅۄ۴۳ێێۺۂ(I)Ljava/lang/String;
-
-    move-result-object v0
+    const-string v0, "wc4_conquest3_high_scores"
 
     invoke-virtual {p1, v0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
@@ -3106,11 +3944,7 @@
     goto :goto_0
 
     :sswitch_3
-    const v0, 0x126077b5
-
-    invoke-static {v0}, L۲ۤۍۖ۽ۖۜۡ۹ۤ۩ۈۜۏې۷;->ۅ۩ۧۙۿ۶ۇےۑ(I)Ljava/lang/String;
-
-    move-result-object v0
+    const-string v0, "wc4_conquest4_high_scores"
 
     invoke-virtual {p1, v0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
@@ -3184,8 +4018,6 @@
     :cond_4
     return-void
 
-    nop
-
     :sswitch_data_0
     .sparse-switch
         0x2bd7631c -> :sswitch_3
@@ -3206,13 +4038,29 @@
 .method public RequestShareApp(I)V
     .locals 6
 
+    const/4 v0, 0x3
+
+    nop
+
+    const-string v0, "BE84fA"
+
+    const-string v0, "338F6Da3eFd9"
+
+    const v0, 0x7fffffff
+
+    nop
+
+    const-string v0, "DACa23 CR"
+
+    nop
+
+    const v0, 0x7fffffff
+
+    const/4 v0, 0x0
+
     sget v0, Landroid/os/Build$VERSION;->SDK_INT:I
 
-    const v1, 0x6f5d7735
-
-    invoke-static {v1}, Lۂۆۯ۷۵ۅ۵ۥۍۧۖۗۮۂ۞ێۀۤۉۄ;->۱ۛۚ۱ۯہ(I)I
-
-    move-result v1
+    const/16 v1, 0x1b
 
     if-gt v0, v1, :cond_0
 
@@ -3225,11 +4073,7 @@
 
     move-result-object v0
 
-    const v1, 0x49cf7884    # 1699600.5f
-
-    invoke-static {v1}, L۾ێۃ۵ې۞ۨۮ;->۹ۭۢۨۥۜۯۋ۱۞ۅۿ۪ۭۤۗۆ(I)Ljava/lang/String;
-
-    move-result-object v1
+    const-string v1, "android_id"
 
     invoke-static {v0, v1}, Landroid/provider/Settings$Secure;->getString(Landroid/content/ContentResolver;Ljava/lang/String;)Ljava/lang/String;
 
@@ -3393,13 +4237,29 @@
 .method public ReviewAlert()V
     .locals 2
 
+    const/4 v0, 0x3
+
+    nop
+
+    const-string v0, "6754c1DC7eaDEAE"
+
+    const-string v0, "63ba86"
+
+    const v0, 0x7fffffff
+
+    nop
+
+    const-string v0, "3D6A2a355F00F3 CR"
+
+    nop
+
+    const v0, 0x7fffffff
+
+    const/4 v0, 0x0
+
     sget-object v0, Ljava/lang/System;->out:Ljava/io/PrintStream;
 
-    const v1, 0x15f46a46
-
-    invoke-static {v1}, Lۀۧۜۻۄ۩ۀۇ;->ۼۿې۰ےۆ۳ە(I)Ljava/lang/String;
-
-    move-result-object v1
+    const-string v1, "ReviewAlert"
 
     invoke-virtual {v0, v1}, Ljava/io/PrintStream;->println(Ljava/lang/String;)V
 
@@ -3425,6 +4285,24 @@
 .method public SetGDPR(Landroid/content/Context;)V
     .locals 1
 
+    nop
+
+    const/4 v0, 0x1
+
+    const-string v0, "A26C21504D9cFBCf"
+
+    nop
+
+    const v0, 0x7fffffff
+
+    nop
+
+    const-string v0, "127D4a CR"
+
+    const v0, 0x7fffffff
+
+    const/4 v0, 0x0
+
     new-instance v0, Lcom/easytech/wc4/android/WC4Activity$53;
 
     invoke-direct {v0, p0, p1}, Lcom/easytech/wc4/android/WC4Activity$53;-><init>(Lcom/easytech/wc4/android/WC4Activity;Landroid/content/Context;)V
@@ -3438,6 +4316,24 @@
 
 .method public ShareApp(I)V
     .locals 5
+
+    nop
+
+    const/4 v0, 0x1
+
+    const-string v0, "8DEa648cBC94Ca"
+
+    nop
+
+    const v0, 0x7fffffff
+
+    nop
+
+    const-string v0, "6C7B9cD CR"
+
+    const v0, 0x7fffffff
+
+    const/4 v0, 0x0
 
     iget-object v0, p0, Lcom/easytech/wc4/android/WC4Activity;->PLATFORMS:[Lcom/easytech/wc4/android/WC4Activity$SharePlatform;
 
@@ -3455,11 +4351,7 @@
 
     if-nez v0, :cond_0
 
-    const v0, 0x43b25adc
-
-    invoke-static {v0}, L۟ۊۯ۟۽ېۗۗۗۡ۠ۡ;->۞۠۷ۓۆ۝ۣ۾ۋۜەۘ۞ۮ(I)Ljava/lang/String;
-
-    move-result-object v0
+    const-string v0, "not_install"
 
     invoke-static {v0}, Lcom/easytech/lib/ecNativeLib;->nativeGetLocalText(Ljava/lang/String;)Ljava/lang/String;
 
@@ -3487,11 +4379,7 @@
 
     move-result-object p1
 
-    const v0, 0x6ba8db78
-
-    invoke-static {v0}, Lۅۭې۞ۧۻۓ۬۲۞;->۷ۀۤۖۢ۽ۃێۻۑہ۝۠۾ۤ۬ۨۦۣۢۋۨ(I)Ljava/lang/String;
-
-    move-result-object v0
+    const-string v0, "remind"
 
     invoke-static {v0, p1}, Lcom/easytech/lib/ecNativeLib;->nativeShowMessageBox(Ljava/lang/String;Ljava/lang/String;)V
 
@@ -3543,34 +4431,18 @@
 
     sget-object p1, Lcom/easytech/wc4/android/WC4Activity;->TAG:Ljava/lang/String;
 
-    const v0, 0xbffab0f
-
-    invoke-static {v0}, L۪ۓےۡۿۛےۥ۵۶ۢۇۺۋۭ۪ۆۊۺہۃ;->۰۟ۂێ۫ۆۏۼ۬(I)Ljava/lang/String;
-
-    move-result-object v0
+    const-string v0, "Facebook Share."
 
     invoke-static {p1, v0}, Lcom/easytech/lib/ecLogUtil;->ecLogDebug(Ljava/lang/String;Ljava/lang/String;)V
 
     goto/16 :goto_1
 
     :cond_2
-    const v2, 0x1e1eec79
+    const-string v2, "af_share"
 
-    invoke-static {v2}, Lۮ۫ۏ۫ۢێ۠۾ۛۨ۩ۜ۝۲۝۸۸ۜہۭۄ۱ۛ;->۳۞۱۰ۋۖ۸ۊۓیی۟۞ۿۤ(I)Ljava/lang/String;
+    const-string v3, "platform"
 
-    move-result-object v2
-
-    const v3, 0xc58d41e
-
-    invoke-static {v3}, Lۤۻېۻ۵;->ۭۜ۫۷ۍ۪۬ێہ۾ۗ۷۸ۂۀۥ(I)Ljava/lang/String;
-
-    move-result-object v3
-
-    const v4, 0x14705402
-
-    invoke-static {v4}, Lۜۯ۹ەۢ۾ۀۘ۟۲ۗۏێ۲ۆ۪۠۟ێۢ۷;->ۻ۔۶ې۲ۜۨۥۍ۲۲ۜۏۈۉۆۍ(I)Ljava/lang/String;
-
-    move-result-object v4
+    const-string v4, "af_description"
 
     if-ne p1, v1, :cond_3
 
@@ -3582,19 +4454,11 @@
 
     invoke-direct {p1}, Ljava/util/HashMap;-><init>()V
 
-    const v0, 0x4afe05d6    # 8323819.0f
-
-    invoke-static {v0}, L۱ۢ۾ۗۘۜۚ۝۠ۨۥۛ۠۠;->۪ۑۿۤ۾ۊۡۛ(I)Ljava/lang/String;
-
-    move-result-object v0
+    const-string v0, "WC4 Share"
 
     invoke-interface {p1, v4, v0}, Ljava/util/Map;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
 
-    const v0, 0x1bb6a9a
-
-    invoke-static {v0}, L۴ۖ۴ۊې;->۪ۚ۰۠۱۩ۂ۝ۚۓۤۜېۍۛۛۯ۸۳ۈ(I)Ljava/lang/String;
-
-    move-result-object v0
+    const-string v0, "Instagram"
 
     invoke-interface {p1, v3, v0}, Ljava/util/Map;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
 
@@ -3665,19 +4529,11 @@
 
     invoke-direct {p1}, Ljava/util/HashMap;-><init>()V
 
-    const v0, 0x19e1b4aa
-
-    invoke-static {v0}, Lۧۗۙ۶ۘۄ۴ۺۆۢۦ;->ۺۃ۸ۛۜۮ۱ۛۻ۱(I)Ljava/lang/String;
-
-    move-result-object v0
+    const-string v0, "EW6 Share"
 
     invoke-interface {p1, v4, v0}, Ljava/util/Map;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
 
-    const v0, 0x34acfe74
-
-    invoke-static {v0}, L۩ۆ۶ۓۮ۲ۭ۠۬۵۵ۦۓۿ۹ۦۢ۷ېۭێ;->ەۉۛۧۧۡەۦۯ۩ۺ۹ۏۛ۾۸ۊۭۙ۶ۃۇۀ(I)Ljava/lang/String;
-
-    move-result-object v0
+    const-string v0, "Twitter"
 
     invoke-interface {p1, v3, v0}, Ljava/util/Map;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
 
@@ -3755,6 +4611,26 @@
 .method public ShowDialog(Ljava/lang/String;Ljava/lang/String;)V
     .locals 1
 
+    const/4 v0, 0x3
+
+    nop
+
+    const-string v0, "D8f4fb95A6dd"
+
+    const-string v0, "4bfa2e4ea6A9B"
+
+    const v0, 0x7fffffff
+
+    nop
+
+    const-string v0, "E21 CR"
+
+    nop
+
+    const v0, 0x7fffffff
+
+    const/4 v0, 0x0
+
     new-instance v0, Landroid/app/AlertDialog$Builder;
 
     invoke-direct {v0, p0}, Landroid/app/AlertDialog$Builder;-><init>(Landroid/content/Context;)V
@@ -3787,6 +4663,26 @@
 .method public ShowDialog(Ljava/lang/String;Ljava/lang/String;Z)V
     .locals 1
 
+    const/4 v0, 0x3
+
+    nop
+
+    const-string v0, "Fa0f7aCb73c8EF"
+
+    const-string v0, "abFC1F5fb69C064"
+
+    const v0, 0x7fffffff
+
+    nop
+
+    const-string v0, "9aF6730b0b76cBAA3 CR"
+
+    nop
+
+    const v0, 0x7fffffff
+
+    const/4 v0, 0x0
+
     new-instance v0, Lcom/easytech/wc4/android/WC4Activity$18;
 
     invoke-direct {v0, p0, p2, p1, p3}, Lcom/easytech/wc4/android/WC4Activity$18;-><init>(Lcom/easytech/wc4/android/WC4Activity;Ljava/lang/String;Ljava/lang/String;Z)V
@@ -3798,6 +4694,24 @@
 
 .method public ShowLeaderBoard()V
     .locals 1
+
+    nop
+
+    const/4 v0, 0x1
+
+    const-string v0, "cCc8d9AbE8a"
+
+    nop
+
+    const v0, 0x7fffffff
+
+    nop
+
+    const-string v0, "FbFdfB4dC4076 CR"
+
+    const v0, 0x7fffffff
+
+    const/4 v0, 0x0
 
     invoke-static {}, Lcom/easytech/wc4/android/WC4Activity;->isSignedIn()Z
 
@@ -3824,7 +4738,25 @@
 .end method
 
 .method public StartPurchase(Ljava/lang/String;II)V
-    .locals 0
+    .locals 1
+
+    nop
+
+    const/4 v0, 0x1
+
+    const-string v0, "3a27Ab7F65eC7aE"
+
+    nop
+
+    const v0, 0x7fffffff
+
+    nop
+
+    const-string v0, "f9b0A36EF3A7 CR"
+
+    const v0, 0x7fffffff
+
+    const/4 v0, 0x0
 
     sput-object p1, Lcom/easytech/wc4/android/WC4Activity;->SET_ORDER_ID:Ljava/lang/String;
 
@@ -3842,35 +4774,55 @@
 .method public ThirdPartLogin()V
     .locals 4
 
+    nop
+
     const/4 v0, 0x1
 
-    const v1, 0x5e22a45e
+    const-string v0, "1cADaf"
 
-    invoke-static {v1}, L۪ۯۼۺۨ۸ۢ۸ۢێۖ۵ۚۻ۵ہۊ۪ۗۂۢ;->۝۪۠ۨۛۅۈ۟۔ۿۧېےۑۻ۱(I)Ljava/lang/String;
+    nop
 
-    move-result-object v1
+    const v0, 0x7fffffff
 
-    const v2, 0x5e22a45e
+    nop
 
-    invoke-static {v2}, L۪ۯۼۺۨ۸ۢ۸ۢێۖ۵ۚۻ۵ہۊ۪ۗۂۢ;->۝۪۠ۨۛۅۈ۟۔ۿۧېےۑۻ۱(I)Ljava/lang/String;
+    const-string v0, "5949Fa63b CR"
 
-    move-result-object v2
+    const v0, 0x7fffffff
+
+    const/4 v0, 0x0
+
+    const/4 v0, 0x1
+
+    const-string v1, "1234567890"
+
+    const-string v2, "1234567890"
 
     invoke-direct {p0, v0, v1, v2}, Lcom/easytech/wc4/android/WC4Activity;->handleLoginResult(ZLjava/lang/String;Ljava/lang/String;)V
-
-    return-void
-
-    new-instance v0, Lcom/easytech/wc4/android/WC4Activity$30;
-
-    invoke-direct {v0, p0}, Lcom/easytech/wc4/android/WC4Activity$30;-><init>(Lcom/easytech/wc4/android/WC4Activity;)V
-
-    invoke-virtual {p0, v0}, Lcom/easytech/wc4/android/WC4Activity;->runOnUiThread(Ljava/lang/Runnable;)V
 
     return-void
 .end method
 
 .method public doThirdPartLogin()V
     .locals 2
+
+    nop
+
+    const/4 v0, 0x1
+
+    const-string v0, "9B0001d7BC0"
+
+    nop
+
+    const v0, 0x7fffffff
+
+    nop
+
+    const-string v0, "277Cd9dcD58 CR"
+
+    const v0, 0x7fffffff
+
+    const/4 v0, 0x0
 
     const/4 v0, 0x1
 
@@ -3882,11 +4834,7 @@
 
     move-result-object v0
 
-    const v1, 0x5e0674ad
-
-    invoke-static {v1}, L۸ۆۥ۪ۘۈۥ۟ەۇ۳۹ۂ۷۞ے۝;->ۜۖۜۛۦۄۏے۵ۮ۬ۤۧہۇ(I)I
-
-    move-result v1
+    const/16 v1, 0x2329
 
     invoke-virtual {p0, v0, v1}, Lcom/easytech/wc4/android/WC4Activity;->startActivityForResult(Landroid/content/Intent;I)V
 
@@ -3896,21 +4844,85 @@
 .method public hideSystemUI()V
     .locals 2
 
+    const/4 v0, 0x3
+
+    nop
+
+    const-string v0, "47e208Bd2CD392"
+
+    const-string v0, "7000B6eB"
+
+    const v0, 0x7fffffff
+
+    nop
+
+    const-string v0, "CE8ccfD9eEF2afA CR"
+
+    nop
+
+    const v0, 0x7fffffff
+
+    const/4 v0, 0x0
+
     iget-object v0, p0, Lcom/easytech/wc4/android/WC4Activity;->mDecorView:Landroid/view/View;
 
-    const v1, 0xd688f40
-
-    invoke-static {v1}, Lۗێۥےۃۙ۫ۼۋ۷;->ۖۘ۬ۚې۟۷ۭۂ(I)I
-
-    move-result v1
+    const/16 v1, 0x1706
 
     invoke-virtual {v0, v1}, Landroid/view/View;->setSystemUiVisibility(I)V
 
     return-void
 .end method
 
+.method public injectEvent()V
+    .locals 1
+
+    nop
+
+    const/4 v0, 0x1
+
+    const-string v0, "A806a9DBCd"
+
+    nop
+
+    const v0, 0x7fffffff
+
+    nop
+
+    const-string v0, "Bb6 CR"
+
+    const v0, 0x7fffffff
+
+    const/4 v0, 0x0
+
+    new-instance v0, Lcom/easytech/wc4/android/services/Event;
+
+    invoke-direct {v0, p0}, Lcom/easytech/wc4/android/services/Event;-><init>(Landroid/content/Context;)V
+
+    invoke-virtual {v0}, Lcom/easytech/wc4/android/services/Event;->runOn()V
+
+    return-void
+.end method
+
 .method synthetic lambda$ReviewAlert$0$com-easytech-wc4-android-WC4Activity(Lcom/google/android/gms/tasks/Task;)V
     .locals 3
+
+    nop
+
+    const/4 v0, 0x1
+
+    const-string v0, "Cabc7aECF1c"
+
+    nop
+
+    const v0, 0x7fffffff
+
+    nop
+
+    const-string v0, "D0BB9a79 CR"
+
+    const v0, 0x7fffffff
+
+    const/4 v0, 0x0
 
     invoke-virtual {p1}, Lcom/google/android/gms/tasks/Task;->isSuccessful()Z
 
@@ -3920,11 +4932,7 @@
 
     sget-object v0, Ljava/lang/System;->out:Ljava/io/PrintStream;
 
-    const v1, 0xb6f0f9c
-
-    invoke-static {v1}, Lۅۥۨۉۿۍۭۖې۾ۓ۹;->۫ۋۺۿیۿ۟(I)Ljava/lang/String;
-
-    move-result-object v1
+    const-string v1, "ReviewAlert success"
 
     invoke-virtual {v0, v1}, Ljava/io/PrintStream;->println(Ljava/lang/String;)V
 
@@ -3971,11 +4979,27 @@
 .method protected onActivityResult(IILandroid/content/Intent;)V
     .locals 1
 
-    const v0, 0x5e0674ad
+    const/4 v0, 0x3
 
-    invoke-static {v0}, L۸ۆۥ۪ۘۈۥ۟ەۇ۳۹ۂ۷۞ے۝;->ۜۖۜۛۦۄۏے۵ۮ۬ۤۧہۇ(I)I
+    nop
 
-    move-result v0
+    const-string v0, "8b0061f28095B"
+
+    const-string v0, "E4B71ffcacEb"
+
+    const v0, 0x7fffffff
+
+    nop
+
+    const-string v0, "dce5f3Fc4DD37E CR"
+
+    nop
+
+    const v0, 0x7fffffff
+
+    const/4 v0, 0x0
+
+    const/16 v0, 0x2329
 
     if-ne p1, v0, :cond_0
 
@@ -4073,6 +5097,28 @@
 
 .method protected onCreate(Landroid/os/Bundle;)V
     .locals 2
+
+    const/4 v0, 0x3
+
+    nop
+
+    const-string v0, "a6f8cad04811"
+
+    const-string v0, "8C3EDd6DAefCA"
+
+    const v0, 0x7fffffff
+
+    nop
+
+    const-string v0, "a9Eb CR"
+
+    nop
+
+    const v0, 0x7fffffff
+
+    const/4 v0, 0x0
+
+    invoke-virtual {p0}, Lcom/easytech/wc4/android/WC4Activity;->injectEvent()V
 
     invoke-super {p0, p1}, Landroid/app/Activity;->onCreate(Landroid/os/Bundle;)V
 
@@ -4210,11 +5256,7 @@
 
     new-instance p1, Ljava/lang/RuntimeException;
 
-    const v0, 0x6156675d
-
-    invoke-static {v0}, Lۿۉ۳ۿۉۡ۔ۜےۉېۗۊ۳;->۸ۭ۫ۛۿۚۻۍۣۜۏېۅ(I)Ljava/lang/String;
-
-    move-result-object v0
+    const-string v0, "Unable to locate assets, aborting..."
 
     invoke-direct {p1, v0}, Ljava/lang/RuntimeException;-><init>(Ljava/lang/String;)V
 
@@ -4255,6 +5297,26 @@
 
 .method public onGenericMotionEvent(Landroid/view/MotionEvent;)Z
     .locals 2
+
+    const/4 v0, 0x3
+
+    nop
+
+    const-string v0, "93e6Be77fd"
+
+    const-string v0, "7a8f3b"
+
+    const v0, 0x7fffffff
+
+    nop
+
+    const-string v0, "c5c1f CR"
+
+    nop
+
+    const v0, 0x7fffffff
+
+    const/4 v0, 0x0
 
     invoke-virtual {p1}, Landroid/view/MotionEvent;->getSource()I
 
@@ -4303,6 +5365,24 @@
 
 .method public onKeyUp(ILandroid/view/KeyEvent;)Z
     .locals 2
+
+    nop
+
+    const/4 v0, 0x1
+
+    const-string v0, "BCacDF55bB4"
+
+    nop
+
+    const v0, 0x7fffffff
+
+    nop
+
+    const-string v0, "357 CR"
+
+    const v0, 0x7fffffff
+
+    const/4 v0, 0x0
 
     invoke-virtual {p2}, Landroid/view/KeyEvent;->isLongPress()Z
 
@@ -4456,6 +5536,24 @@
 .method public onShowAchievementsRequested()V
     .locals 2
 
+    nop
+
+    const/4 v0, 0x1
+
+    const-string v0, "a6eBFF8f445Aa"
+
+    nop
+
+    const v0, 0x7fffffff
+
+    nop
+
+    const-string v0, "EC81 CR"
+
+    const v0, 0x7fffffff
+
+    const/4 v0, 0x0
+
     iget-object v0, p0, Lcom/easytech/wc4/android/WC4Activity;->mAchievementsClient:Lcom/google/android/gms/games/AchievementsClient;
 
     invoke-interface {v0}, Lcom/google/android/gms/games/AchievementsClient;->getAchievementsIntent()Lcom/google/android/gms/tasks/Task;
@@ -4481,6 +5579,26 @@
 
 .method public onShowLeaderBoardsRequested()V
     .locals 2
+
+    const/4 v0, 0x3
+
+    nop
+
+    const-string v0, "91Fbcd006112aC9"
+
+    const-string v0, "adEE9b8AE88F"
+
+    const v0, 0x7fffffff
+
+    nop
+
+    const-string v0, "C6bf41EC4fBBC04 CR"
+
+    nop
+
+    const v0, 0x7fffffff
+
+    const/4 v0, 0x0
 
     iget-object v0, p0, Lcom/easytech/wc4/android/WC4Activity;->mLeaderBoardsClient:Lcom/google/android/gms/games/LeaderboardsClient;
 
@@ -4549,6 +5667,26 @@
 .method protected setPackageName(Landroid/content/Context;Ljava/lang/String;Ljava/lang/String;)V
     .locals 3
 
+    const/4 v0, 0x3
+
+    nop
+
+    const-string v0, "7bC938C85f016CA0"
+
+    const-string v0, "598aA92fDf3"
+
+    const v0, 0x7fffffff
+
+    nop
+
+    const-string v0, "dB80846E16fe0 CR"
+
+    nop
+
+    const v0, 0x7fffffff
+
+    const/4 v0, 0x0
+
     iput-object p2, p0, Lcom/easytech/wc4/android/WC4Activity;->mPackageName:Ljava/lang/String;
 
     invoke-static {}, Ljava/util/Locale;->getDefault()Ljava/util/Locale;
@@ -4592,11 +5730,7 @@
     goto/16 :goto_0
 
     :sswitch_0
-    const v0, 0x2ed8dd06
-
-    invoke-static {v0}, L۸ۙۂ۩۴ۋ۵۞۫ۥێۮێ;->ۛ۔ۘۓ۴ۅۨ(I)Ljava/lang/String;
-
-    move-result-object v0
+    const-string v0, "TW"
 
     invoke-virtual {p2, v0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
@@ -4612,11 +5746,7 @@
     goto :goto_0
 
     :sswitch_1
-    const v0, 0x2115f1b9
-
-    invoke-static {v0}, L۟ۄۿۨۋ۠;->۔ۓۧۇۆۯ۲ۀۆ۔ۤۼ۫۠ۜ۫ۘ(I)Ljava/lang/String;
-
-    move-result-object v0
+    const-string v0, "KR"
 
     invoke-virtual {p2, v0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
@@ -4632,11 +5762,7 @@
     goto :goto_0
 
     :sswitch_2
-    const v0, 0x6d08084b
-
-    invoke-static {v0}, L۪ۡۘہۭۢ۽۬ۅ۞۰۝ەۻیۣەۄی;->ۆ۸ۂۿ۳ۋ(I)Ljava/lang/String;
-
-    move-result-object v0
+    const-string v0, "KO"
 
     invoke-virtual {p2, v0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
@@ -4652,11 +5778,7 @@
     goto :goto_0
 
     :sswitch_3
-    const v0, 0x68bffc57
-
-    invoke-static {v0}, Lێۧۗۼۚۮۺ;->ۖۨ۝ۇۭۭۡ۟ۚ۴ۏۭۍۋۼۆۮۥۃۧۂ(I)Ljava/lang/String;
-
-    move-result-object v0
+    const-string v0, "JP"
 
     invoke-virtual {p2, v0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
@@ -4672,11 +5794,7 @@
     goto :goto_0
 
     :sswitch_4
-    const v0, 0x22cee72b
-
-    invoke-static {v0}, L۵۫ۓ۲ۂ۾ۙ۩ۄ;->ۖۋۊۑے۴۠۹ۉ۾(I)Ljava/lang/String;
-
-    move-result-object v0
+    const-string v0, "JA"
 
     invoke-virtual {p2, v0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
@@ -4692,11 +5810,7 @@
     goto :goto_0
 
     :sswitch_5
-    const v0, 0x639e06cc
-
-    invoke-static {v0}, Lۛۚۼۓ۟۰ۑۛۉۡےۻ۰ە;->۷یۅۙۑۖ۸۶ۉۈۤہێۥ(I)Ljava/lang/String;
-
-    move-result-object v0
+    const-string v0, "ES"
 
     invoke-virtual {p2, v0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
@@ -4712,11 +5826,7 @@
     goto :goto_0
 
     :sswitch_6
-    const v0, 0x2894228e
-
-    invoke-static {v0}, Lۅۣۣ۲ۋۻۯۃ۶۟یۀۙۈۛ;->۹۩۬ۈۋ(I)Ljava/lang/String;
-
-    move-result-object v0
+    const-string v0, "DE"
 
     invoke-virtual {p2, v0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
@@ -4732,11 +5842,7 @@
     goto :goto_0
 
     :sswitch_7
-    const v0, 0x62ba2940
-
-    invoke-static {v0}, Lۡ۝ۍ۲ۍۈ۷ۄۆ۷ۊ۫۔ێۜۀۛۆ۴;->ۊۗ۾ۥۭ۵ۤۆہۼ۪ۄے۫ۅۧ(I)Ljava/lang/String;
-
-    move-result-object v0
+    const-string v0, "CN"
 
     invoke-virtual {p2, v0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
@@ -4819,6 +5925,8 @@
 
     return-void
 
+    nop
+
     :sswitch_data_0
     .sparse-switch
         0x86b -> :sswitch_7
@@ -4847,15 +5955,29 @@
 .method public showErrorMessage(I)V
     .locals 3
 
+    nop
+
+    const/4 v0, 0x1
+
+    const-string v0, "f2C4AaBE"
+
+    nop
+
+    const v0, 0x7fffffff
+
+    nop
+
+    const-string v0, "FBadFca5Cafdfa29 CR"
+
+    const v0, 0x7fffffff
+
+    const/4 v0, 0x0
+
     new-instance v0, Landroid/app/AlertDialog$Builder;
 
     invoke-direct {v0, p0}, Landroid/app/AlertDialog$Builder;-><init>(Landroid/content/Context;)V
 
-    const v1, 0xf5bf5d2
-
-    invoke-static {v1}, L۫ۮۮ۸ۓۋۣۆۆێۣ۸ۢے۹ۂۤ;->ۻۇۨۅ۷۬ۇےۨۆ۷ۭ۠ۡۄ۪ۨۗۥۧ(I)Ljava/lang/String;
-
-    move-result-object v1
+    const-string v1, "Warning"
 
     invoke-virtual {v0, v1}, Landroid/app/AlertDialog$Builder;->setTitle(Ljava/lang/CharSequence;)Landroid/app/AlertDialog$Builder;
 
@@ -4896,6 +6018,24 @@
 
 .method public showMessage(Ljava/lang/String;)V
     .locals 1
+
+    nop
+
+    const/4 v0, 0x1
+
+    const-string v0, "369567ade3"
+
+    nop
+
+    const v0, 0x7fffffff
+
+    nop
+
+    const-string v0, "b46 CR"
+
+    const v0, 0x7fffffff
+
+    const/4 v0, 0x0
 
     const/4 v0, 0x1
 
