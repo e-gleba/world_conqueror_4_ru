@@ -58,8 +58,9 @@ set(decompiled_dir
 
 set(tools_dir "${CMAKE_CURRENT_BINARY_DIR}/tools")
 set(orig_dir "${CMAKE_CURRENT_BINARY_DIR}/orig")
-set(stage_ru "${CMAKE_CURRENT_BINARY_DIR}/stage_ru")
 set(stage_mod "${CMAKE_CURRENT_BINARY_DIR}/stage_mod")
+set(build_ru_dir "${CMAKE_CURRENT_BINARY_DIR}/build_ru")
+set(build_mod_dir "${CMAKE_CURRENT_BINARY_DIR}/build_mod")
 set(assets_data_rel "assets/data")
 
 set(apktool_jar "${tools_dir}/apktool_${apktool_version}.jar")
@@ -69,6 +70,11 @@ set(apk_ru_unsigned "${CMAKE_CURRENT_BINARY_DIR}/wc4_ru.apk")
 set(apk_mod_unsigned "${CMAKE_CURRENT_BINARY_DIR}/wc4_ru_mod.apk")
 set(signed_ru "${CMAKE_CURRENT_BINARY_DIR}/wc4_ru-aligned-debugSigned.apk")
 set(signed_mod "${CMAKE_CURRENT_BINARY_DIR}/wc4_ru_mod-aligned-debugSigned.apk")
+
+set(stamp_decompiled "${CMAKE_CURRENT_BINARY_DIR}/decompiled.stamp")
+set(stamp_orig "${CMAKE_CURRENT_BINARY_DIR}/orig.stamp")
+set(stamp_stage_mod "${CMAKE_CURRENT_BINARY_DIR}/stage_mod.stamp")
+set(stamp_diff_mod "${CMAKE_CURRENT_BINARY_DIR}/diff_mod.stamp")
 
 set(apktool_url
     "https://github.com/iBotPeaches/Apktool/releases/download/v${apktool_version}/apktool_${apktool_version}.jar"
@@ -164,6 +170,8 @@ if(py_rc)
     )
 endif()
 
+# Silent on success: per-file command output is captured and printed only
+# on failure (fatal). Two summary lines per run, nothing else.
 file(
     WRITE "${CMAKE_CURRENT_BINARY_DIR}/crypt_json.cmake"
     [=[
@@ -193,18 +201,28 @@ set(ok 0)
 
 foreach(f IN LISTS json_files)
     if(MODE STREQUAL "encrypt" AND DEFINED HEADER AND NOT HEADER STREQUAL "")
-        execute_process(
-            COMMAND "${PYTHON3}" "${WCRYPT}" "${MODE}" "${f}" -o "${f}" --header "${HEADER}"
-            COMMAND_ECHO STDOUT
-            COMMAND_ERROR_IS_FATAL ANY
-        )
+        set(cmd "${PYTHON3}" "${WCRYPT}" "${MODE}" "${f}" -o "${f}" --header "${HEADER}")
     else()
-        execute_process(
-            COMMAND "${PYTHON3}" "${WCRYPT}" "${MODE}" "${f}" -o "${f}"
-            COMMAND_ECHO STDOUT
-            COMMAND_ERROR_IS_FATAL ANY
+        set(cmd "${PYTHON3}" "${WCRYPT}" "${MODE}" "${f}" -o "${f}")
+    endif()
+
+    execute_process(
+        COMMAND ${cmd}
+        RESULT_VARIABLE crypt_rc
+        OUTPUT_VARIABLE crypt_out
+        ERROR_VARIABLE crypt_err
+        COMMAND_ERROR_IS_FATAL NONE
+    )
+    if(crypt_rc)
+        string(REPLACE ";" " " cmd_str "${cmd}")
+        message(
+            FATAL_ERROR
+            "wc4_crypt ${MODE} failed (exit ${crypt_rc}): ${f}\n"
+            "  cmd: ${cmd_str}\n"
+            "${crypt_out}${crypt_err}"
         )
     endif()
+
     math(EXPR ok "${ok} + 1")
 endforeach()
 
@@ -375,8 +393,24 @@ execute_process(
 ]=]
 )
 
-add_custom_target(
-    decompile
+# Pipeline artifacts are real files tracked by the generator: each step
+# reruns only when its inputs changed. Directory trees are tracked via
+# stamp files + CONFIGURE_DEPENDS globs. Delete build/ to force everything.
+file(
+    GLOB_RECURSE decompiled_files
+    CONFIGURE_DEPENDS
+    LIST_DIRECTORIES FALSE
+    "${decompiled_dir}/*"
+)
+file(
+    GLOB_RECURSE diff_overlay_files
+    CONFIGURE_DEPENDS
+    LIST_DIRECTORIES FALSE
+    "${diff_dir}/*"
+)
+
+add_custom_command(
+    OUTPUT "${stamp_decompiled}"
     COMMAND
         "${CMAKE_COMMAND}" -E echo ""
     COMMAND
@@ -389,15 +423,11 @@ add_custom_target(
         "${java_bin}" -jar "${apktool_jar}" d "${apk_input}" -o
         "${decompiled_dir}" -f
     COMMAND
-        "${CMAKE_COMMAND}" -E echo ""
-    COMMAND
         "${CMAKE_COMMAND}" -E echo "=== decompile 2/3: decrypt json ==="
     COMMAND
         "${CMAKE_COMMAND}" "-DPYTHON3=${python3_bin}" "-DWCRYPT=${wc4_crypt}"
         "-DMODE=decrypt" "-DDIR=${decompiled_dir}/${assets_data_rel}" -P
         "${CMAKE_CURRENT_BINARY_DIR}/crypt_json.cmake"
-    COMMAND
-        "${CMAKE_COMMAND}" -E echo ""
     COMMAND
         "${CMAKE_COMMAND}" -E echo "=== decompile 3/3: overlay diff/ ==="
     COMMAND
@@ -405,22 +435,24 @@ add_custom_target(
     COMMAND
         "${CMAKE_COMMAND}" -E copy_directory "${diff_dir}" "${decompiled_dir}"
     COMMAND
-        "${CMAKE_COMMAND}" -E echo ""
+        "${CMAKE_COMMAND}" -E touch "${stamp_decompiled}"
     COMMAND
         "${CMAKE_COMMAND}" -E echo
         "=== decompile complete => '${decompiled_dir}' ==="
-    COMMAND
-        "${CMAKE_COMMAND}" -E echo ""
+    DEPENDS
+        "${apk_input}"
+        "${apktool_jar}"
+        "${wc4_crypt}"
+        "${CMAKE_CURRENT_BINARY_DIR}/crypt_json.cmake"
+        ${diff_overlay_files}
     USES_TERMINAL
     VERBATIM
 )
 
-add_custom_target(
-    sync
+add_custom_command(
+    OUTPUT "${stamp_orig}"
     COMMAND
-        "${CMAKE_COMMAND}" -E echo ""
-    COMMAND
-        "${CMAKE_COMMAND}" -E echo "=== sync 1/4: build orig/ baseline ==="
+        "${CMAKE_COMMAND}" -E echo "=== baseline: apktool d => orig/ ==="
     COMMAND
         "${CMAKE_COMMAND}" -E rm -rf "${orig_dir}"
     COMMAND
@@ -430,75 +462,22 @@ add_custom_target(
         "-DMODE=decrypt" "-DDIR=${orig_dir}/${assets_data_rel}" -P
         "${CMAKE_CURRENT_BINARY_DIR}/crypt_json.cmake"
     COMMAND
-        "${CMAKE_COMMAND}" -E echo ""
-    COMMAND
-        "${CMAKE_COMMAND}" -E echo "=== sync 2/4: decompiled/ => diff/ ==="
-    COMMAND
-        "${CMAKE_COMMAND}" "-DSRC=${decompiled_dir}" "-DORIG=${orig_dir}"
-        "-DDIFF=${diff_dir}" -P "${CMAKE_CURRENT_BINARY_DIR}/diff_sync.cmake"
-    COMMAND
-        "${CMAKE_COMMAND}" -E echo ""
-    COMMAND
-        "${CMAKE_COMMAND}" -E echo "=== sync 3/4: stage unlock delta ==="
-    COMMAND
-        "${CMAKE_COMMAND}" -E rm -rf "${stage_ru}" "${stage_mod}"
-    COMMAND
-        "${CMAKE_COMMAND}" -E copy_directory "${decompiled_dir}" "${stage_ru}"
-    COMMAND
-        "${CMAKE_COMMAND}" -E copy_directory "${decompiled_dir}" "${stage_mod}"
-    COMMAND
-        "${python3_bin}" "${wc4_unlock}" "${stage_mod}/${assets_data_rel}"
-    COMMAND
-        "${CMAKE_COMMAND}" -E echo ""
-    COMMAND
-        "${CMAKE_COMMAND}" -E echo "=== sync 4/4: stage_mod/ => diff_mod/ ==="
-    COMMAND
-        "${CMAKE_COMMAND}" "-DSRC=${stage_mod}" "-DORIG=${stage_ru}"
-        "-DDIFF=${diff_mod_dir}" -P
-        "${CMAKE_CURRENT_BINARY_DIR}/diff_sync.cmake"
-    COMMAND
-        "${CMAKE_COMMAND}" -E echo ""
-    COMMAND
-        "${CMAKE_COMMAND}" -E echo "=== sync complete ==="
-    COMMAND
-        "${CMAKE_COMMAND}" -E echo "  diff     => '${diff_dir}'"
-    COMMAND
-        "${CMAKE_COMMAND}" -E echo "  diff_mod => '${diff_mod_dir}'"
-    COMMAND
-        "${CMAKE_COMMAND}" -E echo ""
+        "${CMAKE_COMMAND}" -E touch "${stamp_orig}"
+    DEPENDS
+        "${apk_input}"
+        "${apktool_jar}"
+        "${wc4_crypt}"
+        "${CMAKE_CURRENT_BINARY_DIR}/crypt_json.cmake"
     USES_TERMINAL
     VERBATIM
 )
 
-add_custom_target(
-    build
+# stage_mod stays DECRYPTED: it is the audit baseline for diff_mod/.
+# Encryption happens only in the throwaway build_*/ trees below.
+add_custom_command(
+    OUTPUT "${stamp_stage_mod}"
     COMMAND
-        "${CMAKE_COMMAND}" -E echo ""
-    COMMAND
-        "${CMAKE_COMMAND}" -E echo "=== build 1/6: sync diff/ ==="
-    COMMAND
-        "${CMAKE_COMMAND}" -E rm -rf "${orig_dir}"
-    COMMAND
-        "${java_bin}" -jar "${apktool_jar}" d "${apk_input}" -o "${orig_dir}" -f
-    COMMAND
-        "${CMAKE_COMMAND}" "-DPYTHON3=${python3_bin}" "-DWCRYPT=${wc4_crypt}"
-        "-DMODE=decrypt" "-DDIR=${orig_dir}/${assets_data_rel}" -P
-        "${CMAKE_CURRENT_BINARY_DIR}/crypt_json.cmake"
-    COMMAND
-        "${CMAKE_COMMAND}" "-DSRC=${decompiled_dir}" "-DORIG=${orig_dir}"
-        "-DDIFF=${diff_dir}" -P "${CMAKE_CURRENT_BINARY_DIR}/diff_sync.cmake"
-    COMMAND
-        "${CMAKE_COMMAND}" -E echo ""
-    COMMAND
-        "${CMAKE_COMMAND}" -E echo "=== build 2/6: stage_ru ==="
-    COMMAND
-        "${CMAKE_COMMAND}" -E rm -rf "${stage_ru}"
-    COMMAND
-        "${CMAKE_COMMAND}" -E copy_directory "${decompiled_dir}" "${stage_ru}"
-    COMMAND
-        "${CMAKE_COMMAND}" -E echo ""
-    COMMAND
-        "${CMAKE_COMMAND}" -E echo "=== build 3/6: stage_mod + unlock ==="
+        "${CMAKE_COMMAND}" -E echo "=== stage_mod: copy + unlock ==="
     COMMAND
         "${CMAKE_COMMAND}" -E rm -rf "${stage_mod}"
     COMMAND
@@ -506,53 +485,135 @@ add_custom_target(
     COMMAND
         "${python3_bin}" "${wc4_unlock}" "${stage_mod}/${assets_data_rel}"
     COMMAND
-        "${CMAKE_COMMAND}" -E echo ""
+        "${CMAKE_COMMAND}" -E touch "${stamp_stage_mod}"
+    DEPENDS
+        "${wc4_unlock}"
+        ${decompiled_files}
+    USES_TERMINAL
+    VERBATIM
+)
+
+add_custom_command(
+    OUTPUT "${stamp_diff_mod}"
     COMMAND
-        "${CMAKE_COMMAND}" -E echo "=== build 4/6: diff_mod/ (unlock audit) ==="
+        "${CMAKE_COMMAND}" -E echo
+        "=== audit: stage_mod vs decompiled => diff_mod/ ==="
     COMMAND
-        "${CMAKE_COMMAND}" "-DSRC=${stage_mod}" "-DORIG=${stage_ru}"
+        "${CMAKE_COMMAND}" "-DSRC=${stage_mod}" "-DORIG=${decompiled_dir}"
         "-DDIFF=${diff_mod_dir}" -P
         "${CMAKE_CURRENT_BINARY_DIR}/diff_sync.cmake"
     COMMAND
-        "${CMAKE_COMMAND}" -E echo ""
+        "${CMAKE_COMMAND}" -E touch "${stamp_diff_mod}"
+    DEPENDS
+        "${stamp_stage_mod}"
+        "${CMAKE_CURRENT_BINARY_DIR}/diff_sync.cmake"
+    USES_TERMINAL
+    VERBATIM
+)
+
+add_custom_command(
+    OUTPUT "${signed_ru}"
     COMMAND
-        "${CMAKE_COMMAND}" -E echo "=== build 5/6: wc4_ru ==="
+        "${CMAKE_COMMAND}" -E echo
+        "=== wc4_ru: stage + encrypt + build + sign ==="
+    COMMAND
+        "${CMAKE_COMMAND}" -E rm -rf "${build_ru_dir}"
+    COMMAND
+        "${CMAKE_COMMAND}" -E copy_directory "${decompiled_dir}"
+        "${build_ru_dir}"
     COMMAND
         "${CMAKE_COMMAND}" "-DPYTHON3=${python3_bin}" "-DWCRYPT=${wc4_crypt}"
-        "-DMODE=encrypt" "-DDIR=${stage_ru}/${assets_data_rel}"
+        "-DMODE=encrypt" "-DDIR=${build_ru_dir}/${assets_data_rel}"
         "-DHEADER=${wc4_header}" -P
         "${CMAKE_CURRENT_BINARY_DIR}/crypt_json.cmake"
     COMMAND
-        "${java_bin}" -jar "${apktool_jar}" b "${stage_ru}" -o
+        "${java_bin}" -jar "${apktool_jar}" b "${build_ru_dir}" -o
         "${apk_ru_unsigned}"
     COMMAND
         "${java_bin}" -jar "${signer_jar}" -a "${apk_ru_unsigned}" --out
         "${CMAKE_CURRENT_BINARY_DIR}" --allowResign
+    DEPENDS
+        "${wc4_crypt}"
+        "${CMAKE_CURRENT_BINARY_DIR}/crypt_json.cmake"
+        "${apktool_jar}"
+        "${signer_jar}"
+        ${decompiled_files}
+    USES_TERMINAL
+    VERBATIM
+)
+
+add_custom_command(
+    OUTPUT "${signed_mod}"
     COMMAND
-        "${CMAKE_COMMAND}" -E echo ""
+        "${CMAKE_COMMAND}" -E echo
+        "=== wc4_ru_mod: stage + encrypt + build + sign ==="
     COMMAND
-        "${CMAKE_COMMAND}" -E echo "=== build 6/6: wc4_mod ==="
+        "${CMAKE_COMMAND}" -E rm -rf "${build_mod_dir}"
+    COMMAND
+        "${CMAKE_COMMAND}" -E copy_directory "${stage_mod}" "${build_mod_dir}"
     COMMAND
         "${CMAKE_COMMAND}" "-DPYTHON3=${python3_bin}" "-DWCRYPT=${wc4_crypt}"
-        "-DMODE=encrypt" "-DDIR=${stage_mod}/${assets_data_rel}"
+        "-DMODE=encrypt" "-DDIR=${build_mod_dir}/${assets_data_rel}"
         "-DHEADER=${wc4_header}" -P
         "${CMAKE_CURRENT_BINARY_DIR}/crypt_json.cmake"
     COMMAND
-        "${java_bin}" -jar "${apktool_jar}" b "${stage_mod}" -o
+        "${java_bin}" -jar "${apktool_jar}" b "${build_mod_dir}" -o
         "${apk_mod_unsigned}"
     COMMAND
         "${java_bin}" -jar "${signer_jar}" -a "${apk_mod_unsigned}" --out
         "${CMAKE_CURRENT_BINARY_DIR}" --allowResign
+    DEPENDS
+        "${stamp_stage_mod}"
+        "${wc4_crypt}"
+        "${CMAKE_CURRENT_BINARY_DIR}/crypt_json.cmake"
+        "${apktool_jar}"
+        "${signer_jar}"
+    USES_TERMINAL
+    VERBATIM
+)
+
+add_custom_target(decompile DEPENDS "${stamp_decompiled}")
+
+# Persist decompiled/ edits into the diff/ overlay. Always runs (cheap MD5
+# scan, no writes when nothing changed); heavy deps above run when stale.
+add_custom_target(
+    sync
+    DEPENDS
+        "${stamp_orig}"
+        "${stamp_diff_mod}"
     COMMAND
-        "${CMAKE_COMMAND}" -E echo ""
+        "${CMAKE_COMMAND}" -E echo "=== sync: decompiled/ => diff/ ==="
+    COMMAND
+        "${CMAKE_COMMAND}" "-DSRC=${decompiled_dir}" "-DORIG=${orig_dir}"
+        "-DDIFF=${diff_dir}" -P "${CMAKE_CURRENT_BINARY_DIR}/diff_sync.cmake"
+    COMMAND
+        "${CMAKE_COMMAND}" -E echo "=== sync complete ==="
+    COMMAND
+        "${CMAKE_COMMAND}" -E echo "  diff     => '${diff_dir}'"
+    COMMAND
+        "${CMAKE_COMMAND}" -E echo "  diff_mod => '${diff_mod_dir}'"
+    USES_TERMINAL
+    VERBATIM
+)
+
+add_custom_target(
+    build
+    DEPENDS
+        "${stamp_orig}"
+        "${stamp_diff_mod}"
+        "${signed_ru}"
+        "${signed_mod}"
+    COMMAND
+        "${CMAKE_COMMAND}" -E echo "=== sync: decompiled/ => diff/ ==="
+    COMMAND
+        "${CMAKE_COMMAND}" "-DSRC=${decompiled_dir}" "-DORIG=${orig_dir}"
+        "-DDIFF=${diff_dir}" -P "${CMAKE_CURRENT_BINARY_DIR}/diff_sync.cmake"
     COMMAND
         "${CMAKE_COMMAND}" -E echo "=== build complete ==="
     COMMAND
         "${CMAKE_COMMAND}" -E echo "  ${signed_ru}"
     COMMAND
         "${CMAKE_COMMAND}" -E echo "  ${signed_mod}"
-    COMMAND
-        "${CMAKE_COMMAND}" -E echo ""
     USES_TERMINAL
     VERBATIM
 )

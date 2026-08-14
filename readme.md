@@ -25,7 +25,7 @@
 - **Localizes** to Russian via the `diff/` overlay; Noto Sans font patch for Cyrillic rendering
 - **Unlocks** all content — generals, stages, conquests, tech (25 categories, combat stats untouched)
 - **Rebuilds and signs** two APK variants (`wc4_ru`, `wc4_ru_mod`) and **deploys** via Waydroid or adb
-- Every step is an idempotent CMake target — no manual tool juggling
+- Every step is a file-tracked CMake artifact — rebuilds only what changed, no manual tool juggling
 
 ## Quick start
 
@@ -48,13 +48,15 @@ cmake --build build --target build
 cmake --build build --target deploy-waydroid
 ```
 
+All targets are **file-tracked** — rerunning `build` or `deploy-*` redoes only what changed (an edit in `decompiled/` rebuilds the APKs, nothing else). Delete `build/` to force a full rebuild.
+
 ## Targets
 
 | Target | Purpose |
 |---|---|
-| `decompile` | `apktool d` + decrypt JSON + overlay `diff/` → `decompiled/` |
+| `decompile` | `apktool d` + decrypt JSON + overlay `diff/` → `decompiled/` (skipped when inputs are unchanged) |
 | `sync` | Persist `decompiled/` edits into `diff/`, regenerate the `diff_mod/` unlock delta |
-| `build` | Sync, apply unlock to the mod stage, encrypt, rebuild, sign both APKs |
+| `build` | Sync, apply unlock to the mod stage, encrypt, rebuild, sign both APKs — incremental |
 | `deploy-waydroid` | `build` + install both APKs via Waydroid |
 | `deploy-adb` | `build` + install both APKs via adb |
 
