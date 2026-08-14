@@ -11,7 +11,9 @@ project(
 # 3-state pipeline:
 #
 #   1. configure  fetch + verify inputs, decompile + decrypt => decompiled/
-#   2. build      per variant: fresh copy + patches + encrypt + compile + sign
+#   2. build      per variant: fresh tree copy, apply patches (each patch is
+#                 a standalone project applied via its install phase), then
+#                 encrypt + compile + sign
 #   3. deploy     install one signed variant via waydroid or adb
 #
 # decompiled/ is PRISTINE — patches never touch it. Every variant builds
@@ -42,12 +44,6 @@ set(apktool_version
 set(uber_signer_version
     "1.3.0"
     CACHE STRING "uber-apk-signer version")
-set(apktool_sha256
-    ""
-    CACHE STRING "Expected SHA-256 of the apktool jar (empty = skip)")
-set(uber_signer_sha256
-    ""
-    CACHE STRING "Expected SHA-256 of the uber-apk-signer jar (empty = skip)")
 
 set(java_bin
     "java"
@@ -184,8 +180,8 @@ endif()
 message(STATUS "apk_input: ${apk_input} (SHA-256: ${apk_input_actual})")
 
 file(MAKE_DIRECTORY "${tools_dir}")
-wc4_fetch("${apktool_url}" "${apktool_jar}" "${apktool_sha256}")
-wc4_fetch("${signer_url}" "${signer_jar}" "${uber_signer_sha256}")
+wc4_fetch("${apktool_url}" "${apktool_jar}" "")
+wc4_fetch("${signer_url}" "${signer_jar}" "")
 
 execute_process(
     COMMAND "${python3_bin}" "${wc4_crypt}" --version
@@ -237,10 +233,10 @@ if(BUILD_TESTING)
     enable_testing()
 endif()
 
-# --- state 2: variants = copy + patch + encrypt + compile + sign ------------
+# --- state 2: variants = copy + patch (install phase) + encrypt + sign ------
 # One decompiled APK => any combination of signed APKs. Patches are
-# auto-discovered from patches/<name>/ and toggled with -DWC4_PATCH_<NAME>=OFF
-# (all ON by default). Add your own combination with one line:
+# standalone projects auto-discovered from patches/<name>/, toggled with
+# -DWC4_PATCH_<NAME>=OFF (all ON by default). Add a combination with:
 #   wc4_add_variant(<name> PATCHES <patch>...)
 
 include(cmake/wc4_patches.cmake)

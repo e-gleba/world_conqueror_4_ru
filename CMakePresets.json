@@ -9,7 +9,7 @@
     },
     "configurePresets": [
         {
-            "$comment": "Base preset. apk_input empty = auto-download the pinned release APK (SHA-256 verified). Toggle patches with -DWC4_PATCH_<NAME>=OFF.",
+            "$comment": "apk_input empty = auto-download the pinned release APK (SHA-256 verified). Toggle patches with -DWC4_PATCH_<NAME>=OFF.",
             "name": "default",
             "displayName": "Default",
             "description": "Out-of-source build under build/ (Ninja)",
@@ -42,7 +42,7 @@
     "buildPresets": [
         {
             "name": "decompile",
-            "displayName": "State 1 — decompile",
+            "displayName": "Decompile",
             "description": "apktool d + decrypt JSON => pristine decompiled/",
             "configurePreset": "default",
             "targets": [
@@ -51,8 +51,8 @@
         },
         {
             "name": "apks",
-            "displayName": "State 2 — build APKs",
-            "description": "Per variant: fresh copy + patches + encrypt + apktool b + sign",
+            "displayName": "Build APKs",
+            "description": "Per variant: fresh copy + patch install + encrypt + apktool b + sign",
             "configurePreset": "default",
             "targets": [
                 "apks"
@@ -60,7 +60,7 @@
         },
         {
             "name": "deploy-waydroid",
-            "displayName": "State 3 — deploy to Waydroid",
+            "displayName": "Deploy to Waydroid",
             "description": "Install deploy_variant via waydroid",
             "configurePreset": "default",
             "targets": [
@@ -69,7 +69,7 @@
         },
         {
             "name": "deploy-adb",
-            "displayName": "State 3 — deploy via adb",
+            "displayName": "Deploy via adb",
             "description": "Install deploy_variant via adb (set adb_serial to pick a device)",
             "configurePreset": "default",
             "targets": [
@@ -93,24 +93,9 @@
     ],
     "workflowPresets": [
         {
-            "$comment": "State 1: configure + decompile/decrypt only",
-            "name": "configure",
-            "displayName": "1 — configure",
-            "steps": [
-                {
-                    "type": "configure",
-                    "name": "default"
-                },
-                {
-                    "type": "build",
-                    "name": "decompile"
-                }
-            ]
-        },
-        {
-            "$comment": "State 2: full build — decompile (if needed) + all APK variants",
+            "$comment": "compile: configure + all APK variants",
             "name": "build",
-            "displayName": "2 — build",
+            "displayName": "build",
             "steps": [
                 {
                     "type": "configure",
@@ -123,9 +108,9 @@
             ]
         },
         {
-            "$comment": "Build + ctest patch validation",
+            "$comment": "compile + ctest patch validation",
             "name": "test",
-            "displayName": "build + test",
+            "displayName": "test",
             "steps": [
                 {
                     "type": "configure",
@@ -142,9 +127,9 @@
             ]
         },
         {
-            "$comment": "State 3: build + install deploy_variant via waydroid",
-            "name": "deploy-waydroid",
-            "displayName": "3 — deploy (waydroid)",
+            "$comment": "compile + install deploy_variant via waydroid (adb: use the deploy-adb build preset)",
+            "name": "deploy",
+            "displayName": "deploy",
             "steps": [
                 {
                     "type": "configure",
@@ -153,21 +138,6 @@
                 {
                     "type": "build",
                     "name": "deploy-waydroid"
-                }
-            ]
-        },
-        {
-            "$comment": "State 3: build + install deploy_variant via adb",
-            "name": "deploy-adb",
-            "displayName": "3 — deploy (adb)",
-            "steps": [
-                {
-                    "type": "configure",
-                    "name": "default"
-                },
-                {
-                    "type": "build",
-                    "name": "deploy-adb"
                 }
             ]
         }

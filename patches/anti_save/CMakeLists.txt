@@ -4,16 +4,8 @@
 # forces offline login success, pins the save root to the public
 # Documents/EasyTechGame/WC4 directory and migrates legacy saves.
 
-wc4_patch_files(
-    FILES
-        AndroidManifest.xml
-    DESTINATION
-        "."
-)
+cmake_minimum_required(VERSION 4.2)
+project(wc4_patch_anti_save LANGUAGES NONE)
 
-wc4_patch_files(
-    FILES
-        WC4Activity.smali
-    DESTINATION
-        smali/com/easytech/wc4/android
-)
+install(FILES AndroidManifest.xml DESTINATION .)
+install(FILES WC4Activity.smali DESTINATION smali/com/easytech/wc4/android)

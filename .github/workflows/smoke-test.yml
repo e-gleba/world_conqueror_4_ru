@@ -4,14 +4,26 @@ on:
   workflow_dispatch:
     inputs:
       artifact_run_id:
-        description: 'GitHub Actions run ID containing APK artifacts'
-        required: true
+        description: 'Run ID with the APK artifacts (empty = this run)'
+        required: false
         type: string
+        default: ''
       apk_artifact_name:
-        description: 'Artifact name to test (wc4_ru-aligned-debugSigned or wc4_ru_mod-aligned-debugSigned)'
-        required: true
+        description: 'Artifact name to test'
+        required: false
         type: string
-        default: 'wc4_ru-aligned-debugSigned'
+        default: 'wc4_ru_mod-aligned-debugSigned'
+  workflow_call:
+    inputs:
+      apk_artifact_name:
+        description: 'Artifact name to test'
+        required: false
+        type: string
+        default: 'wc4_ru_mod-aligned-debugSigned'
+
+permissions:
+  contents: read
+  actions: read
 
 jobs:
   waydroid:
@@ -20,7 +32,7 @@ jobs:
       - name: Download APK artifact
         uses: actions/download-artifact@v8
         with:
-          run-id: ${{ inputs.artifact_run_id }}
+          run-id: ${{ inputs.artifact_run_id || github.run_id }}
           name: ${{ inputs.apk_artifact_name }}
           path: apks
 

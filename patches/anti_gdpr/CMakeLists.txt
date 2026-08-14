@@ -4,9 +4,8 @@
 # version turns success()/failed() into immediate no-ops, so startup
 # never blocks on the consent dialog.
 
-wc4_patch_files(
-    FILES
-        "WC4Activity$53.smali"
-    DESTINATION
-        smali/com/easytech/wc4/android
-)
+cmake_minimum_required(VERSION 4.2)
+project(wc4_patch_anti_gdpr LANGUAGES NONE)
+
+install(FILES "WC4Activity$53.smali"
+        DESTINATION smali/com/easytech/wc4/android)

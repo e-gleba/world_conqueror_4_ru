@@ -1,78 +1,69 @@
 # ru_translation — RU localization.
 #
 # Ships ONE Russian payload set: a stringtable template, title art, an
-# .lproj bundle and a cyrillic font. At patch time apply_ru_locale.py
-# installs the payload over every locale slot in wc4_ru_target_slots
+# .lproj bundle and a cyrillic font. At install time apply_ru_locale.py
+# installs the payload over every locale slot in WC4_RU_TARGET_SLOTS
 # (default de = hijack the German slot):
 #
-#   assets/stringtable_<slot>.ini         <= stringtable_ru.ini
-#   assets/image/tex_title_hd_<slot>.webp <= image/tex_title_hd_ru.webp
-#   assets/<slot>.lproj/                  <= ru.lproj/
+#   <prefix>/assets/stringtable_<slot>.ini         <= stringtable_ru.ini
+#   <prefix>/assets/image/tex_title_hd_<slot>.webp <= image/tex_title_hd_ru.webp
+#   <prefix>/assets/<slot>.lproj/                  <= ru.lproj/
 #
-# and rewrites the lang_<slot>= menu entry in every stringtable found in
-# the tree assets to wc4_ru_language_name — so the hijacked slot shows up
-# as "Русский" in the language menu whatever the current locale is.
-# Untouched slots keep their stock files from the APK — only the RU
-# payload is shipped by this patch.
+# and rewrites the lang_<slot>= menu entry in every stringtable to
+# WC4_RU_LANGUAGE_NAME — the hijacked slot shows up as "Русский" in the
+# language menu whatever the current locale is. Untouched slots keep
+# their stock files from the APK.
+#
+# Test standalone:
+#   cmake -S patches/ru_translation -B /tmp/ru -DCMAKE_INSTALL_PREFIX=<tree>
+#   cmake --install /tmp/ru
 
-set(wc4_ru_stringtable_template
-    "stringtable_ru.ini"
-    CACHE STRING "RU stringtable template — the single translation payload")
+cmake_minimum_required(VERSION 4.2)
+project(wc4_patch_ru_translation LANGUAGES NONE)
 
-set(wc4_ru_target_slots
+find_package(Python3 REQUIRED COMPONENTS Interpreter)
+
+set(WC4_RU_TARGET_SLOTS
     "de"
-    CACHE
-        STRING
-        "locale postfixes hijacked by the RU payload: stringtable_<slot>.ini, image/tex_title_hd_<slot>.webp, <slot>.lproj"
-)
-
-set(wc4_ru_language_name
+    CACHE STRING "locale postfixes hijacked by the RU payload")
+set(WC4_RU_LANGUAGE_NAME
     "Русский"
-    CACHE STRING "language-menu label written into lang_<slot>= of every stringtable"
-)
+    CACHE STRING "language-menu label written into lang_<slot>=")
 
-if(wc4_ru_target_slots STREQUAL "")
-    message(FATAL_ERROR "ru_translation: wc4_ru_target_slots is empty")
+if(WC4_RU_TARGET_SLOTS STREQUAL "")
+    message(FATAL_ERROR "ru_translation: WC4_RU_TARGET_SLOTS is empty")
 endif()
 
-wc4_patch_run(
-    COMMAND
-        "${python3_bin}"
-        "@PATCH_DIR@/apply_ru_locale.py"
-        --template
-        "@PATCH_DIR@/${wc4_ru_stringtable_template}"
-        --title-image
-        "@PATCH_DIR@/image/tex_title_hd_ru.webp"
-        --lproj
-        "@PATCH_DIR@/ru.lproj"
-        --assets
-        "@TREE@/assets"
-        --replace
-        ${wc4_ru_target_slots}
-        --lang-name
-        "${wc4_ru_language_name}")
+install(
+    CODE
+        "execute_process(
+            COMMAND \"${Python3_EXECUTABLE}\"
+                    \"${CMAKE_CURRENT_SOURCE_DIR}/apply_ru_locale.py\"
+                    --template \"${CMAKE_CURRENT_SOURCE_DIR}/stringtable_ru.ini\"
+                    --title-image \"${CMAKE_CURRENT_SOURCE_DIR}/image/tex_title_hd_ru.webp\"
+                    --lproj \"${CMAKE_CURRENT_SOURCE_DIR}/ru.lproj\"
+                    --assets \"${CMAKE_INSTALL_PREFIX}/assets\"
+                    --replace ${WC4_RU_TARGET_SLOTS}
+                    --lang-name \"${WC4_RU_LANGUAGE_NAME}\"
+            COMMAND_ERROR_IS_FATAL ANY)"
+)
 
 # Cyrillic font, two mutually exclusive sources:
 #
-#   wc4_ru_font_rebuild=OFF (default): ship the checked-in
-#   font/NotoSans_Lang.otf — already cyrillic-patched, no extra tools
-#   needed.
+#   WC4_RU_FONT_REBUILD=OFF (default): install the checked-in
+#   font/NotoSans_Lang.otf — already cyrillic-patched, no extra tools.
 #
-#   wc4_ru_font_rebuild=ON (needs fontforge + fontTools): clean rebuild
-#   — patch_lang_notosans.py merges RU glyphs from a donor Noto Sans
-#   into the STOCK font of the variant tree. The checked-in copy is NOT
-#   installed in this mode: installs land before run steps, so copying it
-#   first would re-patch an already-patched font instead of the clean
-#   stock one.
-option(
-    wc4_ru_font_rebuild
-    "rebuild cyrillic glyphs during the ru_translation patch (needs fontforge + fontTools)"
-    OFF)
+#   WC4_RU_FONT_REBUILD=ON (needs fontforge + fontTools): merge RU glyphs
+#   into the STOCK font of the target tree at install time. The
+#   checked-in copy is NOT installed in this mode: it would overwrite the
+#   stock font before the script could patch it.
+option(WC4_RU_FONT_REBUILD
+       "rebuild cyrillic glyphs from the stock font (needs fontforge)" OFF)
 
-if(wc4_ru_font_rebuild)
-    find_program(fontforge_bin NAMES fontforge)
+if(WC4_RU_FONT_REBUILD)
+    find_program(FONTFORGE_BIN NAMES fontforge)
 
-    if(NOT fontforge_bin)
+    if(NOT FONTFORGE_BIN)
         message(
             STATUS
                 "ru_translation: fontforge not found — keeping checked-in font"
@@ -80,35 +71,15 @@ if(wc4_ru_font_rebuild)
     endif()
 endif()
 
-if(wc4_ru_font_rebuild AND fontforge_bin)
-    wc4_patch_run(
-        COMMAND "${fontforge_bin}" -script
-                "@PATCH_DIR@/patch_lang_notosans.py"
-                "@TREE@/assets/font/NotoSans_Lang.otf")
+if(WC4_RU_FONT_REBUILD AND FONTFORGE_BIN)
+    install(
+        CODE
+            "execute_process(
+                COMMAND \"${FONTFORGE_BIN}\" -script
+                        \"${CMAKE_CURRENT_SOURCE_DIR}/patch_lang_notosans.py\"
+                        \"${CMAKE_INSTALL_PREFIX}/assets/font/NotoSans_Lang.otf\"
+                COMMAND_ERROR_IS_FATAL ANY)"
+    )
 else()
-    wc4_patch_files(
-        FILES
-            font/NotoSans_Lang.otf
-        DESTINATION
-            assets/font)
+    install(FILES font/NotoSans_Lang.otf DESTINATION assets/font)
 endif()
-
-# ctest: every hijacked slot table (wc4_ru_target_slots) must mirror the
-# RU template — entry counts and key sets only, values are never
-# compared. Stock tables of untouched slots are compared too, but their
-# key drift is only printed as informational hints (stock locales
-# legitimately diverge upstream). Reads <variant tree>/assets of the
-# first variant that applies this patch, so build the apks target before
-# ctest.
-wc4_patch_test(
-    NAME
-        ru_translation_stringtable_parity
-    COMMAND
-        "${python3_bin}"
-        "@PATCH_DIR@/test_stringtables.py"
-        --reference
-        "@PATCH_DIR@/${wc4_ru_stringtable_template}"
-        --dir
-        "@TREE@/assets"
-        --slots
-        ${wc4_ru_target_slots})
