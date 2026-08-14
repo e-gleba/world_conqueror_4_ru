@@ -1,7 +1,8 @@
 # Install-time script for the ru_translation font rebuild (configured @ONLY@).
-# Merges RU glyphs into the stock font of the target tree.
+# Merges RU glyphs into the stock font of the target tree. @VARS@ are baked
+# at configure time; ${CMAKE_INSTALL_PREFIX} resolves at INSTALL time.
 execute_process(
     COMMAND "@FONTFORGE_BIN@" -script
             "@CMAKE_CURRENT_SOURCE_DIR@/patch_lang_notosans.py"
-            "@CMAKE_INSTALL_PREFIX@/assets/font/NotoSans_Lang.otf"
+            "${CMAKE_INSTALL_PREFIX}/assets/font/NotoSans_Lang.otf"
     COMMAND_ERROR_IS_FATAL ANY)
