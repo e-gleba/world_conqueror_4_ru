@@ -126,6 +126,13 @@ if(apk_input STREQUAL "")
         message(STATUS "apk_input not set => downloading original.apk")
         download_file_if_missing("${apk_default_url}" "${apk_input}")
     endif()
+elseif(NOT EXISTS "${apk_input}")
+    message(
+        FATAL_ERROR
+        "apk_input does not exist: '${apk_input}'\n"
+        "  fix: pass -Dapk_input=<path to existing .apk>"
+        " or leave empty to auto-download"
+    )
 endif()
 
 file(MAKE_DIRECTORY "${tools_dir}")
