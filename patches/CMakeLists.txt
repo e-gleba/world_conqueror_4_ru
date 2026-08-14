@@ -209,12 +209,19 @@ foreach(name IN LISTS wc4_patches)
             )
         endif()
 
+        # git-apply(1): "when running from a subdirectory in a
+        # repository, patched paths outside the directory are ignored"
+        # — silently, exit 0. The target trees live inside this repo,
+        # so cap repository discovery at the tree root: git runs in
+        # no-repo mode and applies in-patch paths relative to it.
         string(
             APPEND
             body
             "message(STATUS \"[${name}] apply ${src} (-p${strip})\")\n"
             "execute_process(\n"
-            "    COMMAND \"${git_bin}\" apply -p${strip} \"${src_abs}\"\n"
+            "    COMMAND \"${CMAKE_COMMAND}\" -E env\n"
+            "        \"GIT_CEILING_DIRECTORIES=${tree_path}\"\n"
+            "        \"${git_bin}\" apply -p${strip} --whitespace=nowarn \"${src_abs}\"\n"
             "    WORKING_DIRECTORY \"${tree_path}\"\n"
             "    COMMAND_ERROR_IS_FATAL ANY\n"
             ")\n\n"
@@ -269,6 +276,7 @@ foreach(name IN LISTS wc4_patches)
             ${patch_files}
         COMMENT
             "patch[${name}] => ${wc4_new_tree}/"
+        USES_TERMINAL
         VERBATIM
     )
 
