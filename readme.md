@@ -76,9 +76,16 @@ cmake --build build --target deploy
 | `patch_lang_notosans.py` | Cyrillic font fix — run on `decompiled/` |
 | `wc_spec_dump.py` | Dump unit/general stats to Markdown tables |
 
+## Saves
+
+- **Location:** `/sdcard/Documents/EasyTechGame/WC4/<profile-id>/` — public shared storage, visible in any file manager (`headquarter.sav`, `headquarter.bak`, `settings.cfg`, …). On Waydroid, reachable from the host at `~/.local/share/waydroid/data/media/0/Documents/EasyTechGame/WC4/`.
+- **Permission required — the game cannot read/write saves without it:**
+  - **Android 11+:** grant **All files access** — on first launch the game opens its system settings page; toggle *Allow all files access* and relaunch.
+  - **Android 10 and below:** allow the storage permission prompt.
+- **Migration:** saves from the legacy private directory are copied over automatically on first launch. Still, export in-game before reinstalling.
+
 ## Notes
 
-- **Saves** live in public external storage (Android 11+) — export in-game before reinstalling.
 - **Releases** ship both signed APKs per version: [Releases](https://github.com/e-gleba/world_conqueror_4_ru/releases).
 - **CI** builds inside the `ghcr.io` builder image; use the ▶ buttons above to run workflows manually.
 
