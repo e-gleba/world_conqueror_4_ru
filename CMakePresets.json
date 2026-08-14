@@ -28,6 +28,16 @@
                     "$comment": "Leave empty to auto-download original.apk from GitHub release",
                     "type": "FILEPATH",
                     "value": ""
+                },
+                "deploy_backend": {
+                    "$comment": "Backend for the 'deploy' target: auto, waydroid, or adb",
+                    "type": "STRING",
+                    "value": "auto"
+                },
+                "adb_serial": {
+                    "$comment": "adb device serial — empty uses the default/only device",
+                    "type": "STRING",
+                    "value": ""
                 }
             }
         }
@@ -62,11 +72,29 @@
         },
         {
             "name": "deploy",
+            "displayName": "Deploy (auto)",
+            "description": "Install both signed APKs — adb when a device is attached, otherwise waydroid (pin with -Ddeploy_backend=waydroid|adb)",
+            "configurePreset": "default",
+            "targets": [
+                "deploy"
+            ]
+        },
+        {
+            "name": "deploy-waydroid",
             "displayName": "Deploy to Waydroid",
             "description": "Install both signed APKs via waydroid",
             "configurePreset": "default",
             "targets": [
-                "deploy"
+                "deploy-waydroid"
+            ]
+        },
+        {
+            "name": "deploy-adb",
+            "displayName": "Deploy via adb",
+            "description": "Install both signed APKs via adb (set adb_serial to pick a device)",
+            "configurePreset": "default",
+            "targets": [
+                "deploy-adb"
             ]
         }
     ],

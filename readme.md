@@ -24,12 +24,12 @@
 - **Decompiles** the APK and **decrypts** its AES-256-CBC game data (5 header formats auto-detected)
 - **Localizes** to Russian via the `diff/` overlay; Noto Sans font patch for Cyrillic rendering
 - **Unlocks** all content — generals, stages, conquests, tech (25 categories, combat stats untouched)
-- **Rebuilds and signs** two APK variants (`wc4_ru`, `wc4_ru_mod`) and **deploys** to Waydroid
+- **Rebuilds and signs** two APK variants (`wc4_ru`, `wc4_ru_mod`) and **deploys** via Waydroid or adb
 - Every step is an idempotent CMake target — no manual tool juggling
 
 ## Quick start
 
-**Requires:** Java 11+, Python 3.12+ (`pip install cryptography`), CMake 4.2+. apktool and uber-apk-signer are auto-downloaded; Waydroid is only needed for `deploy`.
+**Requires:** Java 11+, Python 3.12+ (`pip install cryptography`), CMake 4.2+. apktool and uber-apk-signer are auto-downloaded; Waydroid or adb is only needed for `deploy`.
 
 ```bash
 # 1. configure (empty apk_input auto-downloads the base APK from releases)
@@ -44,7 +44,7 @@ python3 scripts/patch_lang_notosans.py decompiled/
 # 4. encrypt + rebuild + sign → build/wc4_ru-aligned-debugSigned.apk (+ _mod)
 cmake --build build --target build
 
-# 5. install both variants to waydroid
+# 5. install both variants (adb if a device is attached, else waydroid)
 cmake --build build --target deploy
 ```
 
@@ -55,7 +55,9 @@ cmake --build build --target deploy
 | `decompile` | `apktool d` + decrypt JSON + overlay `diff/` → `decompiled/` |
 | `sync` | Persist `decompiled/` edits into `diff/`, regenerate the `diff_mod/` unlock delta |
 | `build` | Sync, apply unlock to the mod stage, encrypt, rebuild, sign both APKs |
-| `deploy` | `build` + install both APKs to Waydroid |
+| `deploy` | `build` + install both APKs — adb if a device is attached, else Waydroid |
+| `deploy-waydroid` | `build` + install both APKs via Waydroid |
+| `deploy-adb` | `build` + install both APKs via adb |
 
 ## Options
 
@@ -66,6 +68,8 @@ cmake --build build --target deploy
 | `apktool_version` | `3.0.1` | apktool pin |
 | `uber_signer_version` | `1.3.0` | uber-apk-signer pin |
 | `java_bin` / `python3_bin` | `java` / `python3` | Tool paths |
+| `deploy_backend` | `auto` | Backend for `deploy`: `auto`, `waydroid`, `adb` |
+| `adb_serial` | default device | adb serial for the deploy targets |
 
 ## Scripts
 

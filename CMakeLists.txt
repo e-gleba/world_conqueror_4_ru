@@ -20,6 +20,24 @@ set(python3_bin "python3" CACHE FILEPATH "Python 3 binary")
 set(apktool_version "3.0.1" CACHE STRING "apktool version")
 set(uber_signer_version "1.3.0" CACHE STRING "uber-apk-signer version")
 
+set(deploy_backend
+    "auto"
+    CACHE STRING
+    "Backend for the 'deploy' target: auto|waydroid|adb"
+)
+set(adb_serial
+    ""
+    CACHE STRING
+    "adb device serial for deploy (empty = default device)"
+)
+
+if(NOT deploy_backend MATCHES "^(auto|waydroid|adb)$")
+    message(
+        FATAL_ERROR
+        "deploy_backend must be one of: auto, waydroid, adb (got '${deploy_backend}')"
+    )
+endif()
+
 set(wc4_crypt
     "${CMAKE_CURRENT_SOURCE_DIR}/scripts/wc4_crypt.py"
     CACHE FILEPATH
@@ -303,11 +321,11 @@ message(STATUS "diff_sync => '${DIFF}': +${updated} updated, -${removed} removed
 )
 
 file(
-    WRITE "${CMAKE_CURRENT_BINARY_DIR}/waydroid_deploy.cmake"
+    WRITE "${CMAKE_CURRENT_BINARY_DIR}/deploy_apk.cmake"
     [=[
 cmake_minimum_required(VERSION 4.2...4.2)
 
-foreach(req IN ITEMS PKG APK)
+foreach(req IN ITEMS PKG APK BACKEND)
     if(NOT DEFINED ${req} OR "${${req}}" STREQUAL "")
         message(FATAL_ERROR "'${req}' is required")
     endif()
@@ -317,27 +335,67 @@ if(NOT EXISTS "${APK}")
     message(FATAL_ERROR "APK does not exist: ${APK}")
 endif()
 
-message(STATUS "starting waydroid session")
+if(BACKEND STREQUAL "auto")
+    execute_process(
+        COMMAND adb devices
+        OUTPUT_VARIABLE adb_devices_out
+        ERROR_QUIET
+        RESULT_VARIABLE adb_rc
+        COMMAND_ERROR_IS_FATAL NONE
+    )
+    if(NOT adb_rc AND adb_devices_out MATCHES "[ \t]device\r?\n")
+        set(BACKEND adb)
+    else()
+        find_program(waydroid_bin waydroid)
+        if(waydroid_bin)
+            set(BACKEND waydroid)
+        else()
+            message(
+                FATAL_ERROR
+                "no deploy backend: no adb device attached, 'waydroid' not in PATH"
+            )
+        endif()
+    endif()
+    message(STATUS "auto deploy backend => ${BACKEND}")
+endif()
+
+if(BACKEND STREQUAL "waydroid")
+    message(STATUS "starting waydroid session")
+    execute_process(
+        COMMAND waydroid session start
+        COMMAND_ECHO STDOUT
+        OUTPUT_QUIET
+        ERROR_QUIET
+        COMMAND_ERROR_IS_FATAL NONE
+    )
+    set(remove_cmd waydroid app remove)
+    set(install_cmd waydroid app install)
+elseif(BACKEND STREQUAL "adb")
+    set(adb adb)
+    if(DEFINED ADB_SERIAL AND NOT ADB_SERIAL STREQUAL "")
+        list(APPEND adb -s "${ADB_SERIAL}")
+    endif()
+    set(remove_cmd ${adb} uninstall)
+    set(install_cmd ${adb} install)
+else()
+    message(
+        FATAL_ERROR
+        "unknown BACKEND: '${BACKEND}' (expected auto|waydroid|adb)"
+    )
+endif()
+
+message(STATUS "removing '${PKG}' via ${BACKEND}")
 execute_process(
-    COMMAND waydroid session start
+    COMMAND ${remove_cmd} "${PKG}"
     COMMAND_ECHO STDOUT
     OUTPUT_QUIET
     ERROR_QUIET
     COMMAND_ERROR_IS_FATAL NONE
 )
 
-message(STATUS "removing '${PKG}'")
+message(STATUS "installing '${APK}' via ${BACKEND}")
 execute_process(
-    COMMAND waydroid app remove "${PKG}"
-    COMMAND_ECHO STDOUT
-    OUTPUT_QUIET
-    ERROR_QUIET
-    COMMAND_ERROR_IS_FATAL NONE
-)
-
-message(STATUS "installing '${APK}'")
-execute_process(
-    COMMAND waydroid app install "${APK}"
+    COMMAND ${install_cmd} "${APK}"
     COMMAND_ECHO STDOUT
     COMMAND_ERROR_IS_FATAL ANY
 )
@@ -526,30 +584,37 @@ add_custom_target(
     VERBATIM
 )
 
-add_custom_target(
-    deploy
-    COMMAND
-        "${CMAKE_COMMAND}" -E echo ""
-    COMMAND
-        "${CMAKE_COMMAND}" -E echo "=== deploy ru ==="
-    COMMAND
-        "${CMAKE_COMMAND}" "-DPKG=com.easytech.wc4" "-DAPK=${signed_ru}" -P
-        "${CMAKE_CURRENT_BINARY_DIR}/waydroid_deploy.cmake"
-    COMMAND
-        "${CMAKE_COMMAND}" -E echo ""
-    COMMAND
-        "${CMAKE_COMMAND}" -E echo "=== deploy mod ==="
-    COMMAND
-        "${CMAKE_COMMAND}" "-DPKG=com.easytech.wc4" "-DAPK=${signed_mod}" -P
-        "${CMAKE_CURRENT_BINARY_DIR}/waydroid_deploy.cmake"
-    COMMAND
-        "${CMAKE_COMMAND}" -E echo ""
-    COMMAND
-        "${CMAKE_COMMAND}" -E echo "=== deploy complete ==="
-    COMMAND
-        "${CMAKE_COMMAND}" -E echo ""
-    USES_TERMINAL
-    VERBATIM
-)
+function(add_deploy_target target backend)
+    add_custom_target(
+        ${target}
+        COMMAND
+            "${CMAKE_COMMAND}" -E echo ""
+        COMMAND
+            "${CMAKE_COMMAND}" -E echo "=== deploy ru (${backend}) ==="
+        COMMAND
+            "${CMAKE_COMMAND}" "-DPKG=com.easytech.wc4" "-DAPK=${signed_ru}"
+            "-DBACKEND=${backend}" "-DADB_SERIAL=${adb_serial}" -P
+            "${CMAKE_CURRENT_BINARY_DIR}/deploy_apk.cmake"
+        COMMAND
+            "${CMAKE_COMMAND}" -E echo ""
+        COMMAND
+            "${CMAKE_COMMAND}" -E echo "=== deploy mod (${backend}) ==="
+        COMMAND
+            "${CMAKE_COMMAND}" "-DPKG=com.easytech.wc4" "-DAPK=${signed_mod}"
+            "-DBACKEND=${backend}" "-DADB_SERIAL=${adb_serial}" -P
+            "${CMAKE_CURRENT_BINARY_DIR}/deploy_apk.cmake"
+        COMMAND
+            "${CMAKE_COMMAND}" -E echo ""
+        COMMAND
+            "${CMAKE_COMMAND}" -E echo "=== deploy complete (${backend}) ==="
+        COMMAND
+            "${CMAKE_COMMAND}" -E echo ""
+        USES_TERMINAL
+        VERBATIM
+    )
+    add_dependencies(${target} build)
+endfunction()
 
-add_dependencies(deploy build)
+add_deploy_target(deploy "${deploy_backend}")
+add_deploy_target(deploy-waydroid waydroid)
+add_deploy_target(deploy-adb adb)
