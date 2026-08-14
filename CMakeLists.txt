@@ -328,6 +328,8 @@ message(STATUS "diff_sync => '${DIFF}': +${updated} updated, -${removed} removed
 ]=]
 )
 
+# COMMAND_ECHO STDOUT already prints each command as it runs — no manual
+# STATUS narration. Remove is best-effort, install is fatal on failure.
 file(
     WRITE "${CMAKE_CURRENT_BINARY_DIR}/deploy_apk.cmake"
     [=[
@@ -351,7 +353,6 @@ if(NOT EXISTS "${APK}")
 endif()
 
 if(BACKEND STREQUAL "waydroid")
-    message(STATUS "starting waydroid session")
     execute_process(
         COMMAND "${WAYDROID_BIN}" session start
         COMMAND_ECHO STDOUT
@@ -375,7 +376,6 @@ else()
     )
 endif()
 
-message(STATUS "removing '${PKG}' via ${BACKEND}")
 execute_process(
     COMMAND ${remove_cmd} "${PKG}"
     COMMAND_ECHO STDOUT
@@ -384,7 +384,6 @@ execute_process(
     COMMAND_ERROR_IS_FATAL NONE
 )
 
-message(STATUS "installing '${APK}' via ${BACKEND}")
 execute_process(
     COMMAND ${install_cmd} "${APK}"
     COMMAND_ECHO STDOUT
