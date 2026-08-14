@@ -168,7 +168,7 @@
 
     move-result-object v0
 
-    invoke-virtual {v0, p1}, Landroid/view/Display;->getRefreshRate()F
+    invoke-virtual {v0}, Landroid/view/Display;->getRefreshRate()F
 
     move-result v0
 
@@ -242,7 +242,7 @@
 
     move-result-object v0
 
-    invoke-virtual {v0, p1}, Landroid/view/Display;->getRefreshRate()F
+    invoke-virtual {v0}, Landroid/view/Display;->getRefreshRate()F
 
     move-result v0
 
