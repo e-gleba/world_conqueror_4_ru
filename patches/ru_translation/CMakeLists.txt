@@ -34,18 +34,24 @@ if(WC4_RU_TARGET_SLOTS STREQUAL "")
     message(FATAL_ERROR "ru_translation: WC4_RU_TARGET_SLOTS is empty")
 endif()
 
+# install(CODE) is a configure-time string: ${CMAKE_INSTALL_PREFIX} (the
+# variant tree) is expanded inline now, while ${CMAKE_CURRENT_LIST_DIR}
+# is left for install time so payload paths resolve against this script.
+# Bracket argument => no \" escaping.
 install(
     CODE
-        "execute_process(
-            COMMAND \"${Python3_EXECUTABLE}\"
-                    \"${CMAKE_CURRENT_SOURCE_DIR}/apply_ru_locale.py\"
-                    --template \"${CMAKE_CURRENT_SOURCE_DIR}/stringtable_ru.ini\"
-                    --title-image \"${CMAKE_CURRENT_SOURCE_DIR}/image/tex_title_hd_ru.webp\"
-                    --lproj \"${CMAKE_CURRENT_SOURCE_DIR}/ru.lproj\"
-                    --assets \"${CMAKE_INSTALL_PREFIX}/assets\"
-                    --replace ${WC4_RU_TARGET_SLOTS}
-                    --lang-name \"${WC4_RU_LANGUAGE_NAME}\"
-            COMMAND_ERROR_IS_FATAL ANY)"
+        [=[
+execute_process(
+    COMMAND "${Python3_EXECUTABLE}"
+            "${CMAKE_CURRENT_LIST_DIR}/apply_ru_locale.py"
+            --template "${CMAKE_CURRENT_LIST_DIR}/stringtable_ru.ini"
+            --title-image "${CMAKE_CURRENT_LIST_DIR}/image/tex_title_hd_ru.webp"
+            --lproj "${CMAKE_CURRENT_LIST_DIR}/ru.lproj"
+            --assets "${CMAKE_INSTALL_PREFIX}/assets"
+            --replace ]=] "${WC4_RU_TARGET_SLOTS}" [=[
+            --lang-name "${WC4_RU_LANGUAGE_NAME}"
+    COMMAND_ERROR_IS_FATAL ANY)
+]=]
 )
 
 # Cyrillic font, two mutually exclusive sources:
@@ -74,11 +80,13 @@ endif()
 if(WC4_RU_FONT_REBUILD AND FONTFORGE_BIN)
     install(
         CODE
-            "execute_process(
-                COMMAND \"${FONTFORGE_BIN}\" -script
-                        \"${CMAKE_CURRENT_SOURCE_DIR}/patch_lang_notosans.py\"
-                        \"${CMAKE_INSTALL_PREFIX}/assets/font/NotoSans_Lang.otf\"
-                COMMAND_ERROR_IS_FATAL ANY)"
+            [=[
+execute_process(
+    COMMAND "]=] "${FONTFORGE_BIN}" [=[" -script
+            "${CMAKE_CURRENT_LIST_DIR}/patch_lang_notosans.py"
+            "]=] "${CMAKE_INSTALL_PREFIX}" [=[/assets/font/NotoSans_Lang.otf"
+    COMMAND_ERROR_IS_FATAL ANY)
+]=]
     )
 else()
     install(FILES font/NotoSans_Lang.otf DESTINATION assets/font)
