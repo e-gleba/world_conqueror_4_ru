@@ -150,6 +150,19 @@ foreach(name IN LISTS wc4_patches)
         set(tree_property wc4_decompiled_stamps)
     endif()
 
+    # git-apply(1): "when running from a subdirectory in a repository,
+    # patched paths outside the directory are ignored" — silently, exit
+    # 0. Both target trees live inside this repo, so diffs must apply in
+    # no-repo (cwd-relative) mode via GIT_CEILING_DIRECTORIES. Ceiling
+    # entries match only STRICT ancestors of the cwd (git path.c,
+    # longest_ancestor_length: "directories are not considered to be
+    # their own ancestors"), so name the tree's PARENT: git checks the
+    # tree itself for .git, then refuses to climb into the repo.
+    # REAL_PATH: git canonicalizes ceiling entries, so match the
+    # physical path that getcwd() returns.
+    cmake_path(GET tree_path PARENT_PATH apply_ceiling)
+    file(REAL_PATH "${apply_ceiling}" apply_ceiling)
+
     # Generate the standalone install script (applied with `cmake -P`).
     set(script "${wc4_patch_gen_dir}/${name}.install.cmake")
     set(
@@ -209,18 +222,13 @@ foreach(name IN LISTS wc4_patches)
             )
         endif()
 
-        # git-apply(1): "when running from a subdirectory in a
-        # repository, patched paths outside the directory are ignored"
-        # — silently, exit 0. The target trees live inside this repo,
-        # so cap repository discovery at the tree root: git runs in
-        # no-repo mode and applies in-patch paths relative to it.
         string(
             APPEND
             body
             "message(STATUS \"[${name}] apply ${src} (-p${strip})\")\n"
             "execute_process(\n"
             "    COMMAND \"${CMAKE_COMMAND}\" -E env\n"
-            "        \"GIT_CEILING_DIRECTORIES=${tree_path}\"\n"
+            "        \"GIT_CEILING_DIRECTORIES=${apply_ceiling}\"\n"
             "        \"${git_bin}\" apply -p${strip} --whitespace=nowarn \"${src_abs}\"\n"
             "    WORKING_DIRECTORY \"${tree_path}\"\n"
             "    COMMAND_ERROR_IS_FATAL ANY\n"
