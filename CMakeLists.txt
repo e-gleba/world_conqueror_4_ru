@@ -16,6 +16,8 @@ set(apk_default_url
 set(apk_input "" CACHE FILEPATH "Path to source .apk (empty = auto-download)")
 set(java_bin "java" CACHE FILEPATH "Java binary")
 set(python3_bin "python3" CACHE FILEPATH "Python 3 binary")
+set(waydroid_bin "waydroid" CACHE FILEPATH "waydroid binary (deploy-waydroid)")
+set(adb_bin "adb" CACHE FILEPATH "adb binary (deploy-adb)")
 
 set(apktool_version "3.0.1" CACHE STRING "apktool version")
 set(uber_signer_version "1.3.0" CACHE STRING "uber-apk-signer version")
@@ -319,6 +321,13 @@ foreach(req IN ITEMS PKG APK BACKEND)
     endif()
 endforeach()
 
+if(NOT DEFINED WAYDROID_BIN OR WAYDROID_BIN STREQUAL "")
+    set(WAYDROID_BIN waydroid)
+endif()
+if(NOT DEFINED ADB_BIN OR ADB_BIN STREQUAL "")
+    set(ADB_BIN adb)
+endif()
+
 if(NOT EXISTS "${APK}")
     message(FATAL_ERROR "APK does not exist: ${APK}")
 endif()
@@ -326,16 +335,16 @@ endif()
 if(BACKEND STREQUAL "waydroid")
     message(STATUS "starting waydroid session")
     execute_process(
-        COMMAND waydroid session start
+        COMMAND "${WAYDROID_BIN}" session start
         COMMAND_ECHO STDOUT
         OUTPUT_QUIET
         ERROR_QUIET
         COMMAND_ERROR_IS_FATAL NONE
     )
-    set(remove_cmd waydroid app remove)
-    set(install_cmd waydroid app install)
+    set(remove_cmd "${WAYDROID_BIN}" app remove)
+    set(install_cmd "${WAYDROID_BIN}" app install)
 elseif(BACKEND STREQUAL "adb")
-    set(adb adb)
+    set(adb "${ADB_BIN}")
     if(DEFINED ADB_SERIAL AND NOT ADB_SERIAL STREQUAL "")
         list(APPEND adb -s "${ADB_SERIAL}")
     endif()
@@ -557,7 +566,8 @@ function(add_deploy_target target backend)
             "${CMAKE_COMMAND}" -E echo "=== deploy ru (${backend}) ==="
         COMMAND
             "${CMAKE_COMMAND}" "-DPKG=com.easytech.wc4" "-DAPK=${signed_ru}"
-            "-DBACKEND=${backend}" "-DADB_SERIAL=${adb_serial}" -P
+            "-DBACKEND=${backend}" "-DADB_SERIAL=${adb_serial}"
+            "-DWAYDROID_BIN=${waydroid_bin}" "-DADB_BIN=${adb_bin}" -P
             "${CMAKE_CURRENT_BINARY_DIR}/deploy_apk.cmake"
         COMMAND
             "${CMAKE_COMMAND}" -E echo ""
@@ -565,7 +575,8 @@ function(add_deploy_target target backend)
             "${CMAKE_COMMAND}" -E echo "=== deploy mod (${backend}) ==="
         COMMAND
             "${CMAKE_COMMAND}" "-DPKG=com.easytech.wc4" "-DAPK=${signed_mod}"
-            "-DBACKEND=${backend}" "-DADB_SERIAL=${adb_serial}" -P
+            "-DBACKEND=${backend}" "-DADB_SERIAL=${adb_serial}"
+            "-DWAYDROID_BIN=${waydroid_bin}" "-DADB_BIN=${adb_bin}" -P
             "${CMAKE_CURRENT_BINARY_DIR}/deploy_apk.cmake"
         COMMAND
             "${CMAKE_COMMAND}" -E echo ""

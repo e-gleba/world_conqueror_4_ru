@@ -67,6 +67,7 @@ cmake --build build --target deploy-waydroid
 | `apktool_version` | `3.0.1` | apktool pin |
 | `uber_signer_version` | `1.3.0` | uber-apk-signer pin |
 | `java_bin` / `python3_bin` | `java` / `python3` | Tool paths |
+| `waydroid_bin` / `adb_bin` | `waydroid` / `adb` | Deploy tool paths |
 | `adb_serial` | default device | adb serial for `deploy-adb` |
 
 ## Scripts

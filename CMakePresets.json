@@ -24,6 +24,14 @@
                     "type": "FILEPATH",
                     "value": "python3"
                 },
+                "waydroid_bin": {
+                    "type": "FILEPATH",
+                    "value": "waydroid"
+                },
+                "adb_bin": {
+                    "type": "FILEPATH",
+                    "value": "adb"
+                },
                 "apk_input": {
                     "$comment": "Leave empty to auto-download original.apk from GitHub release",
                     "type": "FILEPATH",
