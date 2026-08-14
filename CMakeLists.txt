@@ -37,6 +37,11 @@ set(wc4_patches
     CACHE FILEPATH
     "wc4 per-file patch generate/apply script"
 )
+set(waydroid_deploy
+    "${CMAKE_CURRENT_SOURCE_DIR}/scripts/waydroid_deploy.cmake"
+    CACHE FILEPATH
+    "waydroid install script (deploy-waydroid target)"
+)
 set(wc4_header "MD5_SIZE" CACHE STRING "wc4-crypt header format")
 
 set(patches_dir
@@ -79,6 +84,7 @@ foreach(
         wc4_crypt
         wc4_unlock
         wc4_patches
+        waydroid_deploy
         patches_dir
         decompiled_dir
 )
@@ -95,7 +101,7 @@ foreach(
     endif()
 endforeach()
 
-foreach(path_var IN ITEMS wc4_crypt wc4_unlock wc4_patches)
+foreach(path_var IN ITEMS wc4_crypt wc4_unlock wc4_patches waydroid_deploy)
     if(NOT EXISTS "${${path_var}}")
         message(FATAL_ERROR "'${path_var}' does not exist: ${${path_var}}")
     endif()
@@ -123,7 +129,13 @@ function(download_file_if_missing url output)
 endfunction()
 
 if(apk_input STREQUAL "")
-    set(apk_input "${CMAKE_CURRENT_BINARY_DIR}/original.apk")
+    # write the resolved path back to the cache so scripts can read it
+    set(apk_input
+        "${CMAKE_CURRENT_BINARY_DIR}/original.apk"
+        CACHE FILEPATH
+        "Path to source .apk (empty = auto-download)"
+        FORCE
+    )
     if(NOT EXISTS "${apk_input}")
         message(STATUS "apk_input not set => downloading original.apk")
         download_file_if_missing("${apk_default_url}" "${apk_input}")
@@ -158,96 +170,6 @@ if(py_rc)
     )
 endif()
 
-file(
-    WRITE "${CMAKE_CURRENT_BINARY_DIR}/crypt_json.cmake"
-    [=[
-cmake_minimum_required(VERSION 4.2...4.2)
-
-foreach(req IN ITEMS PYTHON3 WCRYPT MODE DIR)
-    if(NOT DEFINED ${req} OR "${${req}}" STREQUAL "")
-        message(FATAL_ERROR "'${req}' is required")
-    endif()
-endforeach()
-
-if(NOT EXISTS "${DIR}")
-    message(FATAL_ERROR "directory does not exist: ${DIR}")
-endif()
-
-file(GLOB json_files LIST_DIRECTORIES FALSE "${DIR}/*.json")
-list(SORT json_files)
-list(LENGTH json_files count)
-
-if(count EQUAL 0)
-    message(WARNING "no .json files in '${DIR}'")
-    return()
-endif()
-
-message(STATUS "${MODE} ${count} .json files in '${DIR}'")
-set(ok 0)
-
-foreach(f IN LISTS json_files)
-    if(MODE STREQUAL "encrypt" AND DEFINED HEADER AND NOT HEADER STREQUAL "")
-        execute_process(
-            COMMAND "${PYTHON3}" "${WCRYPT}" "${MODE}" "${f}" -o "${f}" --header "${HEADER}"
-            COMMAND_ECHO STDOUT
-            COMMAND_ERROR_IS_FATAL ANY
-        )
-    else()
-        execute_process(
-            COMMAND "${PYTHON3}" "${WCRYPT}" "${MODE}" "${f}" -o "${f}"
-            COMMAND_ECHO STDOUT
-            COMMAND_ERROR_IS_FATAL ANY
-        )
-    endif()
-    math(EXPR ok "${ok} + 1")
-endforeach()
-
-message(STATUS "${MODE} done => ${ok}/${count} ok")
-]=]
-)
-
-file(
-    WRITE "${CMAKE_CURRENT_BINARY_DIR}/waydroid_deploy.cmake"
-    [=[
-cmake_minimum_required(VERSION 4.2...4.2)
-
-foreach(req IN ITEMS PKG APK)
-    if(NOT DEFINED ${req} OR "${${req}}" STREQUAL "")
-        message(FATAL_ERROR "'${req}' is required")
-    endif()
-endforeach()
-
-if(NOT EXISTS "${APK}")
-    message(FATAL_ERROR "APK does not exist: ${APK}")
-endif()
-
-message(STATUS "starting waydroid session")
-execute_process(
-    COMMAND waydroid session start
-    COMMAND_ECHO STDOUT
-    OUTPUT_QUIET
-    ERROR_QUIET
-    COMMAND_ERROR_IS_FATAL NONE
-)
-
-message(STATUS "removing '${PKG}'")
-execute_process(
-    COMMAND waydroid app remove "${PKG}"
-    COMMAND_ECHO STDOUT
-    OUTPUT_QUIET
-    ERROR_QUIET
-    COMMAND_ERROR_IS_FATAL NONE
-)
-
-message(STATUS "installing '${APK}'")
-execute_process(
-    COMMAND waydroid app install "${APK}"
-    COMMAND_ECHO STDOUT
-    COMMAND_ERROR_IS_FATAL ANY
-)
-]=]
-)
-
 add_custom_target(
     decompile
     COMMAND
@@ -266,9 +188,9 @@ add_custom_target(
     COMMAND
         "${CMAKE_COMMAND}" -E echo "=== decompile 2/3: decrypt json ==="
     COMMAND
-        "${CMAKE_COMMAND}" "-DPYTHON3=${python3_bin}" "-DWCRYPT=${wc4_crypt}"
-        "-DMODE=decrypt" "-DDIR=${decompiled_dir}/${assets_data_rel}" -P
-        "${CMAKE_CURRENT_BINARY_DIR}/crypt_json.cmake"
+        "${python3_bin}" "${wc4_crypt}" decrypt
+        "${decompiled_dir}/${assets_data_rel}" -o
+        "${decompiled_dir}/${assets_data_rel}" --glob "*.json"
     COMMAND
         "${CMAKE_COMMAND}" -E echo ""
     COMMAND
@@ -298,9 +220,8 @@ add_custom_target(
     COMMAND
         "${java_bin}" -jar "${apktool_jar}" d "${apk_input}" -o "${orig_dir}" -f
     COMMAND
-        "${CMAKE_COMMAND}" "-DPYTHON3=${python3_bin}" "-DWCRYPT=${wc4_crypt}"
-        "-DMODE=decrypt" "-DDIR=${orig_dir}/${assets_data_rel}" -P
-        "${CMAKE_CURRENT_BINARY_DIR}/crypt_json.cmake"
+        "${python3_bin}" "${wc4_crypt}" decrypt "${orig_dir}/${assets_data_rel}"
+        -o "${orig_dir}/${assets_data_rel}" --glob "*.json"
     COMMAND
         "${CMAKE_COMMAND}" -E echo ""
     COMMAND
@@ -351,9 +272,8 @@ add_custom_target(
     COMMAND
         "${java_bin}" -jar "${apktool_jar}" d "${apk_input}" -o "${orig_dir}" -f
     COMMAND
-        "${CMAKE_COMMAND}" "-DPYTHON3=${python3_bin}" "-DWCRYPT=${wc4_crypt}"
-        "-DMODE=decrypt" "-DDIR=${orig_dir}/${assets_data_rel}" -P
-        "${CMAKE_CURRENT_BINARY_DIR}/crypt_json.cmake"
+        "${python3_bin}" "${wc4_crypt}" decrypt "${orig_dir}/${assets_data_rel}"
+        -o "${orig_dir}/${assets_data_rel}" --glob "*.json"
     COMMAND
         "${python3_bin}" "${wc4_patches}" generate "${orig_dir}"
         "${decompiled_dir}" "${patches_dir}/money"
@@ -388,10 +308,9 @@ add_custom_target(
     COMMAND
         "${CMAKE_COMMAND}" -E echo "=== build 5/6: wc4_ru ==="
     COMMAND
-        "${CMAKE_COMMAND}" "-DPYTHON3=${python3_bin}" "-DWCRYPT=${wc4_crypt}"
-        "-DMODE=encrypt" "-DDIR=${stage_ru}/${assets_data_rel}"
-        "-DHEADER=${wc4_header}" -P
-        "${CMAKE_CURRENT_BINARY_DIR}/crypt_json.cmake"
+        "${python3_bin}" "${wc4_crypt}" encrypt "${stage_ru}/${assets_data_rel}"
+        -o "${stage_ru}/${assets_data_rel}" --glob "*.json" --header
+        "${wc4_header}"
     COMMAND
         "${java_bin}" -jar "${apktool_jar}" b "${stage_ru}" -o
         "${apk_ru_unsigned}"
@@ -403,10 +322,9 @@ add_custom_target(
     COMMAND
         "${CMAKE_COMMAND}" -E echo "=== build 6/6: wc4_mod ==="
     COMMAND
-        "${CMAKE_COMMAND}" "-DPYTHON3=${python3_bin}" "-DWCRYPT=${wc4_crypt}"
-        "-DMODE=encrypt" "-DDIR=${stage_mod}/${assets_data_rel}"
-        "-DHEADER=${wc4_header}" -P
-        "${CMAKE_CURRENT_BINARY_DIR}/crypt_json.cmake"
+        "${python3_bin}" "${wc4_crypt}" encrypt "${stage_mod}/${assets_data_rel}"
+        -o "${stage_mod}/${assets_data_rel}" --glob "*.json" --header
+        "${wc4_header}"
     COMMAND
         "${java_bin}" -jar "${apktool_jar}" b "${stage_mod}" -o
         "${apk_mod_unsigned}"
@@ -435,14 +353,14 @@ add_custom_target(
         "${CMAKE_COMMAND}" -E echo "=== deploy-waydroid: wc4_ru ==="
     COMMAND
         "${CMAKE_COMMAND}" "-DPKG=com.easytech.wc4" "-DAPK=${signed_ru}" -P
-        "${CMAKE_CURRENT_BINARY_DIR}/waydroid_deploy.cmake"
+        "${waydroid_deploy}"
     COMMAND
         "${CMAKE_COMMAND}" -E echo ""
     COMMAND
         "${CMAKE_COMMAND}" -E echo "=== deploy-waydroid: wc4_ru_mod ==="
     COMMAND
         "${CMAKE_COMMAND}" "-DPKG=com.easytech.wc4" "-DAPK=${signed_mod}" -P
-        "${CMAKE_CURRENT_BINARY_DIR}/waydroid_deploy.cmake"
+        "${waydroid_deploy}"
     COMMAND
         "${CMAKE_COMMAND}" -E echo ""
     COMMAND
