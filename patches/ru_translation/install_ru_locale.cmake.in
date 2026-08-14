@@ -1,0 +1,11 @@
+# Install-time script for the ru_translation locale step (configured @ONLY@).
+execute_process(
+    COMMAND "@Python3_EXECUTABLE@"
+            "@CMAKE_CURRENT_SOURCE_DIR@/apply_ru_locale.py"
+            --template "@CMAKE_CURRENT_SOURCE_DIR@/stringtable_ru.ini"
+            --title-image "@CMAKE_CURRENT_SOURCE_DIR@/image/tex_title_hd_ru.webp"
+            --lproj "@CMAKE_CURRENT_SOURCE_DIR@/ru.lproj"
+            --assets "@CMAKE_INSTALL_PREFIX@/assets"
+            --replace @WC4_RU_TARGET_SLOTS@
+            --lang-name "@WC4_RU_LANGUAGE_NAME@"
+    COMMAND_ERROR_IS_FATAL ANY)

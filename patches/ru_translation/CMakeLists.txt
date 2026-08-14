@@ -34,25 +34,12 @@ if(WC4_RU_TARGET_SLOTS STREQUAL "")
     message(FATAL_ERROR "ru_translation: WC4_RU_TARGET_SLOTS is empty")
 endif()
 
-# install(CODE) is a configure-time string: ${CMAKE_INSTALL_PREFIX} (the
-# variant tree) is expanded inline now, while ${CMAKE_CURRENT_LIST_DIR}
-# is left for install time so payload paths resolve against this script.
-# Bracket argument => no \" escaping.
-install(
-    CODE
-        [=[
-execute_process(
-    COMMAND "${Python3_EXECUTABLE}"
-            "${CMAKE_CURRENT_LIST_DIR}/apply_ru_locale.py"
-            --template "${CMAKE_CURRENT_LIST_DIR}/stringtable_ru.ini"
-            --title-image "${CMAKE_CURRENT_LIST_DIR}/image/tex_title_hd_ru.webp"
-            --lproj "${CMAKE_CURRENT_LIST_DIR}/ru.lproj"
-            --assets "${CMAKE_INSTALL_PREFIX}/assets"
-            --replace ]=] "${WC4_RU_TARGET_SLOTS}" [=[
-            --lang-name "${WC4_RU_LANGUAGE_NAME}"
-    COMMAND_ERROR_IS_FATAL ANY)
-]=]
-)
+# install(SCRIPT) runs a configured script at install time: @VARS@ are
+# baked in now (configure time), the payload is referenced via the
+# configured source dir. Plain CMake — no install(CODE) escaping.
+set(locale_script "${CMAKE_CURRENT_BINARY_DIR}/install_ru_locale.cmake")
+configure_file(install_ru_locale.cmake.in "${locale_script}" @ONLY)
+install(SCRIPT "${locale_script}")
 
 # Cyrillic font, two mutually exclusive sources:
 #
@@ -78,16 +65,9 @@ if(WC4_RU_FONT_REBUILD)
 endif()
 
 if(WC4_RU_FONT_REBUILD AND FONTFORGE_BIN)
-    install(
-        CODE
-            [=[
-execute_process(
-    COMMAND "]=] "${FONTFORGE_BIN}" [=[" -script
-            "${CMAKE_CURRENT_LIST_DIR}/patch_lang_notosans.py"
-            "]=] "${CMAKE_INSTALL_PREFIX}" [=[/assets/font/NotoSans_Lang.otf"
-    COMMAND_ERROR_IS_FATAL ANY)
-]=]
-    )
+    set(font_script "${CMAKE_CURRENT_BINARY_DIR}/install_ru_font.cmake")
+    configure_file(install_ru_font.cmake.in "${font_script}" @ONLY)
+    install(SCRIPT "${font_script}")
 else()
     install(FILES font/NotoSans_Lang.otf DESTINATION assets/font)
 endif()

@@ -9,16 +9,9 @@ project(wc4_patch_enable_all LANGUAGES NONE)
 
 find_package(Python3 REQUIRED COMPONENTS Interpreter)
 
-# install(CODE) is a configure-time string: ${CMAKE_INSTALL_PREFIX} (the
-# variant tree) is expanded inline now, while ${CMAKE_CURRENT_LIST_DIR}
-# is left for install time so the script path resolves against this file.
-install(
-    CODE
-        [=[
-execute_process(
-    COMMAND "${Python3_EXECUTABLE}"
-            "${CMAKE_CURRENT_LIST_DIR}/wc4_unlock.py"
-            "]=] "${CMAKE_INSTALL_PREFIX}" [=[/assets/data"
-    COMMAND_ERROR_IS_FATAL ANY)
-]=]
-)
+# install(SCRIPT) runs a configured script at install time: @VARS@ are
+# baked in now (configure time), ${CMAKE_CURRENT_LIST_DIR} resolves the
+# payload at install time. Plain CMake — no install(CODE) escaping.
+set(script "${CMAKE_CURRENT_BINARY_DIR}/install_enable_all.cmake")
+configure_file(install_enable_all.cmake.in "${script}" @ONLY)
+install(SCRIPT "${script}")
