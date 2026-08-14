@@ -3,10 +3,13 @@
 # WC4Activity$53 is the TPGDPRListener anonymous class; the patched
 # version turns success()/failed() into immediate no-ops, so startup
 # never blocks on the consent dialog.
+#
+# 1.4.28: payload lives in 1_4_28/. The class moved from smali/ to
+# smali_classes15/ in this version — destination updated accordingly.
 
 wc4_patch_files(
     FILES
-        "WC4Activity$53.smali"
+        "1_4_28/WC4Activity$53.smali"
     DESTINATION
-        smali/com/easytech/wc4/android
+        smali_classes15/com/easytech/wc4/android
 )
