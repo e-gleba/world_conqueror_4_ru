@@ -20,23 +20,11 @@ set(python3_bin "python3" CACHE FILEPATH "Python 3 binary")
 set(apktool_version "3.0.1" CACHE STRING "apktool version")
 set(uber_signer_version "1.3.0" CACHE STRING "uber-apk-signer version")
 
-set(deploy_backend
-    "auto"
-    CACHE STRING
-    "Backend for the 'deploy' target: auto|waydroid|adb"
-)
 set(adb_serial
     ""
     CACHE STRING
-    "adb device serial for deploy (empty = default device)"
+    "adb device serial for deploy-adb (empty = default device)"
 )
-
-if(NOT deploy_backend MATCHES "^(auto|waydroid|adb)$")
-    message(
-        FATAL_ERROR
-        "deploy_backend must be one of: auto, waydroid, adb (got '${deploy_backend}')"
-    )
-endif()
 
 set(wc4_crypt
     "${CMAKE_CURRENT_SOURCE_DIR}/scripts/wc4_crypt.py"
@@ -335,30 +323,6 @@ if(NOT EXISTS "${APK}")
     message(FATAL_ERROR "APK does not exist: ${APK}")
 endif()
 
-if(BACKEND STREQUAL "auto")
-    execute_process(
-        COMMAND adb devices
-        OUTPUT_VARIABLE adb_devices_out
-        ERROR_QUIET
-        RESULT_VARIABLE adb_rc
-        COMMAND_ERROR_IS_FATAL NONE
-    )
-    if(NOT adb_rc AND adb_devices_out MATCHES "[ \t]device\r?\n")
-        set(BACKEND adb)
-    else()
-        find_program(waydroid_bin waydroid)
-        if(waydroid_bin)
-            set(BACKEND waydroid)
-        else()
-            message(
-                FATAL_ERROR
-                "no deploy backend: no adb device attached, 'waydroid' not in PATH"
-            )
-        endif()
-    endif()
-    message(STATUS "auto deploy backend => ${BACKEND}")
-endif()
-
 if(BACKEND STREQUAL "waydroid")
     message(STATUS "starting waydroid session")
     execute_process(
@@ -380,7 +344,7 @@ elseif(BACKEND STREQUAL "adb")
 else()
     message(
         FATAL_ERROR
-        "unknown BACKEND: '${BACKEND}' (expected auto|waydroid|adb)"
+        "unknown BACKEND: '${BACKEND}' (expected waydroid|adb)"
     )
 endif()
 
@@ -615,6 +579,5 @@ function(add_deploy_target target backend)
     add_dependencies(${target} build)
 endfunction()
 
-add_deploy_target(deploy "${deploy_backend}")
 add_deploy_target(deploy-waydroid waydroid)
 add_deploy_target(deploy-adb adb)
