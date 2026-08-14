@@ -13,7 +13,7 @@ body:
     attributes:
       label: Pipeline stage
       description: Where it fails — CMake target, script, or in-game
-      placeholder: "e.g. decompile, sync, build, deploy, wc4_crypt.py, in-game"
+      placeholder: "e.g. decompile, sync, build, deploy-waydroid, wc4_crypt.py, in-game"
     validations:
       required: true
   - type: input

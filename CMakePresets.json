@@ -24,9 +24,22 @@
                     "type": "FILEPATH",
                     "value": "python3"
                 },
+                "waydroid_bin": {
+                    "type": "FILEPATH",
+                    "value": "waydroid"
+                },
+                "adb_bin": {
+                    "type": "FILEPATH",
+                    "value": "adb"
+                },
                 "apk_input": {
                     "$comment": "Leave empty to auto-download original.apk from GitHub release",
                     "type": "FILEPATH",
+                    "value": ""
+                },
+                "adb_serial": {
+                    "$comment": "adb device serial for deploy-adb — empty uses the default/only device",
+                    "type": "STRING",
                     "value": ""
                 }
             }
@@ -61,12 +74,21 @@
             ]
         },
         {
-            "name": "deploy",
+            "name": "deploy-waydroid",
             "displayName": "Deploy to Waydroid",
             "description": "Install both signed APKs via waydroid",
             "configurePreset": "default",
             "targets": [
-                "deploy"
+                "deploy-waydroid"
+            ]
+        },
+        {
+            "name": "deploy-adb",
+            "displayName": "Deploy via adb",
+            "description": "Install both signed APKs via adb (set adb_serial to pick a device)",
+            "configurePreset": "default",
+            "targets": [
+                "deploy-adb"
             ]
         }
     ],
@@ -86,7 +108,7 @@
                 },
                 {
                     "type": "build",
-                    "name": "deploy"
+                    "name": "deploy-waydroid"
                 }
             ]
         }
