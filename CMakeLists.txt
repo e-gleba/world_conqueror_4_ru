@@ -10,7 +10,7 @@ project(
 )
 
 set(apk_default_url
-    "https://github.com/e-gleba/world_conqueror_4_ru/releases/download/v1.24.2_ru/original.apk"
+    "https://github.com/e-gleba/world_conqueror_4_ru/releases/download/v1.24.2_ru/original_5play_mod.apk"
 )
 
 set(apk_input "" CACHE FILEPATH "Path to source .apk (empty = auto-download)")
