@@ -396,6 +396,8 @@ execute_process(
 # Pipeline artifacts are real files tracked by the generator: each step
 # reruns only when its inputs changed. Directory trees are tracked via
 # stamp files + CONFIGURE_DEPENDS globs. Delete build/ to force everything.
+# Progress text lives in COMMENT (printed by the generator per build edge),
+# not in manual echo commands.
 file(
     GLOB_RECURSE decompiled_files
     CONFIGURE_DEPENDS
@@ -412,10 +414,6 @@ file(
 add_custom_command(
     OUTPUT "${stamp_decompiled}"
     COMMAND
-        "${CMAKE_COMMAND}" -E echo ""
-    COMMAND
-        "${CMAKE_COMMAND}" -E echo "=== decompile 1/3: apktool d ==="
-    COMMAND
         "${CMAKE_COMMAND}" -E rm -rf "${decompiled_dir}"
     COMMAND
         "${CMAKE_COMMAND}" -E make_directory "${decompiled_dir}"
@@ -423,36 +421,29 @@ add_custom_command(
         "${java_bin}" -jar "${apktool_jar}" d "${apk_input}" -o
         "${decompiled_dir}" -f
     COMMAND
-        "${CMAKE_COMMAND}" -E echo "=== decompile 2/3: decrypt json ==="
-    COMMAND
         "${CMAKE_COMMAND}" "-DPYTHON3=${python3_bin}" "-DWCRYPT=${wc4_crypt}"
         "-DMODE=decrypt" "-DDIR=${decompiled_dir}/${assets_data_rel}" -P
         "${CMAKE_CURRENT_BINARY_DIR}/crypt_json.cmake"
-    COMMAND
-        "${CMAKE_COMMAND}" -E echo "=== decompile 3/3: overlay diff/ ==="
     COMMAND
         "${CMAKE_COMMAND}" -E make_directory "${diff_dir}"
     COMMAND
         "${CMAKE_COMMAND}" -E copy_directory "${diff_dir}" "${decompiled_dir}"
     COMMAND
         "${CMAKE_COMMAND}" -E touch "${stamp_decompiled}"
-    COMMAND
-        "${CMAKE_COMMAND}" -E echo
-        "=== decompile complete => '${decompiled_dir}' ==="
     DEPENDS
         "${apk_input}"
         "${apktool_jar}"
         "${wc4_crypt}"
         "${CMAKE_CURRENT_BINARY_DIR}/crypt_json.cmake"
         ${diff_overlay_files}
+    COMMENT
+        "decompile => decompiled/ (apktool d + decrypt json + overlay diff/)"
     USES_TERMINAL
     VERBATIM
 )
 
 add_custom_command(
     OUTPUT "${stamp_orig}"
-    COMMAND
-        "${CMAKE_COMMAND}" -E echo "=== baseline: apktool d => orig/ ==="
     COMMAND
         "${CMAKE_COMMAND}" -E rm -rf "${orig_dir}"
     COMMAND
@@ -468,6 +459,8 @@ add_custom_command(
         "${apktool_jar}"
         "${wc4_crypt}"
         "${CMAKE_CURRENT_BINARY_DIR}/crypt_json.cmake"
+    COMMENT
+        "baseline: apktool d => orig/ (+ decrypt json)"
     USES_TERMINAL
     VERBATIM
 )
@@ -476,8 +469,6 @@ add_custom_command(
 # Encryption happens only in the throwaway build_*/ trees below.
 add_custom_command(
     OUTPUT "${stamp_stage_mod}"
-    COMMAND
-        "${CMAKE_COMMAND}" -E echo "=== stage_mod: copy + unlock ==="
     COMMAND
         "${CMAKE_COMMAND}" -E rm -rf "${stage_mod}"
     COMMAND
@@ -489,15 +480,14 @@ add_custom_command(
     DEPENDS
         "${wc4_unlock}"
         ${decompiled_files}
+    COMMENT
+        "stage_mod: copy decompiled/ + apply unlock"
     USES_TERMINAL
     VERBATIM
 )
 
 add_custom_command(
     OUTPUT "${stamp_diff_mod}"
-    COMMAND
-        "${CMAKE_COMMAND}" -E echo
-        "=== audit: stage_mod vs decompiled => diff_mod/ ==="
     COMMAND
         "${CMAKE_COMMAND}" "-DSRC=${stage_mod}" "-DORIG=${decompiled_dir}"
         "-DDIFF=${diff_mod_dir}" -P
@@ -507,15 +497,14 @@ add_custom_command(
     DEPENDS
         "${stamp_stage_mod}"
         "${CMAKE_CURRENT_BINARY_DIR}/diff_sync.cmake"
+    COMMENT
+        "audit: stage_mod vs decompiled/ => diff_mod/"
     USES_TERMINAL
     VERBATIM
 )
 
 add_custom_command(
     OUTPUT "${signed_ru}"
-    COMMAND
-        "${CMAKE_COMMAND}" -E echo
-        "=== wc4_ru: stage + encrypt + build + sign ==="
     COMMAND
         "${CMAKE_COMMAND}" -E rm -rf "${build_ru_dir}"
     COMMAND
@@ -538,15 +527,14 @@ add_custom_command(
         "${apktool_jar}"
         "${signer_jar}"
         ${decompiled_files}
+    COMMENT
+        "wc4_ru: encrypt + apktool b + sign => wc4_ru-aligned-debugSigned.apk"
     USES_TERMINAL
     VERBATIM
 )
 
 add_custom_command(
     OUTPUT "${signed_mod}"
-    COMMAND
-        "${CMAKE_COMMAND}" -E echo
-        "=== wc4_ru_mod: stage + encrypt + build + sign ==="
     COMMAND
         "${CMAKE_COMMAND}" -E rm -rf "${build_mod_dir}"
     COMMAND
@@ -568,6 +556,8 @@ add_custom_command(
         "${CMAKE_CURRENT_BINARY_DIR}/crypt_json.cmake"
         "${apktool_jar}"
         "${signer_jar}"
+    COMMENT
+        "wc4_ru_mod: encrypt + apktool b + sign => wc4_ru_mod-aligned-debugSigned.apk"
     USES_TERMINAL
     VERBATIM
 )
@@ -582,16 +572,10 @@ add_custom_target(
         "${stamp_orig}"
         "${stamp_diff_mod}"
     COMMAND
-        "${CMAKE_COMMAND}" -E echo "=== sync: decompiled/ => diff/ ==="
-    COMMAND
         "${CMAKE_COMMAND}" "-DSRC=${decompiled_dir}" "-DORIG=${orig_dir}"
         "-DDIFF=${diff_dir}" -P "${CMAKE_CURRENT_BINARY_DIR}/diff_sync.cmake"
-    COMMAND
-        "${CMAKE_COMMAND}" -E echo "=== sync complete ==="
-    COMMAND
-        "${CMAKE_COMMAND}" -E echo "  diff     => '${diff_dir}'"
-    COMMAND
-        "${CMAKE_COMMAND}" -E echo "  diff_mod => '${diff_mod_dir}'"
+    COMMENT
+        "persist decompiled/ edits => diff/ overlay"
     USES_TERMINAL
     VERBATIM
 )
@@ -604,8 +588,6 @@ add_custom_target(
         "${signed_ru}"
         "${signed_mod}"
     COMMAND
-        "${CMAKE_COMMAND}" -E echo "=== sync: decompiled/ => diff/ ==="
-    COMMAND
         "${CMAKE_COMMAND}" "-DSRC=${decompiled_dir}" "-DORIG=${orig_dir}"
         "-DDIFF=${diff_dir}" -P "${CMAKE_CURRENT_BINARY_DIR}/diff_sync.cmake"
     COMMAND
@@ -614,6 +596,8 @@ add_custom_target(
         "${CMAKE_COMMAND}" -E echo "  ${signed_ru}"
     COMMAND
         "${CMAKE_COMMAND}" -E echo "  ${signed_mod}"
+    COMMENT
+        "persist decompiled/ edits => diff/ overlay"
     USES_TERMINAL
     VERBATIM
 )
@@ -622,29 +606,17 @@ function(add_deploy_target target backend)
     add_custom_target(
         ${target}
         COMMAND
-            "${CMAKE_COMMAND}" -E echo ""
-        COMMAND
-            "${CMAKE_COMMAND}" -E echo "=== deploy ru (${backend}) ==="
-        COMMAND
             "${CMAKE_COMMAND}" "-DPKG=com.easytech.wc4" "-DAPK=${signed_ru}"
             "-DBACKEND=${backend}" "-DADB_SERIAL=${adb_serial}"
             "-DWAYDROID_BIN=${waydroid_bin}" "-DADB_BIN=${adb_bin}" -P
             "${CMAKE_CURRENT_BINARY_DIR}/deploy_apk.cmake"
         COMMAND
-            "${CMAKE_COMMAND}" -E echo ""
-        COMMAND
-            "${CMAKE_COMMAND}" -E echo "=== deploy mod (${backend}) ==="
-        COMMAND
             "${CMAKE_COMMAND}" "-DPKG=com.easytech.wc4" "-DAPK=${signed_mod}"
             "-DBACKEND=${backend}" "-DADB_SERIAL=${adb_serial}"
             "-DWAYDROID_BIN=${waydroid_bin}" "-DADB_BIN=${adb_bin}" -P
             "${CMAKE_CURRENT_BINARY_DIR}/deploy_apk.cmake"
-        COMMAND
-            "${CMAKE_COMMAND}" -E echo ""
-        COMMAND
-            "${CMAKE_COMMAND}" -E echo "=== deploy complete (${backend}) ==="
-        COMMAND
-            "${CMAKE_COMMAND}" -E echo ""
+        COMMENT
+            "install both APKs via ${backend}"
         USES_TERMINAL
         VERBATIM
     )
