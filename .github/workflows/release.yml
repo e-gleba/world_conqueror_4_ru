@@ -141,9 +141,15 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+          # both artifacts are named wc4_wc4-...; rename per variant
+          mv dist/wc4-mod-aligned-debugSigned/wc4_wc4-aligned-debugSigned.apk \
+             dist/wc4-mod-aligned-debugSigned/wc4_mod-aligned-debugSigned.apk
+          mv dist/wc4-clean-aligned-debugSigned/wc4_wc4-aligned-debugSigned.apk \
+             dist/wc4-clean-aligned-debugSigned/wc4_clean-aligned-debugSigned.apk
           git tag -a ${{ inputs.version }} -m "Release ${{ inputs.version }}"
           git push origin ${{ inputs.version }}
           gh release create ${{ inputs.version }} \
             --generate-notes \
             --title "${{ inputs.version }}" \
-            dist/wc4_wc4-aligned-debugSigned.apk
+            dist/wc4-mod-aligned-debugSigned/wc4_mod-aligned-debugSigned.apk \
+            dist/wc4-clean-aligned-debugSigned/wc4_clean-aligned-debugSigned.apk
