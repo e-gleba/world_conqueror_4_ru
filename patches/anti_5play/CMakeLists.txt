@@ -5,7 +5,7 @@
 
 wc4_patch_files(
     FILES
-        smali_classes5/com/fiveplay/mod/RMS/Recovery.smali
+        Recovery.smali
     DESTINATION
         smali_classes5/com/fiveplay/mod/RMS
 )

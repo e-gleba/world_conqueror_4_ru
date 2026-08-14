@@ -13,7 +13,7 @@ wc4_patch_files(
 
 wc4_patch_files(
     FILES
-        smali/com/easytech/wc4/android/WC4Activity.smali
+        WC4Activity.smali
     DESTINATION
         smali/com/easytech/wc4/android
 )
