@@ -87,6 +87,14 @@ jobs:
               cmake --build build --target build
             '
 
+      - name: Run patch tests (ctest)
+        run: |
+          docker run --rm \
+            -v "${{ github.workspace }}:/workspace" \
+            -w /workspace \
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest \
+            ctest --test-dir build --output-on-failure
+
       - name: Validate APK outputs
         run: |
           ls -la build/*.apk

@@ -324,6 +324,14 @@ add_custom_command(
     VERBATIM
 )
 
+# ctest-based patch validation: patch manifests register their tests
+# (see patches/ru_translation). Run with: ctest --test-dir build
+option(BUILD_TESTING "enable ctest tests (patch validation)" ON)
+
+if(BUILD_TESTING)
+    enable_testing()
+endif()
+
 # Named patches: each patches/<name>/CMakeLists.txt manifest declares
 # install rules; the framework generates one `cmake -P` install script
 # per patch and registers its stamp in wc4_decompiled_stamps /

@@ -92,6 +92,20 @@
             ]
         }
     ],
+    "testPresets": [
+        {
+            "name": "default",
+            "displayName": "Patch tests",
+            "description": "ctest patch validation — build the decompile + patches targets first",
+            "configurePreset": "default",
+            "output": {
+                "outputOnFailure": true
+            },
+            "execution": {
+                "noTestsAction": "error"
+            }
+        }
+    ],
     "workflowPresets": [
         {
             "$comment": "Full pipeline: configure once, then build + deploy",

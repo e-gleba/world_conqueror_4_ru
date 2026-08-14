@@ -56,10 +56,8 @@ Each patch is a directory under `patches/` with a `CMakeLists.txt` **manifest** 
 
 | Patch | Installs | Destination | Effect |
 | --- | --- | --- | --- |
-| `ru_translation` | `stringtable_*.ini` ×7 | `assets/` | RU localization |
-| | `de.lproj/InfoPlist.strings` | `assets/de.lproj/` | locale plist |
+| `ru_translation` | `stringtable_ru.ini` template → `stringtable_<slot>.ini`, `ru.lproj/` → `<slot>.lproj/`, `tex_title_hd_ru.webp` → `tex_title_hd_<slot>.webp` (`-Dwc4_ru_target_slots`, default `de`; every stringtable gets `lang_<slot>=Русский`) | `assets/` | RU localization |
 | | `font/NotoSans_Lang.otf` | `assets/font/` | cyrillic font (pre-patched; `-Dwc4_ru_font_rebuild=ON` rebuilds glyphs via fontforge) |
-| | `image/tex_title_hd_de.webp` | `assets/image/` | title art |
 | `anti_gdpr` | `WC4Activity$53.smali` | `smali/com/easytech/wc4/android/` | no-op TradPlus GDPR consent callback |
 | `anti_5play` | `Recovery.smali` | `smali_classes5/com/fiveplay/mod/RMS/` | 5play recovery hook just restarts the game |
 | `anti_save` | `AndroidManifest.xml` | `.` (apk root) | `MANAGE_EXTERNAL_STORAGE` permission |
@@ -67,6 +65,18 @@ Each patch is a directory under `patches/` with a `CMakeLists.txt` **manifest** 
 | `enable_all` | — (script patch) | `stage_mod/` tree | runs `wc4_unlock.py` on the mod-variant data |
 
 Per-patch targets exist as `patch-<name>`; the aggregate `patches` target applies every `decompiled/` patch. `enable_all` targets the `stage_mod/` tree instead — it is copied from the fully patched `decompiled/` first, so the plain `wc4_ru` APK never sees it.
+
+## Tests
+
+Patch validation runs through **ctest** (on by default via `-DBUILD_TESTING=ON`):
+
+```bash
+# tests read the patched tree — build it first
+cmake --build build --target decompile patches
+ctest --test-dir build --output-on-failure   # or: ctest --preset default
+```
+
+`ru_translation_stringtable_parity` verifies that every hijacked slot table (`-Dwc4_ru_target_slots`) mirrors the RU template exactly — entry counts and key sets only, never values. The remaining stock tables are compared too, but their key drift is printed as informational key-only hints: stock locales legitimately diverge upstream (cn carries anti-addiction keys, de uses `dialogue_2297` where the others use `dialogue_2301`). CI runs it after every build.
 
 ## Saves
 
