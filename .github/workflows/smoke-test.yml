@@ -45,17 +45,30 @@ jobs:
         run: |
           APK=$(ls apks/*.apk | head -1)
           echo "Installing: $APK"
-          waydroid app remove com.easytech.wc4 || true
+          waydroid app remove com.easytech.wc4.android || true
           waydroid app install "$APK"
 
       - name: Launch & 10-second crash watch
         run: |
+          PKG=com.easytech.wc4.android
+          adb shell am force-stop "$PKG" || true
           adb logcat -c || true
-          adb shell am start -n com.easytech.wc4/android.app.NativeActivity || \
-          adb shell am start -n com.easytech.wc4/com.easytech.wc4.android.WC4Activity || true
-          echo "⏳ Watching logcat for 10 seconds..."
-          sleep 10
-          adb logcat -d -s AndroidRuntime:E DEBUG:E AndroidRuntime:D '*:S' > crash.log || true
+          # Explicit component, same as cmake/deploy_apk.cmake. No
+          # '|| true': an unresolvable component fails the step.
+          adb shell am start -W -a android.intent.action.MAIN \
+            -c android.intent.category.LAUNCHER -n "$PKG/.WC4Activity"
+          PID=$(adb shell pidof "$PKG" 2>/dev/null | tr -d '\r' || true)
+          echo "⏳ Watching logcat for 10 seconds (pid: ${PID:-none — app died at launch})..."
+          if [ -n "$PID" ]; then
+            # app-scoped: only the game's process
+            timeout 10 adb logcat -v time --pid "$PID" > crash.log || true
+          else
+            # instant crash: the buffer was cleared pre-launch, so it only
+            # holds the launch window — keep the app's / crash lines
+            timeout 10 adb logcat -v time 2>&1 | \
+              grep -E "$PKG|AndroidRuntime|FATAL|DEBUG|libc|ActivityManager" \
+              > crash.log || true
+          fi
 
       - name: Analyze logcat for crashes
         run: |

@@ -120,31 +120,62 @@ if(pid_rc EQUAL 0 AND pid MATCHES "^[0-9]+$")
     set(log_pid --pid "${pid}")
     set(scope "pid ${pid}")
 else()
-    # App died before we could grab a PID (instant crash) — fall back to a
-    # package-scoped dump so the crash lines are still visible.
+    # App died before we could grab a PID (instant crash). The buffer was
+    # cleared right before launch, so a full capture still holds only the
+    # launch window; lines are post-filtered to the app + crash channels
+    # below.
     set(log_pid)
     set(scope "package ${PKG} (no live pid)")
 endif()
 message(STATUS "watching ${scope}")
 
+# App-scope line filter for the no-pid fallback: lines mentioning the
+# package or a crash channel (AndroidRuntime = Java crashes, DEBUG/libc =
+# native crashes, ActivityManager = ANR / force-close).
+set(app_line_regex
+    "[^\n]*(${PKG}|AndroidRuntime|FATAL|DEBUG|libc|ActivityManager)[^\n]*")
+
 # --- log watch --------------------------------------------------------------
 
 if(DEBUG)
-    # infinite tail — Ctrl+C to stop
-    execute_process(
-        COMMAND ${adb} logcat -v time ${log_pid}
-        COMMAND_ECHO STDOUT)
+    if(log_pid)
+        # infinite PID-scoped tail — Ctrl+C to stop
+        execute_process(
+            COMMAND ${adb} logcat -v time ${log_pid}
+            COMMAND_ECHO STDOUT)
+    else()
+        # No live process to tail — an infinite UNFILTERED tail is
+        # useless. Dump the post-launch buffer once, app-scoped.
+        execute_process(
+            COMMAND ${adb} logcat -d -v time
+            OUTPUT_VARIABLE log
+            ERROR_VARIABLE log
+            COMMAND_ERROR_IS_FATAL NONE)
+        string(REGEX MATCHALL "${app_line_regex}" log_lines "${log}")
+        string(REPLACE ";" "\n" log "${log_lines}")
+        message(STATUS "app log after failed launch:\n${log}")
+    endif()
     return()
 endif()
 
-# bounded watch (CI-style): capture TIMEOUT seconds of logcat, then scan
+# Bounded watch (CI-style): stream logcat and kill it after TIMEOUT
+# seconds via execute_process(TIMEOUT) — the timeout kill is the normal
+# exit path. `logcat -t N` is NOT a time window: it dumps the last N
+# *lines* and exits immediately, so it cannot be used here.
 message(STATUS "watching logcat for ${TIMEOUT}s (DEBUG=OFF)")
 execute_process(
-    COMMAND ${adb} logcat -v time ${log_pid} -t "${TIMEOUT}"
-    COMMAND_ECHO STDOUT
+    COMMAND ${adb} logcat -v time ${log_pid}
     OUTPUT_VARIABLE log
     ERROR_VARIABLE log
+    RESULT_VARIABLE log_rc
+    TIMEOUT ${TIMEOUT}
     COMMAND_ERROR_IS_FATAL NONE)
+
+if(NOT log_pid)
+    # Device-wide capture (no live pid): keep only the app's lines.
+    string(REGEX MATCHALL "${app_line_regex}" log_lines "${log}")
+    string(REPLACE ";" "\n" log "${log_lines}")
+endif()
 
 if(log MATCHES "FATAL EXCEPTION|AndroidRuntime|Fatal signal|ANR in ${PKG}")
     message(
