@@ -1,172 +1,135 @@
 #!/usr/bin/env python3
-"""Convert the diff/ and diff_mod/ full-file overlays into reviewable patches.
+"""One-shot migration: diff/ + diff_mod/ full-file overlays -> patches/.
 
-For every file in an overlay, emits one git-apply-able .patch (unified diff
-against the pristine baseline) under patches/, mirroring the relative path:
+  1. cmake configure (extra args are forwarded, e.g. -Dapk_input=wc4.apk)
+  2. rebuild the pristine baseline build/orig/ (apktool d + decrypt)
+  3. materialize decompiled/ (orig + diff/) and a mod stage (+ diff_mod/)
+  4. regenerate patches/money/ and patches/money_and_assets/ from them
+  5. verify the generated patches reproduce both trees exactly
+  6. remove diff/ and diff_mod/
 
-    patches/money/             <- diff/     vs build/orig/  (wc4_ru variant)
-    patches/money_and_assets/  <- diff_mod/ vs decompiled/  (wc4_ru_mod variant)
+Git is never touched — review `git status` and commit yourself.
 
-Prerequisite (creates the baselines and refreshes both overlays):
-
-    cmake --preset default
-    cmake --build build --target decompile
-    cmake --build build --target sync
-
-Then regenerate patches/ from scratch:
-
-    python3 migrate.py
+Usage: python3 migrate.py [-Dapk_input=/path/to/wc4.apk]
 """
 
 from __future__ import annotations
 
-import os
 import shutil
 import subprocess
 import sys
 from pathlib import Path
 
 repo_root = Path(__file__).resolve().parent
+build_dir = repo_root / "build"
+orig_dir = build_dir / "orig"
+decompiled_dir = repo_root / "decompiled"
+mod_stage_dir = build_dir / "migrate_mod"
 patches_dir = repo_root / "patches"
-
-# (patch group, overlay with full files, pristine baseline to diff against)
-jobs = [
-    ("money", "diff", "build/orig"),
-    ("money_and_assets", "diff_mod", "decompiled"),
-]
+diff_dir = repo_root / "diff"
+diff_mod_dir = repo_root / "diff_mod"
+wc4_patches = repo_root / "scripts" / "wc4_patches.py"
+wc4_crypt = repo_root / "scripts" / "wc4_crypt.py"
 
 
-def git_diff(old: Path | None, new: Path) -> str:
-    """Unified git diff old -> new ('old=None' means the file is new).
+def run(cmd: list, quiet: bool = False) -> None:
+    if not quiet:
+        print(f"+ {' '.join(str(c) for c in cmd)}")
+    proc = subprocess.run([str(c) for c in cmd], cwd=repo_root)
+    if proc.returncode != 0:
+        sys.exit(f"error: command failed with code {proc.returncode}")
 
-    Returns an empty string when both files are identical.
-    """
-    cmd = ["git", "diff", "--no-index", "--binary", "--"]
-    cmd.append(os.devnull if old is None else str(old))
-    cmd.append(str(new))
+
+def cmake_cache(var: str) -> str | None:
+    cache = build_dir / "CMakeCache.txt"
+    if not cache.exists():
+        return None
+    for line in cache.read_text(encoding="utf-8").splitlines():
+        if line.startswith(f"{var}:"):
+            return line.split("=", 1)[1]
+    return None
+
+
+def trees_identical(a: Path, b: Path) -> bool:
     proc = subprocess.run(
-        cmd,
+        ["git", "diff", "--no-index", "--quiet", "--", str(a), str(b)],
         cwd=repo_root,
-        capture_output=True,
-        text=True,
-        encoding="utf-8",
-        errors="surrogateescape",
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
     )
-    if proc.returncode == 0:
-        return ""
-    if proc.returncode != 1:
-        raise RuntimeError(f"git diff failed for '{new}':\n{proc.stderr}")
-    return proc.stdout
-
-
-def rebase_paths(patch: str, rel: str, is_new: bool) -> str:
-    """Point patch headers at a/<rel> / b/<rel> so `git apply -p1` works.
-
-    Only the header block is rewritten; hunk bodies may legitimately contain
-    lines starting with '--- ' (a removed '-- ...' line), so rewriting stops
-    after the '+++ ' line.
-    """
-    out = []
-    in_header = True
-    for line in patch.splitlines(keepends=True):
-        if in_header and line.startswith("diff --git "):
-            line = f"diff --git a/{rel} b/{rel}\n"
-        elif in_header and line.startswith("--- "):
-            line = "--- /dev/null\n" if is_new else f"--- a/{rel}\n"
-        elif in_header and line.startswith("+++ "):
-            line = f"+++ b/{rel}\n"
-            in_header = False
-        out.append(line)
-    return "".join(out)
-
-
-def migrate(group: str, overlay: Path, baseline: Path) -> int:
-    """Diff every overlay file against the baseline; return patch count."""
-    count = 0
-    for src in sorted(overlay.rglob("*")):
-        if not src.is_file():
-            continue
-        rel = src.relative_to(overlay).as_posix()
-        old = baseline / rel
-        patch = git_diff(old if old.exists() else None, src)
-        if not patch:
-            print(f"warning: no changes, skipped: {overlay.name}/{rel}")
-            continue
-        out = patches_dir / group / f"{rel}.patch"
-        out.parent.mkdir(parents=True, exist_ok=True)
-        out.write_text(
-            rebase_paths(patch, rel, is_new=not old.exists()),
-            encoding="utf-8",
-            errors="surrogateescape",
-        )
-        print(f"  {group}/{rel}.patch")
-        count += 1
-    return count
-
-
-def write_readme(counts: dict[str, int]) -> None:
-    lines = [
-        "# patches/",
-        "",
-        "Generated by `migrate.py` — do not edit by hand, regenerate:",
-        "",
-        "```bash",
-        "cmake --preset default",
-        "cmake --build build --target decompile",
-        "cmake --build build --target sync",
-        "python3 migrate.py",
-        "```",
-        "",
-        "| group | overlay | baseline | apk variant | patches |",
-        "|---|---|---|---|---|",
-        f"| `money/` | `diff/` | `build/orig/` | `wc4_ru` | {counts['money']} |",
-        f"| `money_and_assets/` | `diff_mod/` | `decompiled/` | `wc4_ru_mod` | {counts['money_and_assets']} |",
-        "",
-        "`money/` = 5play money-mod base + Russian translation + 5play debloat.",
-        "`money_and_assets/` = `money/` + game-data hacks (unlocks, damage, ...).",
-        "",
-        "## Apply",
-        "",
-        "```bash",
-        "# money/ applies onto a pristine decompile:",
-        "find patches/money -name '*.patch' -exec git -C build/orig apply \"$PWD/{}\" \\;",
-        "",
-        "# money_and_assets/ applies on top of the ru tree:",
-        "find patches/money_and_assets -name '*.patch' -exec git -C decompiled apply \"$PWD/{}\" \\;",
-        "```",
-        "",
-    ]
-    (patches_dir / "readme.md").write_text("\n".join(lines), encoding="utf-8")
+    return proc.returncode == 0
 
 
 def main() -> int:
-    for group, overlay, baseline in jobs:
-        if not (repo_root / overlay).is_dir():
-            print(
-                f"error: '{overlay}/' not found — run from the repo root",
-                file=sys.stderr,
-            )
-            return 1
-        if not (repo_root / baseline).is_dir():
-            print(
-                f"error: baseline '{baseline}/' not found for '{group}'\n"
-                "  fix: cmake --preset default"
-                " && cmake --build build --target sync",
-                file=sys.stderr,
-            )
-            return 1
+    if not diff_dir.is_dir() and not diff_mod_dir.is_dir():
+        sys.exit("error: diff/ and diff_mod/ not found — already migrated?")
 
-    if patches_dir.exists():
-        shutil.rmtree(patches_dir)
-    patches_dir.mkdir()
+    print("== 1/6: cmake configure ==")
+    run(["cmake", "--preset", "default", *sys.argv[1:]])
 
-    counts = {}
-    for group, overlay, baseline in jobs:
-        print(f"{group}: {overlay}/ vs {baseline}/")
-        counts[group] = migrate(group, repo_root / overlay, repo_root / baseline)
+    apk = cmake_cache("apk_input")
+    if not apk or not Path(apk).exists():
+        sys.exit("error: apk_input not found — pass -Dapk_input=<path to .apk>")
+    jars = sorted((build_dir / "tools").glob("apktool_*.jar"))
+    if not jars:
+        sys.exit("error: apktool jar not found under build/tools/")
 
-    write_readme(counts)
-    print(f"\ndone => 'patches/' ({sum(counts.values())} patches + readme.md)")
+    print("== 2/6: pristine baseline build/orig/ ==")
+    run([cmake_cache("java_bin") or "java", "-jar", jars[-1], "d", apk, "-o", orig_dir, "-f"])
+    jsons = sorted((orig_dir / "assets" / "data").glob("*.json"))
+    print(f"decrypt {len(jsons)} .json files in '{orig_dir}/assets/data'")
+    for j in jsons:
+        run([sys.executable, wc4_crypt, "decrypt", j, "-o", j], quiet=True)
+
+    print("== 3/6: materialize trees ==")
+    if decompiled_dir.exists():
+        print(f"warning: rebuilding '{decompiled_dir}' from build/orig/ + diff/")
+        print("         unsynced scratch edits in decompiled/ will be lost")
+        shutil.rmtree(decompiled_dir)
+    shutil.copytree(orig_dir, decompiled_dir)
+    if diff_dir.is_dir():
+        shutil.copytree(diff_dir, decompiled_dir, dirs_exist_ok=True)
+    if mod_stage_dir.exists():
+        shutil.rmtree(mod_stage_dir)
+    shutil.copytree(decompiled_dir, mod_stage_dir)
+    if diff_mod_dir.is_dir():
+        shutil.copytree(diff_mod_dir, mod_stage_dir, dirs_exist_ok=True)
+
+    print("== 4/6: generate patches/ ==")
+    run([sys.executable, wc4_patches, "generate", orig_dir, decompiled_dir, patches_dir / "money"])
+    run([sys.executable, wc4_patches, "generate", decompiled_dir, mod_stage_dir, patches_dir / "money_and_assets"])
+
+    print("== 5/6: verify patches reproduce the trees ==")
+    verify_ru = build_dir / "migrate_verify_ru"
+    verify_mod = build_dir / "migrate_verify_mod"
+    for d in (verify_ru, verify_mod):
+        if d.exists():
+            shutil.rmtree(d)
+    shutil.copytree(orig_dir, verify_ru)
+    run([sys.executable, wc4_patches, "apply", patches_dir / "money", verify_ru])
+    shutil.copytree(decompiled_dir, verify_mod)
+    run([sys.executable, wc4_patches, "apply", patches_dir / "money_and_assets", verify_mod])
+    ok = trees_identical(verify_ru, decompiled_dir) and trees_identical(
+        verify_mod, mod_stage_dir
+    )
+    for d in (verify_ru, verify_mod, mod_stage_dir):
+        shutil.rmtree(d, ignore_errors=True)
+    if not ok:
+        sys.exit(
+            "error: verification failed — patches do not reproduce the"
+            " trees; diff/ and diff_mod/ left untouched"
+        )
+
+    print("== 6/6: remove old overlays ==")
+    for d in (diff_dir, diff_mod_dir):
+        if d.is_dir():
+            shutil.rmtree(d)
+            print(f"removed '{d.name}/'")
+
+    patches = sorted(patches_dir.rglob("*.patch"))
+    print(f"\ndone => 'patches/' ({len(patches)} patches)")
+    print("next: git status && git add -A && git commit")
+    print("then: cmake --build build --target build")
     return 0
 
 
