@@ -46,6 +46,10 @@ set(uber_signer_version
     "1.3.0"
     CACHE STRING "uber-apk-signer version")
 
+set(apktool_jobs
+    "8"
+    CACHE STRING "apktool --jobs thread count (decode + build)")
+
 set(java_bin
     "java"
     CACHE FILEPATH "Java binary")
@@ -203,10 +207,10 @@ add_custom_command(
     COMMAND "${CMAKE_COMMAND}" -E make_directory "${decompiled_dir}"
     COMMAND
         "${CMAKE_COMMAND}" -E echo
-        "+ ${java_bin} -jar ${apktool_jar} d ${apk_input} -o ${decompiled_dir} -f"
+        "+ ${java_bin} -jar ${apktool_jar} d ${apk_input} -o ${decompiled_dir} -f --all-src --jobs ${apktool_jobs}"
     COMMAND
         "${java_bin}" -jar "${apktool_jar}" d "${apk_input}" -o
-        "${decompiled_dir}" -f
+        "${decompiled_dir}" -f --all-src --jobs "${apktool_jobs}"
     COMMAND
         "${CMAKE_COMMAND}" "-DPYTHON3=${python3_bin}" "-DWCRYPT=${wc4_crypt}"
         "-DMODE=decrypt" "-DDIR=${decompiled_dir}/${assets_data_rel}" -P
@@ -283,7 +287,8 @@ function(add_deploy_target target backend debug_default)
             "-DAPK=${wc4_variant_${deploy_variant}_apk}" "-DBACKEND=${backend}"
             "-DDEBUG=$<BOOL:${deploy_debug_${backend}}>"
             "-DTIMEOUT=${deploy_watch_timeout}" "-DADB_SERIAL=${adb_serial}"
-            "-DWAYDROID_BIN=${waydroid_bin}" "-DADB_BIN=${adb_bin}" -P
+            "-DWAYDROID_BIN=${waydroid_bin}"
+            "-DADB_BIN=${adb_bin}" -P
             "${deploy_script}"
         COMMENT
             "deploy ${deploy_variant} => ${backend} (install + launch + log)"

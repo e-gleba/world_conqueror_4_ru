@@ -194,9 +194,10 @@ function(wc4_add_variant name)
             "${crypt_script}"
         COMMAND
             "${CMAKE_COMMAND}" -E echo
-            "+ ${java_bin} -jar ${apktool_jar} b ${tree} -o ${unsigned}"
-        COMMAND "${java_bin}" -jar "${apktool_jar}" b "${tree}" -o
-                "${unsigned}"
+            "+ ${java_bin} -jar ${apktool_jar} b ${tree} -o ${unsigned} -f --debuggable --jobs ${apktool_jobs}"
+        COMMAND
+            "${java_bin}" -jar "${apktool_jar}" b "${tree}" -o
+                "${unsigned}" -f --debuggable --jobs "${apktool_jobs}"
         COMMAND
             "${CMAKE_COMMAND}" -E echo
             "+ ${java_bin} -jar ${signer_jar} -a ${unsigned} --out ${CMAKE_BINARY_DIR} --allowResign"
