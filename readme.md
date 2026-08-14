@@ -90,7 +90,12 @@ File patches are plain `install(FILES ...)` rules; tool steps (locale rewrite, u
 cmake --build build --target apks && ctest --test-dir build --output-on-failure
 ```
 
-`ru_translation_stringtable_parity` checks that every hijacked slot table mirrors the RU template (keys and counts only); stock-table drift is informational. CI runs it after every build.
+Each patch registers its own ctest via `patches/<name>/ctest.cmake`:
+
+- `ru_translation_stringtable_parity` — every hijacked slot table mirrors the RU template (keys/counts only), plus a freshness key-count check against an untouched stock locale.
+- `enable_all_unlock` — the unlock regression checks, run against compact fixtures in `patches/enable_all/fixtures/` (no decompiled tree needed, so it's fast). See `patches/enable_all/docs/unlock_invariants.md`.
+
+CI runs them after every build.
 
 ## Saves
 
@@ -104,7 +109,6 @@ cmake --build build --target apks && ctest --test-dir build --output-on-failure
 
 - **Releases** ship both signed APKs per version: [Releases](https://github.com/e-gleba/world_conqueror_4_ru/releases). The release workflow builds → smoke-tests on a self-hosted Waydroid runner → publishes.
 - **CI** builds inside the `ghcr.io` builder image; `ci.yml` accepts a `cmake_args` dispatch input for ad-hoc toggle combos (e.g. `-DWC4_PATCH_ENABLE_ALL=OFF`).
-- Unlock regression fixtures live in `tests/fixtures/` (see `patches/enable_all/docs/unlock_invariants.md`).
 
 <div align="center">
 <sub>MIT · Built for the reverse-engineering and modding community. Not affiliated with EasyTech.</sub>
