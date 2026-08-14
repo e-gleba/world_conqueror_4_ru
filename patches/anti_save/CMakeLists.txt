@@ -10,15 +10,12 @@
 
 wc4_patch_files(
     FILES
-        1_4_28/AndroidManifest.xml
+    1_4_28/AndroidManifest.xml
     DESTINATION
-        "."
-)
+    ".")
 
-# TODO(1.4.28): re-enable once WC4Activity.smali is re-based for 1.4.28.
-# wc4_patch_files(
-#     FILES
-#         WC4Activity.smali
-#     DESTINATION
-#         smali/com/easytech/wc4/android
-# )
+wc4_patch_files(
+    FILES
+    1_4_28/WC4Activity.smali
+    DESTINATION
+    smali/com/easytech/wc4/android)
