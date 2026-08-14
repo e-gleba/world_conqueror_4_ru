@@ -13,7 +13,9 @@ from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
 UNLOCK_SCRIPT = ROOT / "patches" / "enable_all" / "wc4_unlock.py"
-FIXTURE_DIR = ROOT / "diff_mod" / "assets" / "data"
+# Compact fixtures encoding the data contracts from docs/unlock-invariants.md
+# (the old diff_mod/ fixtures predated the RequireCityType port fix).
+FIXTURE_DIR = ROOT / "tests" / "fixtures"
 
 
 def load_unlock() -> ModuleType:

@@ -1,9 +1,7 @@
 # ru_translation — RU localization.
 #
 # Replaces the stock stringtables, title image and de.lproj plist with
-# the RU variants and installs the cyrillic-capable Noto Sans font,
-# then rebuilds the font glyphs when fontforge is available
-# (patch_lang_notosans.py, launched as part of this patch).
+# the RU variants and installs the cyrillic-capable Noto Sans font.
 
 wc4_patch_files(
     FILES
@@ -40,13 +38,14 @@ wc4_patch_files(
 )
 
 # Cyrillic font rebuild: merges RU glyphs from a donor Noto Sans into
-# the installed font. The checked-in font is already cyrillic-patched,
-# so skipping is safe when fontforge is missing.
-# Disable with -Dwc4_ru_font_rebuild=OFF.
+# the installed font (needs fontforge + fontTools). The checked-in font
+# is already cyrillic-patched, so the rebuild is OFF by default to keep
+# the dependency footprint minimal — enable with
+# -Dwc4_ru_font_rebuild=ON after editing the font payload.
 option(
     wc4_ru_font_rebuild
     "rebuild cyrillic glyphs during the ru_translation patch (needs fontforge + fontTools)"
-    ON
+    OFF
 )
 
 if(wc4_ru_font_rebuild)

@@ -284,9 +284,8 @@ get_property(decompiled_stamps GLOBAL PROPERTY wc4_decompiled_stamps)
 
 if(stage_stamps)
     # stage_mod = the fully patched decompiled/ tree; stage patches
-    # apply on top of it. Stays DECRYPTED: it is the audit baseline for
-    # diff_mod/ — encryption happens only in the throwaway build_*/
-    # trees (root CMakeLists).
+    # apply on top of it. Stays DECRYPTED — encryption happens only in
+    # the throwaway build_*/ trees (root CMakeLists).
     add_custom_command(
         OUTPUT "${stamp_stage_mod}"
         COMMAND
@@ -302,23 +301,6 @@ if(stage_stamps)
             ${decompiled_files}
         COMMENT
             "stage_mod: copy patched decompiled/"
-        USES_TERMINAL
-        VERBATIM
-    )
-
-    add_custom_command(
-        OUTPUT "${stamp_diff_mod}"
-        COMMAND
-            "${CMAKE_COMMAND}" "-DSRC=${stage_mod}"
-            "-DORIG=${decompiled_dir}" "-DDIFF=${diff_mod_dir}" -P
-            "${CMAKE_BINARY_DIR}/diff_sync.cmake"
-        COMMAND
-            "${CMAKE_COMMAND}" -E touch "${stamp_diff_mod}"
-        DEPENDS
-            ${stage_stamps}
-            "${CMAKE_BINARY_DIR}/diff_sync.cmake"
-        COMMENT
-            "audit: stage_mod vs decompiled/ => diff_mod/"
         USES_TERMINAL
         VERBATIM
     )

@@ -40,16 +40,6 @@ set(wc4_unlock
 )
 set(wc4_header "MD5_SIZE" CACHE STRING "wc4-crypt header format")
 
-set(diff_dir
-    "${CMAKE_CURRENT_SOURCE_DIR}/diff"
-    CACHE PATH
-    "Legacy overlay: ru translation vs vanilla (sync target; superseded by patches/)"
-)
-set(diff_mod_dir
-    "${CMAKE_CURRENT_SOURCE_DIR}/diff_mod"
-    CACHE PATH
-    "Overlay: unlock delta vs ru (auto-generated)"
-)
 set(decompiled_dir
     "${CMAKE_CURRENT_SOURCE_DIR}/decompiled"
     CACHE PATH
@@ -57,7 +47,6 @@ set(decompiled_dir
 )
 
 set(tools_dir "${CMAKE_CURRENT_BINARY_DIR}/tools")
-set(orig_dir "${CMAKE_CURRENT_BINARY_DIR}/orig")
 set(stage_mod "${CMAKE_CURRENT_BINARY_DIR}/stage_mod")
 set(build_ru_dir "${CMAKE_CURRENT_BINARY_DIR}/build_ru")
 set(build_mod_dir "${CMAKE_CURRENT_BINARY_DIR}/build_mod")
@@ -72,9 +61,7 @@ set(signed_ru "${CMAKE_CURRENT_BINARY_DIR}/wc4_ru-aligned-debugSigned.apk")
 set(signed_mod "${CMAKE_CURRENT_BINARY_DIR}/wc4_ru_mod-aligned-debugSigned.apk")
 
 set(stamp_decompiled "${CMAKE_CURRENT_BINARY_DIR}/decompiled.stamp")
-set(stamp_orig "${CMAKE_CURRENT_BINARY_DIR}/orig.stamp")
 set(stamp_stage_mod "${CMAKE_CURRENT_BINARY_DIR}/stage_mod.stamp")
-set(stamp_diff_mod "${CMAKE_CURRENT_BINARY_DIR}/diff_mod.stamp")
 
 set(apktool_url
     "https://github.com/iBotPeaches/Apktool/releases/download/v${apktool_version}/apktool_${apktool_version}.jar"
@@ -90,8 +77,6 @@ foreach(
         apk_input
         wc4_crypt
         wc4_unlock
-        diff_dir
-        diff_mod_dir
         decompiled_dir
 )
     if(NOT "${${path_var}}" STREQUAL "")
@@ -230,104 +215,6 @@ message(STATUS "${MODE} done => ${ok}/${count} ok")
 ]=]
 )
 
-file(
-    WRITE "${CMAKE_CURRENT_BINARY_DIR}/diff_sync.cmake"
-    [=[
-cmake_minimum_required(VERSION 4.2...4.2)
-
-foreach(req IN ITEMS SRC ORIG DIFF)
-    if(NOT DEFINED ${req} OR "${${req}}" STREQUAL "")
-        message(FATAL_ERROR "'${req}' is required")
-    endif()
-endforeach()
-
-if(NOT EXISTS "${SRC}")
-    message(FATAL_ERROR "SRC does not exist: ${SRC}")
-endif()
-
-if(NOT EXISTS "${ORIG}")
-    message(FATAL_ERROR "ORIG does not exist: ${ORIG}")
-endif()
-
-file(MAKE_DIRECTORY "${DIFF}")
-
-file(GLOB_RECURSE src_files RELATIVE "${SRC}" "${SRC}/*")
-list(SORT src_files)
-
-set(updated 0)
-set(removed 0)
-set(unchanged 0)
-
-foreach(rel IN LISTS src_files)
-    set(src_f "${SRC}/${rel}")
-    set(orig_f "${ORIG}/${rel}")
-    set(diff_f "${DIFF}/${rel}")
-
-    if(IS_DIRECTORY "${src_f}")
-        continue()
-    endif()
-
-    if(NOT EXISTS "${orig_f}")
-        cmake_path(GET diff_f PARENT_PATH parent_dir)
-        file(MAKE_DIRECTORY "${parent_dir}")
-        file(COPY_FILE "${src_f}" "${diff_f}" ONLY_IF_DIFFERENT)
-        math(EXPR updated "${updated} + 1")
-        continue()
-    endif()
-
-    file(MD5 "${src_f}" src_md5)
-    file(MD5 "${orig_f}" orig_md5)
-
-    if(NOT src_md5 STREQUAL orig_md5)
-        cmake_path(GET diff_f PARENT_PATH parent_dir)
-        file(MAKE_DIRECTORY "${parent_dir}")
-        file(COPY_FILE "${src_f}" "${diff_f}" ONLY_IF_DIFFERENT)
-        math(EXPR updated "${updated} + 1")
-    else()
-        if(EXISTS "${diff_f}")
-            file(REMOVE "${diff_f}")
-            math(EXPR removed "${removed} + 1")
-        else()
-            math(EXPR unchanged "${unchanged} + 1")
-        endif()
-    endif()
-endforeach()
-
-file(GLOB_RECURSE diff_files RELATIVE "${DIFF}" "${DIFF}/*")
-list(SORT diff_files)
-
-foreach(rel IN LISTS diff_files)
-    set(diff_f "${DIFF}/${rel}")
-
-    if(IS_DIRECTORY "${diff_f}")
-        continue()
-    endif()
-
-    if(NOT EXISTS "${SRC}/${rel}")
-        file(REMOVE "${diff_f}")
-        math(EXPR removed "${removed} + 1")
-    endif()
-endforeach()
-
-file(GLOB_RECURSE all_diff RELATIVE "${DIFF}" "${DIFF}/*")
-list(SORT all_diff)
-list(REVERSE all_diff)
-
-foreach(rel IN LISTS all_diff)
-    set(candidate "${DIFF}/${rel}")
-    if(IS_DIRECTORY "${candidate}")
-        file(GLOB children "${candidate}/*")
-        list(LENGTH children child_count)
-        if(child_count EQUAL 0)
-            file(REMOVE_RECURSE "${candidate}")
-        endif()
-    endif()
-endforeach()
-
-message(STATUS "diff_sync => '${DIFF}': +${updated} updated, -${removed} removed, ${unchanged} unchanged")
-]=]
-)
-
 # COMMAND_ECHO STDOUT already prints each command as it runs — no manual
 # STATUS narration. Remove is best-effort, install is fatal on failure.
 file(
@@ -437,36 +324,10 @@ add_custom_command(
     VERBATIM
 )
 
-add_custom_command(
-    OUTPUT "${stamp_orig}"
-    COMMAND
-        "${CMAKE_COMMAND}" -E rm -rf "${orig_dir}"
-    COMMAND
-        "${CMAKE_COMMAND}" -E echo
-        "+ ${java_bin} -jar ${apktool_jar} d ${apk_input} -o ${orig_dir} -f"
-    COMMAND
-        "${java_bin}" -jar "${apktool_jar}" d "${apk_input}" -o "${orig_dir}" -f
-    COMMAND
-        "${CMAKE_COMMAND}" "-DPYTHON3=${python3_bin}" "-DWCRYPT=${wc4_crypt}"
-        "-DMODE=decrypt" "-DDIR=${orig_dir}/${assets_data_rel}" -P
-        "${CMAKE_CURRENT_BINARY_DIR}/crypt_json.cmake"
-    COMMAND
-        "${CMAKE_COMMAND}" -E touch "${stamp_orig}"
-    DEPENDS
-        "${apk_input}"
-        "${apktool_jar}"
-        "${wc4_crypt}"
-        "${CMAKE_CURRENT_BINARY_DIR}/crypt_json.cmake"
-    COMMENT
-        "baseline: apktool d => orig/ (+ decrypt json)"
-    USES_TERMINAL
-    VERBATIM
-)
-
 # Named patches: each patches/<name>/CMakeLists.txt manifest declares
 # install rules; the framework generates one `cmake -P` install script
 # per patch and registers its stamp in wc4_decompiled_stamps /
-# wc4_stage_stamps (mod variant). Also produces stage_mod/ + diff_mod/.
+# wc4_stage_stamps (mod variant). Also produces the stage_mod/ copy.
 add_subdirectory(patches)
 
 get_property(decompiled_stamps GLOBAL PROPERTY wc4_decompiled_stamps)
@@ -553,32 +414,11 @@ add_custom_command(
 
 add_custom_target(decompile DEPENDS "${stamp_decompiled}")
 
-# Persist decompiled/ edits into the diff/ overlay. Always runs (cheap MD5
-# scan, no writes when nothing changed); heavy deps above run when stale.
-add_custom_target(
-    sync
-    DEPENDS
-        "${stamp_orig}"
-        "${stamp_diff_mod}"
-    COMMAND
-        "${CMAKE_COMMAND}" "-DSRC=${decompiled_dir}" "-DORIG=${orig_dir}"
-        "-DDIFF=${diff_dir}" -P "${CMAKE_CURRENT_BINARY_DIR}/diff_sync.cmake"
-    COMMENT
-        "persist decompiled/ edits => diff/ overlay"
-    USES_TERMINAL
-    VERBATIM
-)
-
 add_custom_target(
     build
     DEPENDS
-        "${stamp_orig}"
-        "${stamp_diff_mod}"
         "${signed_ru}"
         "${signed_mod}"
-    COMMAND
-        "${CMAKE_COMMAND}" "-DSRC=${decompiled_dir}" "-DORIG=${orig_dir}"
-        "-DDIFF=${diff_dir}" -P "${CMAKE_CURRENT_BINARY_DIR}/diff_sync.cmake"
     COMMAND
         "${CMAKE_COMMAND}" -E echo "=== build complete ==="
     COMMAND
@@ -586,7 +426,7 @@ add_custom_target(
     COMMAND
         "${CMAKE_COMMAND}" -E echo "  ${signed_mod}"
     COMMENT
-        "persist decompiled/ edits => diff/ overlay"
+        "build both APK variants (encrypt + apktool b + sign)"
     USES_TERMINAL
     VERBATIM
 )

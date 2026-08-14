@@ -3,7 +3,7 @@
 # Script patch (no file payload): rewrites the decrypted JSON data of
 # the mod-variant stage with wc4_unlock.py (25 categories, combat stats
 # untouched). Applies into stage_mod/ — the plain wc4_ru APK never sees
-# this patch. The delta vs decompiled/ is audited into diff_mod/.
+# this patch.
 
 wc4_patch_tree(stage_mod)
 

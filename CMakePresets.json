@@ -65,15 +65,6 @@
             ]
         },
         {
-            "name": "sync",
-            "displayName": "Sync diff overlays",
-            "description": "Rebuild orig/ baseline, sync diff/ and diff_mod/",
-            "configurePreset": "default",
-            "targets": [
-                "sync"
-            ]
-        },
-        {
             "name": "build",
             "displayName": "Build APKs",
             "description": "Stage, encrypt, apktool b, sign — produces wc4_ru and wc4_ru_mod",
@@ -103,7 +94,7 @@
     ],
     "workflowPresets": [
         {
-            "$comment": "Full pipeline: configure once, then build (implies sync) + deploy",
+            "$comment": "Full pipeline: configure once, then build + deploy",
             "name": "release",
             "displayName": "Build and deploy",
             "steps": [

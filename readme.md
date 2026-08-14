@@ -58,7 +58,7 @@ Each patch is a directory under `patches/` with a `CMakeLists.txt` **manifest** 
 |---|---|---|---|
 | `ru_translation` | `stringtable_*.ini` ×7 | `assets/` | RU localization |
 | | `de.lproj/InfoPlist.strings` | `assets/de.lproj/` | locale plist |
-| | `font/NotoSans_Lang.otf` | `assets/font/` | cyrillic font (+ glyph rebuild via `patch_lang_notosans.py` when fontforge is present) |
+| | `font/NotoSans_Lang.otf` | `assets/font/` | cyrillic font (pre-patched; `-Dwc4_ru_font_rebuild=ON` rebuilds glyphs via fontforge) |
 | | `image/tex_title_hd_de.webp` | `assets/image/` | title art |
 | `anti_gdpr` | `WC4Activity$53.smali` | `smali/com/easytech/wc4/android/` | no-op TradPlus GDPR consent callback |
 | `anti_5play` | `Recovery.smali` | `smali_classes5/com/fiveplay/mod/RMS/` | 5play recovery hook just restarts the game |
@@ -99,8 +99,7 @@ wc4_patch_run(
 |---|---|
 | `decompile` | `apktool d` + decrypt JSON → `decompiled/` (skipped when inputs are unchanged) |
 | `patches` | Apply all `patches/` to `decompiled/` (per-patch: `patch-<name>`) |
-| `sync` | Persist `decompiled/` edits into `diff/`, regenerate the `diff_mod/` unlock delta |
-| `build` | Sync, apply patches + unlock to the mod stage, encrypt, rebuild, sign both APKs — incremental |
+| `build` | Apply patches + unlock to the mod stage, encrypt, rebuild, sign both APKs — incremental |
 | `deploy-waydroid` | Build + install the mod APK (`wc4_ru_mod`) via Waydroid |
 | `deploy-adb` | Build + install the mod APK (`wc4_ru_mod`) via adb |
 
@@ -110,7 +109,7 @@ wc4_patch_run(
 |---|---|---|
 | `apk_input` | auto-download | Path to the source APK |
 | `wc4_header` | `MD5_SIZE` | Header format for re-encryption |
-| `wc4_ru_font_rebuild` | `ON` | Rebuild cyrillic glyphs during the ru_translation patch (auto-skips without fontforge) |
+| `wc4_ru_font_rebuild` | `OFF` | Rebuild cyrillic glyphs during the ru_translation patch (needs fontforge + fontTools; the checked-in font is already patched) |
 | `apktool_version` | `3.0.1` | apktool pin |
 | `uber_signer_version` | `1.3.0` | uber-apk-signer pin |
 | `java_bin` / `python3_bin` | `java` / `python3` | Tool paths |
@@ -123,7 +122,7 @@ wc4_patch_run(
 |---|---|
 | `scripts/wc4_crypt.py` | AES-256-CBC toolkit: `decrypt` `encrypt` `query` `edit` `grep` `verify` `roundtrip` |
 | `patches/enable_all/wc4_unlock.py` | Full-unlock patcher (runs as the `enable_all` patch inside `build`) |
-| `patches/ru_translation/patch_lang_notosans.py` | Cyrillic font fix (runs as part of the `ru_translation` patch) |
+| `patches/ru_translation/patch_lang_notosans.py` | Cyrillic font fix (opt-in via `-Dwc4_ru_font_rebuild=ON`) |
 | `scripts/wc_spec_dump.py` | Dump unit/general stats to Markdown tables |
 
 ## Saves
@@ -138,7 +137,7 @@ wc4_patch_run(
 
 - **Releases** ship both signed APKs per version: [Releases](https://github.com/e-gleba/world_conqueror_4_ru/releases).
 - **CI** builds inside the `ghcr.io` builder image; use the ▶ buttons above to run workflows manually.
-- `diff/` is the legacy monolithic overlay — kept as the `sync` target's output and reference; the build installs patches from `patches/`, so edit patch payloads there.
+- The legacy `diff/` and `diff_mod/` overlays are gone — the build installs patches from `patches/` only, so edit patch payloads there. Unlock regression fixtures live in `tests/fixtures/` (see `docs/unlock-invariants.md`).
 
 <div align="center">
 <sub>MIT · Built for the reverse-engineering and modding community. Not affiliated with EasyTech.</sub>
