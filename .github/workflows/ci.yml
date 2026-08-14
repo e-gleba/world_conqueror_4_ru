@@ -106,28 +106,19 @@ jobs:
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest \
             ctest --test-dir build --output-on-failure
 
-      - name: Validate APK outputs
+      - name: Validate APK output
         run: |
           ls -la build/*.apk
-          for apk in build/wc4_ru-aligned-debugSigned.apk build/wc4_ru_mod-aligned-debugSigned.apk; do
-            test -f "$apk" || { echo "Missing $apk"; exit 1; }
-            test -s "$apk" || { echo "$apk is empty"; exit 1; }
-            file "$apk"
-          done
-          echo "✅ Both debug-signed APKs built and validated."
+          apk=build/wc4_wc4-aligned-debugSigned.apk
+          test -f "$apk" || { echo "Missing $apk"; exit 1; }
+          test -s "$apk" || { echo "$apk is empty"; exit 1; }
+          file "$apk"
+          echo "✅ debug-signed APK built and validated."
 
-      - name: Upload wc4_ru-aligned-debugSigned APK
+      - name: Upload APK
         uses: actions/upload-artifact@v7
         with:
-          name: wc4_ru-aligned-debugSigned
-          path: build/wc4_ru-aligned-debugSigned.apk
-          compression-level: 0
-          retention-days: 7
-
-      - name: Upload wc4_ru_mod-aligned-debugSigned APK
-        uses: actions/upload-artifact@v7
-        with:
-          name: wc4_ru_mod-aligned-debugSigned
-          path: build/wc4_ru_mod-aligned-debugSigned.apk
+          name: wc4_wc4-aligned-debugSigned
+          path: build/wc4_wc4-aligned-debugSigned.apk
           compression-level: 0
           retention-days: 7

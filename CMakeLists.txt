@@ -69,14 +69,14 @@ set(wc4_header
     "MD5_SIZE"
     CACHE STRING "wc4-crypt header format")
 set(wc4_package
-    "com.easytech.wc4"
+    "com.easytech.wc4.android"
     CACHE STRING "android package name (deploy)")
 
 set(decompiled_dir
     "${CMAKE_CURRENT_SOURCE_DIR}/decompiled"
     CACHE PATH "Pristine decompiled tree (gitignored; patches never touch it)")
 set(deploy_variant
-    "ru_mod"
+    "wc4"
     CACHE STRING "Variant installed by the deploy-* targets")
 
 set(tools_dir "${CMAKE_CURRENT_BINARY_DIR}/tools")
@@ -165,7 +165,7 @@ elseif(NOT EXISTS "${apk_input}")
     message(
         FATAL_ERROR
             "apk_input does not exist: '${apk_input}'\n"
-            "  fix: pass -Dapk_input=<path to existing .apk>"
+            "  fix: pass -Dapk_input=<path to existing .apk>\n"
             " or leave empty to auto-download")
 endif()
 
@@ -234,19 +234,17 @@ if(BUILD_TESTING)
     enable_testing()
 endif()
 
-# --- state 2: variants = copy + patch (install phase) + encrypt + sign ------
-# One decompiled APK => any combination of signed APKs. Patches are
-# standalone projects auto-discovered from patches/<name>/, toggled with
-# -DWC4_PATCH_<NAME>=OFF (all ON by default). Add a combination with:
-#   wc4_add_variant(<name> PATCHES <patch>...)
+# --- state 2: variant = copy + patch (install phase) + encrypt + sign -------
+# One decompiled APK => a signed APK built from ALL ENABLED patches. The
+# patch combination lives in the WC4_PATCH_<NAME> toggles (all ON by
+# default), not in a hardcoded list — CI / release / matrix jobs pick a
+# combination with -DWC4_PATCH_<NAME>=ON/OFF. Add another output APK with
+# one more wc4_add_variant(<name>) line.
 
 include(cmake/wc4_patches.cmake)
 wc4_discover_patches()
 
-wc4_add_variant(ru PATCHES ru_translation anti_gdpr anti_5play anti_save)
-wc4_add_variant(
-    ru_mod
-    PATCHES ru_translation anti_gdpr anti_5play anti_save enable_all)
+wc4_add_variant(wc4)
 
 get_property(all_apks GLOBAL PROPERTY wc4_all_apks)
 if(NOT all_apks)

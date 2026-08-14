@@ -9,7 +9,7 @@
     },
     "configurePresets": [
         {
-            "$comment": "apk_input empty = auto-download the pinned release APK (SHA-256 verified). Toggle patches with -DWC4_PATCH_<NAME>=OFF.",
+            "$comment": "apk_input empty = auto-download the pinned release APK (SHA-256 verified). Pick the patch combination with -DWC4_PATCH_<NAME>=ON/OFF.",
             "name": "default",
             "displayName": "Default",
             "description": "Out-of-source build under build/ (Ninja)",
@@ -29,7 +29,7 @@
                 "deploy_variant": {
                     "$comment": "Variant installed by the deploy-* targets",
                     "type": "STRING",
-                    "value": "ru_mod"
+                    "value": "wc4"
                 },
                 "adb_serial": {
                     "$comment": "adb device serial for deploy-adb — empty uses the default/only device",
@@ -52,7 +52,7 @@
         {
             "name": "apks",
             "displayName": "Build APKs",
-            "description": "Per variant: fresh copy + patch install + encrypt + apktool b + sign",
+            "description": "Fresh copy + patch install + encrypt + apktool b + sign for every variant",
             "configurePreset": "default",
             "targets": [
                 "apks"

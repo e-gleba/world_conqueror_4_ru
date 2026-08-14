@@ -17,13 +17,18 @@
 # Discovery is automatic: every patches/<name>/ gets a feature toggle
 # option(WC4_PATCH_<NAME> ... ON) — all enabled by default.
 #
-# wc4_add_variant(<name> PATCHES <patch>...) defines one output APK: the
-# variant stages a FRESH copy of the pristine decompiled/ tree, applies
-# its enabled patches via ExternalProject install steps, then encrypts +
-# rebuilds + signs into build/wc4_<name>-aligned-debugSigned.apk. The
-# stage re-copies whenever the toggle set or a patch payload changes, so
+# wc4_add_variant(<name>) defines one output APK built from ALL ENABLED
+# patches: the variant stages a FRESH copy of the pristine decompiled/
+# tree, applies every enabled patch via ExternalProject install steps,
+# then encrypts + rebuilds + signs into build/wc4_<name>-aligned-debugSigned.apk.
+# The stage re-copies whenever the toggle set or a patch payload changes, so
 # patches always install onto a clean tree and toggling never triggers a
 # re-decompile.
+#
+# The patch combination is controlled entirely by the WC4_PATCH_<NAME>
+# toggles (no hardcoded per-variant list), so CI / release / matrix jobs
+# pick a combination with -DWC4_PATCH_<NAME>=ON/OFF. Add another output
+# APK with one more wc4_add_variant(<name>) line.
 #
 # Optional hook: patches/<name>/ctest.cmake is include()d once (for the
 # first variant applying the patch, with wc4_test_tree set to that
@@ -74,32 +79,23 @@ function(wc4_discover_patches)
 endfunction()
 
 # --- variants ----------------------------------------------------------------
+# A variant builds from ALL enabled patches — the combination lives in the
+# WC4_PATCH_<NAME> toggles, not in a hardcoded list, so CI / release /
+# matrix jobs pick it with -DWC4_PATCH_<NAME>=ON/OFF.
 
 function(wc4_add_variant name)
-    cmake_parse_arguments(arg "" "" "PATCHES" ${ARGN})
+    set(active ${WC4_PATCHES_ENABLED})
+    if(NOT active)
+        message(
+            FATAL_ERROR
+                "variant '${name}': no patches enabled — every WC4_PATCH_* is OFF"
+        )
+    endif()
 
     set(tree "${CMAKE_BINARY_DIR}/${name}/tree")
     set(stage_stamp "${CMAKE_BINARY_DIR}/${name}/stage.stamp")
     set(unsigned "${CMAKE_BINARY_DIR}/wc4_${name}.apk")
     set(signed "${CMAKE_BINARY_DIR}/wc4_${name}-aligned-debugSigned.apk")
-
-    # resolve requested patches against the toggles
-    set(active)
-    foreach(p IN LISTS arg_PATCHES)
-        if(NOT p IN_LIST WC4_PATCHES)
-            message(
-                FATAL_ERROR
-                    "variant '${name}': unknown patch '${p}' (known: ${WC4_PATCHES})"
-            )
-        endif()
-
-        string(TOUPPER "${p}" upper)
-        if(NOT WC4_PATCH_${upper})
-            message(STATUS "variant '${name}': skip disabled patch '${p}'")
-            continue()
-        endif()
-        list(APPEND active "${p}")
-    endforeach()
 
     string(REPLACE ";" " " active_log "${active}")
 
@@ -114,9 +110,9 @@ function(wc4_add_variant name)
         list(APPEND payload_deps ${payloads_${p}})
     endforeach()
 
-    # Patch-set fingerprint: flipping a WC4_PATCH_* toggle or editing the
-    # PATCHES list rewrites this file, forcing a fresh stage on any
-    # generator (content unchanged => timestamp untouched => no rebuild).
+    # Patch-set fingerprint: flipping a WC4_PATCH_* toggle rewrites this
+    # file, forcing a fresh stage on any generator (content unchanged =>
+    # timestamp untouched => no rebuild).
     file(
         GENERATE
         OUTPUT "${CMAKE_BINARY_DIR}/${name}/patches.txt"

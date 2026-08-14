@@ -21,8 +21,19 @@ env:
   APK_SHA256: 3c86937dc5a4de5cefd0e5303ae3824957085d14a0e3b2a318a9d7789df99b96
 
 jobs:
+  # One decompiled APK, two patch combinations driven by the WC4_PATCH_*
+  # toggles: mod = all patches, clean = enable_all off.
   build:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        variant: [mod, clean]
+        include:
+          - variant: mod
+            cmake_args: ''
+          - variant: clean
+            cmake_args: '-DWC4_PATCH_ENABLE_ALL=OFF'
     steps:
       - uses: actions/checkout@v7
 
@@ -69,7 +80,7 @@ jobs:
           restore-keys: |
             wc4-build-${{ env.BASE_RELEASE }}-
 
-      - name: Build APKs in container
+      - name: Build APK in container
         run: |
           docker run --rm \
             -v "${{ github.workspace }}:/workspace" \
@@ -78,33 +89,25 @@ jobs:
             bash -c "\
               cmake --preset default \
                 -Dapk_input=/workspace/base-apk/original.apk \
-                -Dapk_input_sha256=${{ env.APK_SHA256 }} && \
+                -Dapk_input_sha256=${{ env.APK_SHA256 }} \
+                ${{ matrix.cmake_args }} && \
               cmake --build build --target apks \
             "
 
-      - name: Validate APK outputs
+      - name: Validate APK output
         run: |
           ls -la build/*.apk
-          for apk in build/wc4_ru-aligned-debugSigned.apk build/wc4_ru_mod-aligned-debugSigned.apk; do
-            test -f "$apk" || { echo "Missing $apk"; exit 1; }
-            test -s "$apk" || { echo "$apk is empty"; exit 1; }
-            file "$apk"
-          done
-          echo "✅ Both debug-signed APKs validated."
+          apk=build/wc4_wc4-aligned-debugSigned.apk
+          test -f "$apk" || { echo "Missing $apk"; exit 1; }
+          test -s "$apk" || { echo "$apk is empty"; exit 1; }
+          file "$apk"
+          echo "✅ ${{ matrix.variant }} APK validated."
 
-      - name: Upload wc4_ru-aligned-debugSigned APK
+      - name: Upload APK
         uses: actions/upload-artifact@v7
         with:
-          name: wc4_ru-aligned-debugSigned
-          path: build/wc4_ru-aligned-debugSigned.apk
-          compression-level: 0
-          retention-days: 7
-
-      - name: Upload wc4_ru_mod-aligned-debugSigned APK
-        uses: actions/upload-artifact@v7
-        with:
-          name: wc4_ru_mod-aligned-debugSigned
-          path: build/wc4_ru_mod-aligned-debugSigned.apk
+          name: wc4-${{ matrix.variant }}-aligned-debugSigned
+          path: build/wc4_wc4-aligned-debugSigned.apk
           compression-level: 0
           retention-days: 7
 
@@ -112,7 +115,7 @@ jobs:
     needs: build
     uses: ./.github/workflows/smoke-test.yml
     with:
-      apk_artifact_name: wc4_ru_mod-aligned-debugSigned
+      apk_artifact_name: wc4-mod-aligned-debugSigned
 
   publish:
     needs: smoke
@@ -120,16 +123,16 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - name: Download wc4_ru APK
+      - name: Download mod APK
         uses: actions/download-artifact@v8
         with:
-          name: wc4_ru-aligned-debugSigned
+          name: wc4-mod-aligned-debugSigned
           path: dist
 
-      - name: Download wc4_ru_mod APK
+      - name: Download clean APK
         uses: actions/download-artifact@v8
         with:
-          name: wc4_ru_mod-aligned-debugSigned
+          name: wc4-clean-aligned-debugSigned
           path: dist
 
       - name: Create tag & GitHub Release
@@ -138,10 +141,15 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+          # both artifacts are named wc4_wc4-...; rename per variant
+          mv dist/wc4-mod-aligned-debugSigned/wc4_wc4-aligned-debugSigned.apk \
+             dist/wc4-mod-aligned-debugSigned/wc4_mod-aligned-debugSigned.apk
+          mv dist/wc4-clean-aligned-debugSigned/wc4_wc4-aligned-debugSigned.apk \
+             dist/wc4-clean-aligned-debugSigned/wc4_clean-aligned-debugSigned.apk
           git tag -a ${{ inputs.version }} -m "Release ${{ inputs.version }}"
           git push origin ${{ inputs.version }}
           gh release create ${{ inputs.version }} \
             --generate-notes \
             --title "${{ inputs.version }}" \
-            dist/wc4_ru-aligned-debugSigned.apk \
-            dist/wc4_ru_mod-aligned-debugSigned.apk
+            dist/wc4-mod-aligned-debugSigned/wc4_mod-aligned-debugSigned.apk \
+            dist/wc4-clean-aligned-debugSigned/wc4_clean-aligned-debugSigned.apk
