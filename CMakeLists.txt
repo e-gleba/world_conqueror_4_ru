@@ -14,7 +14,8 @@ project(
 #   2. build      per variant: fresh tree copy, apply patches (each patch is
 #                 a standalone project applied via its install phase), then
 #                 encrypt + compile + sign
-#   3. deploy     install one signed variant via waydroid or adb
+#   3. deploy     install one signed variant via waydroid or adb, launch it
+#                 and watch the logs
 #
 # decompiled/ is PRISTINE — patches never touch it. Every variant builds
 # from a fresh copy under build/<variant>/tree, so toggling patches
@@ -253,7 +254,14 @@ if(NOT all_apks)
 endif()
 add_custom_target(apks DEPENDS ${all_apks})
 
-# --- state 3: deploy --------------------------------------------------------
+# --- state 3: deploy = install + launch + log watch -------------------------
+# DEBUG=ON  => infinite logcat tail (Ctrl+C to stop)
+# DEBUG=OFF => bounded CI-style watch: capture deploy_watch_timeout seconds
+#              of logcat, fail on fatal/crash patterns (like smoke-test.yml)
+
+set(deploy_watch_timeout
+    "10"
+    CACHE STRING "logcat watch window in seconds when deploy debug is OFF")
 
 get_property(known_variants GLOBAL PROPERTY wc4_variants)
 if(NOT deploy_variant IN_LIST known_variants)
@@ -263,19 +271,29 @@ if(NOT deploy_variant IN_LIST known_variants)
     )
 endif()
 
-function(add_deploy_target target backend)
+function(add_deploy_target target backend debug_default)
+    option(
+        deploy_debug_${backend}
+        "deploy-${backend}: infinite logcat tail after launch (OFF = ${deploy_watch_timeout}s crash watch)"
+        ${debug_default})
+
     add_custom_target(
         ${target}
         DEPENDS "${wc4_variant_${deploy_variant}_apk}"
         COMMAND
             "${CMAKE_COMMAND}" "-DPKG=${wc4_package}"
             "-DAPK=${wc4_variant_${deploy_variant}_apk}" "-DBACKEND=${backend}"
-            "-DADB_SERIAL=${adb_serial}" "-DWAYDROID_BIN=${waydroid_bin}"
-            "-DADB_BIN=${adb_bin}" -P "${deploy_script}"
-        COMMENT "deploy ${deploy_variant} => ${backend}"
+            "-DDEBUG=$<BOOL:${deploy_debug_${backend}}>"
+            "-DTIMEOUT=${deploy_watch_timeout}" "-DADB_SERIAL=${adb_serial}"
+            "-DWAYDROID_BIN=${waydroid_bin}" "-DADB_BIN=${adb_bin}" -P
+            "${deploy_script}"
+        COMMENT
+            "deploy ${deploy_variant} => ${backend} (install + launch + log)"
         USES_TERMINAL
         VERBATIM)
 endfunction()
 
-add_deploy_target(deploy-waydroid waydroid)
-add_deploy_target(deploy-adb adb)
+# waydroid defaults to the bounded watch (emulator, usually CI-like);
+# adb defaults to the infinite tail (real phone — you are watching it).
+add_deploy_target(deploy-waydroid waydroid OFF)
+add_deploy_target(deploy-adb adb ON)

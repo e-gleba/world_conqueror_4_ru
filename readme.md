@@ -25,7 +25,7 @@ Three-state pipeline:
 
 1. **Configure** — fetch the base APK (SHA-256 verified) and tools, **decompile**, **decrypt** → pristine `decompiled/`
 2. **Build** — per variant: fresh copy of `decompiled/`, **patch** (each patch is a standalone CMake project applied via its install phase), **encrypt**, `apktool b`, **sign**
-3. **Deploy** — install via Waydroid or adb
+3. **Deploy** — install via Waydroid or adb, **launch** the app and **watch the logs**
 
 ## Quick start
 
@@ -33,14 +33,28 @@ Three-state pipeline:
 
 ```bash
 cmake --preset default -Dapk_input=/path/to/wc4.apk  # empty = auto-download the pinned APK
-cmake --workflow --preset build    # configure + decompile + patch + sign → build/wc4_*.apk
-cmake --workflow --preset test     # build + ctest
-cmake --workflow --preset deploy   # build + install deploy_variant (default ru_mod) via waydroid
+cmake --workflow --preset build       # configure + decompile + patch + sign → build/wc4_*.apk
+cmake --workflow --preset test        # build + ctest
+cmake --workflow --preset deploy      # build + install/launch on waydroid + log watch
+cmake --workflow --preset deploy-adb  # build + install/launch on a phone via adb + log watch
 ```
 
 Granular targets: `decompile`, `apks`, `apk-<variant>`, `tree-<variant>`, `deploy-waydroid`, `deploy-adb`.
 
 Everything is file-tracked: editing `decompiled/` or a patch payload rebuilds only the affected variant. Delete `build/` to force everything; delete `decompiled/` to force a re-decompile.
+
+## Deploy & log watch
+
+Deploy targets install the APK, launch the app (via `monkey`, no hardcoded activity), then tail logcat:
+
+- **debug ON** — infinite log tail, Ctrl+C to stop. Default for `deploy-adb` (real phone — you're watching it).
+- **debug OFF** — CI-style bounded watch: capture `deploy_watch_timeout` seconds (default 10) of logcat, fail on fatal/crash patterns — same idea as the smoke-test workflow, locally. Default for `deploy-waydroid`.
+
+```bash
+cmake --preset default -Ddeploy_debug_waydroid=ON   # infinite tail on waydroid
+cmake --preset default -Ddeploy_debug_adb=OFF       # bounded watch on the phone
+cmake --preset default -Ddeploy_watch_timeout=20    # longer bounded window
+```
 
 ## Variants
 

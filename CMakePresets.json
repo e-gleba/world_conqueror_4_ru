@@ -61,7 +61,7 @@
         {
             "name": "deploy-waydroid",
             "displayName": "Deploy to Waydroid",
-            "description": "Install deploy_variant via waydroid",
+            "description": "Install + launch deploy_variant via waydroid, then watch logs (deploy_debug_waydroid=OFF: bounded crash watch; ON: infinite tail)",
             "configurePreset": "default",
             "targets": [
                 "deploy-waydroid"
@@ -70,7 +70,7 @@
         {
             "name": "deploy-adb",
             "displayName": "Deploy via adb",
-            "description": "Install deploy_variant via adb (set adb_serial to pick a device)",
+            "description": "Install + launch deploy_variant on a phone via adb, then watch logs (deploy_debug_adb=ON: infinite tail; OFF: bounded crash watch). Set adb_serial to pick a device.",
             "configurePreset": "default",
             "targets": [
                 "deploy-adb"
@@ -127,9 +127,9 @@
             ]
         },
         {
-            "$comment": "compile + install deploy_variant via waydroid (adb: use the deploy-adb build preset)",
+            "$comment": "compile + install/launch via waydroid + log watch (bounded unless -Ddeploy_debug_waydroid=ON)",
             "name": "deploy",
-            "displayName": "deploy",
+            "displayName": "deploy (waydroid)",
             "steps": [
                 {
                     "type": "configure",
@@ -138,6 +138,21 @@
                 {
                     "type": "build",
                     "name": "deploy-waydroid"
+                }
+            ]
+        },
+        {
+            "$comment": "compile + install/launch on a phone via adb + log watch (infinite tail unless -Ddeploy_debug_adb=OFF; set adb_serial to pick a device)",
+            "name": "deploy-adb",
+            "displayName": "deploy (adb / phone)",
+            "steps": [
+                {
+                    "type": "configure",
+                    "name": "default"
+                },
+                {
+                    "type": "build",
+                    "name": "deploy-adb"
                 }
             ]
         }
