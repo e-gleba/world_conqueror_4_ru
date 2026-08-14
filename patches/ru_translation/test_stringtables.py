@@ -20,14 +20,14 @@ from collections import Counter
 from pathlib import Path
 
 
-def die(msg):
-    raise SystemExit(f"error: {msg}")
+def die(message):
+    raise SystemExit(f"error: {message}")
 
 
 def read_key_counts(path):
     counts = Counter()
-    with open(path, encoding="utf-8", errors="surrogateescape") as fh:
-        for line in fh:
+    with open(path, encoding="utf-8", errors="surrogateescape") as handle:
+        for line in handle:
             line = line.strip()
             if not line or line.startswith(";") or "=" not in line:
                 continue
@@ -38,14 +38,14 @@ def read_key_counts(path):
 
 
 def main():
-    ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument("--reference", required=True, help="RU template .ini")
-    ap.add_argument(
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--reference", required=True, help="RU template .ini")
+    parser.add_argument(
         "--dir",
         required=True,
         help="patched assets/ dir with stringtable_*.ini",
     )
-    args = ap.parse_args()
+    args = parser.parse_args()
 
     reference = Path(args.reference)
     if not reference.is_file():
@@ -58,41 +58,45 @@ def main():
             "  hint: build the decompile and patch-ru_translation targets first"
         )
 
-    tables = sorted(assets.glob("stringtable_*.ini"))
-    if not tables:
+    stringtables = sorted(assets.glob("stringtable_*.ini"))
+    if not stringtables:
         die(f"no stringtable_*.ini in {assets}")
 
-    ref = read_key_counts(reference)
-    ref_total = sum(ref.values())
-    print(f"reference {reference.name}: {ref_total} entries, {len(ref)} unique keys")
+    reference_counts = read_key_counts(reference)
+    reference_total = sum(reference_counts.values())
+    print(f"reference {reference.name}: {reference_total} entries, {len(reference_counts)} unique keys")
 
     failed = False
-    for table in tables:
-        keys = read_key_counts(table)
-        total = sum(keys.values())
+    for table in stringtables:
+        table_counts = read_key_counts(table)
+        table_total = sum(table_counts.values())
 
-        missing = sorted(ref.keys() - keys.keys())
-        extra = sorted(keys.keys() - ref.keys())
-        dupes = sorted(k for k in ref.keys() & keys.keys() if ref[k] != keys[k])
+        missing_keys = sorted(reference_counts.keys() - table_counts.keys())
+        extra_keys = sorted(table_counts.keys() - reference_counts.keys())
+        count_mismatches = sorted(
+            key
+            for key in reference_counts.keys() & table_counts.keys()
+            if reference_counts[key] != table_counts[key]
+        )
 
-        if not missing and not extra and not dupes:
-            print(f"ok       {table.name}: {total} entries")
+        if not missing_keys and not extra_keys and not count_mismatches:
+            print(f"ok       {table.name}: {table_total} entries")
             continue
 
         failed = True
-        print(f"MISMATCH {table.name}: {total} entries vs reference {ref_total}")
-        if missing:
-            print(f"  only in reference ({len(missing)}):")
-            for k in missing:
-                print(f"    {k}")
-        if extra:
-            print(f"  only in {table.name} ({len(extra)}):")
-            for k in extra:
-                print(f"    {k}")
-        if dupes:
-            print(f"  entry count differs per key ({len(dupes)}):")
-            for k in dupes:
-                print(f"    {k}: {keys[k]} vs reference {ref[k]}")
+        print(f"MISMATCH {table.name}: {table_total} entries vs reference {reference_total}")
+        if missing_keys:
+            print(f"  only in reference ({len(missing_keys)}):")
+            for key in missing_keys:
+                print(f"    {key}")
+        if extra_keys:
+            print(f"  only in {table.name} ({len(extra_keys)}):")
+            for key in extra_keys:
+                print(f"    {key}")
+        if count_mismatches:
+            print(f"  entry count differs per key ({len(count_mismatches)}):")
+            for key in count_mismatches:
+                print(f"    {key}: {table_counts[key]} vs reference {reference_counts[key]}")
 
     if failed:
         print("stringtable key parity: FAILED")

@@ -1,55 +1,58 @@
 # ru_translation — RU localization.
 #
-# Ships ONE Russian stringtable template (wc4_ru_stringtable_template).
-# At patch time apply_stringtables.py installs it over every language
-# slot listed in wc4_ru_stringtable_replace (stringtable file postfixes)
+# Ships ONE Russian payload set: a stringtable template, title art, an
+# .lproj bundle and a cyrillic font. At patch time apply_ru_locale.py
+# installs the payload over every locale slot in wc4_ru_target_slots
+# (default de = hijack the German slot):
+#
+#   assets/stringtable_<slot>.ini         <= stringtable_ru.ini
+#   assets/image/tex_title_hd_<slot>.webp <= image/tex_title_hd_ru.webp
+#   assets/<slot>.lproj/                  <= ru.lproj/
+#
 # and rewrites the lang_<slot>= menu entry in every stringtable found in
 # the mod assets to wc4_ru_language_name — so the hijacked slot shows up
 # as "Русский" in the language menu whatever the current locale is.
-# Untouched slots keep their stock stringtables from the APK — only the
-# template payload is shipped by this patch.
+# Untouched slots keep their stock files from the APK — only the RU
+# payload is shipped by this patch.
 
 set(wc4_ru_stringtable_template
-    "stringtable_de.ini"
+    "stringtable_ru.ini"
     CACHE STRING
     "RU stringtable template — the single translation payload"
 )
 
-set(wc4_ru_stringtable_replace
+set(wc4_ru_target_slots
     "de"
     CACHE STRING
-    "stringtable postfixes replaced by the RU template (de = hijack the German locale slot)"
+    "locale postfixes hijacked by the RU payload: stringtable_<slot>.ini, image/tex_title_hd_<slot>.webp, <slot>.lproj"
 )
 
 set(wc4_ru_language_name
     "Русский"
     CACHE STRING
-    "language-menu label written into lang_<postfix>= of every stringtable"
+    "language-menu label written into lang_<slot>= of every stringtable"
 )
 
-if(wc4_ru_stringtable_replace STREQUAL "")
-    message(FATAL_ERROR "ru_translation: wc4_ru_stringtable_replace is empty")
+if(wc4_ru_target_slots STREQUAL "")
+    message(FATAL_ERROR "ru_translation: wc4_ru_target_slots is empty")
 endif()
 
 wc4_patch_run(
     COMMAND
         "${python3_bin}"
-        "@PATCH_DIR@/apply_stringtables.py"
+        "@PATCH_DIR@/apply_ru_locale.py"
         --template
         "@PATCH_DIR@/${wc4_ru_stringtable_template}"
+        --title-image
+        "@PATCH_DIR@/image/tex_title_hd_ru.webp"
+        --lproj
+        "@PATCH_DIR@/ru.lproj"
         --assets
         "@ROOT@/assets"
         --replace
-        ${wc4_ru_stringtable_replace}
+        ${wc4_ru_target_slots}
         --lang-name
         "${wc4_ru_language_name}"
-)
-
-wc4_patch_files(
-    FILES
-        de.lproj/InfoPlist.strings
-    DESTINATION
-        assets/de.lproj
 )
 
 wc4_patch_files(
@@ -57,13 +60,6 @@ wc4_patch_files(
         font/NotoSans_Lang.otf
     DESTINATION
         assets/font
-)
-
-wc4_patch_files(
-    FILES
-        image/tex_title_hd_de.webp
-    DESTINATION
-        assets/image
 )
 
 # Cyrillic font rebuild: merges RU glyphs from a donor Noto Sans into
