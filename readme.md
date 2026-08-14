@@ -22,7 +22,7 @@
 ## What it does
 
 - **Decompiles** the APK and **decrypts** its AES-256-CBC game data (5 header formats auto-detected)
-- **Localizes** to Russian via the `diff/` overlay; Noto Sans font patch for Cyrillic rendering
+- **Patches** the decompiled tree with named, self-contained modules under `patches/` — RU localization, anti-GDPR, anti-5play, save-system fixes
 - **Unlocks** all content — generals, stages, conquests, tech (25 categories, combat stats untouched)
 - **Rebuilds and signs** two APK variants (`wc4_ru`, `wc4_ru_mod`) and **deploys** the mod via Waydroid or adb
 - Every step is a file-tracked CMake artifact — rebuilds only what changed, no manual tool juggling
@@ -35,11 +35,11 @@
 # 1. configure (empty apk_input auto-downloads the base APK from releases)
 cmake --preset default -Dapk_input=/path/to/wc4.apk
 
-# 2. decompile + decrypt + apply RU overlay → decompiled/
+# 2. decompile + decrypt → decompiled/
 cmake --build build --target decompile
 
-# 3. optional: edit translation in decompiled/, fix cyrillic font
-python3 scripts/patch_lang_notosans.py decompiled/
+# 3. apply all patches → decompiled/ (also runs automatically during `build`)
+cmake --build build --target patches
 
 # 4. encrypt + rebuild + sign → build/wc4_ru-aligned-debugSigned.apk (+ _mod)
 cmake --build build --target build
@@ -48,15 +48,58 @@ cmake --build build --target build
 cmake --build build --target deploy-waydroid
 ```
 
-All targets are **file-tracked** — rerunning `build` or `deploy-*` redoes only what changed (an edit in `decompiled/` rebuilds the APKs, nothing else). Delete `build/` to force a full rebuild.
+All targets are **file-tracked** — rerunning `build` or `deploy-*` redoes only what changed (an edit in `decompiled/` or in a patch payload rebuilds the APKs, nothing else). Delete `build/` to force a full rebuild.
+
+## Patches
+
+Each patch is a directory under `patches/` with a `CMakeLists.txt` **manifest** plus its payload files. Manifests are not `add_subdirectory`d — the framework (`patches/CMakeLists.txt`) `include()`s them at configure time, generates a standalone `<name>.install.cmake` per patch, and applies it with `cmake -P` as a file-tracked build edge (`file(INSTALL)` inside). Patch dirs are relocatable: payload paths are relative to the patch dir.
+
+| Patch | Installs | Destination | Effect |
+|---|---|---|---|
+| `ru_translation` | `stringtable_*.ini` ×7 | `assets/` | RU localization |
+| | `de.lproj/InfoPlist.strings` | `assets/de.lproj/` | locale plist |
+| | `font/NotoSans_Lang.otf` | `assets/font/` | cyrillic font (pre-patched; `-Dwc4_ru_font_rebuild=ON` rebuilds glyphs via fontforge) |
+| | `image/tex_title_hd_de.webp` | `assets/image/` | title art |
+| `anti_gdpr` | `WC4Activity$53.smali` | `smali/com/easytech/wc4/android/` | no-op TradPlus GDPR consent callback |
+| `anti_5play` | `Recovery.smali` | `smali_classes5/com/fiveplay/mod/RMS/` | 5play recovery hook just restarts the game |
+| `anti_save` | `AndroidManifest.xml` | `.` (apk root) | `MANAGE_EXTERNAL_STORAGE` permission |
+| | `WC4Activity.smali` | `smali/com/easytech/wc4/android/` | public Documents save dir + legacy save migration |
+| `enable_all` | — (script patch) | `stage_mod/` tree | runs `wc4_unlock.py` on the mod-variant data |
+
+Per-patch targets exist as `patch-<name>`; the aggregate `patches` target applies every `decompiled/` patch. `enable_all` targets the `stage_mod/` tree instead — it is copied from the fully patched `decompiled/` first, so the plain `wc4_ru` APK never sees it.
+
+### Writing a patch
+
+```cmake
+# patches/<name>/CMakeLists.txt — the manifest
+wc4_patch_files(
+    FILES
+        some_file.smali
+    DESTINATION
+        smali/com/example
+)
+
+wc4_patch_run(
+    COMMAND
+        "${python3_bin}" "@PATCH_DIR@/helper.py" "@ROOT@/assets/data"
+)
+```
+
+1. Create `patches/<name>/` and drop the payload in (any layout).
+2. Declare the install rules in its `CMakeLists.txt`:
+   - `wc4_patch_files(FILES ... DESTINATION <apk-rel dir>)` — **replace** files that exist in the tree, **add** missing ones (auto-detected, logged either way). Sources ending in `.patch`/`.diff` are **applied as unified diffs** with `git apply` instead of copied.
+   - `wc4_patch_diff(FILES ... [STRIP n])` — explicit diff application (`git apply -p<n>`, default 1).
+   - `wc4_patch_run(COMMAND ...)` — extra tool step after the files land; `@ROOT@` = target tree, `@PATCH_DIR@` = patch dir.
+   - `wc4_patch_tree(stage_mod)` — redirect the patch to the mod-variant stage.
+3. Register the directory in `patches/CMakeLists.txt` (the `wc4_patches` list). Comment the line out to disable the patch.
 
 ## Targets
 
 | Target | Purpose |
 |---|---|
-| `decompile` | `apktool d` + decrypt JSON + overlay `diff/` → `decompiled/` (skipped when inputs are unchanged) |
-| `sync` | Persist `decompiled/` edits into `diff/`, regenerate the `diff_mod/` unlock delta |
-| `build` | Sync, apply unlock to the mod stage, encrypt, rebuild, sign both APKs — incremental |
+| `decompile` | `apktool d` + decrypt JSON → `decompiled/` (skipped when inputs are unchanged) |
+| `patches` | Apply all `patches/` to `decompiled/` (per-patch: `patch-<name>`) |
+| `build` | Apply patches + unlock to the mod stage, encrypt, rebuild, sign both APKs — incremental |
 | `deploy-waydroid` | Build + install the mod APK (`wc4_ru_mod`) via Waydroid |
 | `deploy-adb` | Build + install the mod APK (`wc4_ru_mod`) via adb |
 
@@ -66,6 +109,7 @@ All targets are **file-tracked** — rerunning `build` or `deploy-*` redoes only
 |---|---|---|
 | `apk_input` | auto-download | Path to the source APK |
 | `wc4_header` | `MD5_SIZE` | Header format for re-encryption |
+| `wc4_ru_font_rebuild` | `OFF` | Rebuild cyrillic glyphs during the ru_translation patch (needs fontforge + fontTools; the checked-in font is already patched) |
 | `apktool_version` | `3.0.1` | apktool pin |
 | `uber_signer_version` | `1.3.0` | uber-apk-signer pin |
 | `java_bin` / `python3_bin` | `java` / `python3` | Tool paths |
@@ -76,10 +120,10 @@ All targets are **file-tracked** — rerunning `build` or `deploy-*` redoes only
 
 | Script | Purpose |
 |---|---|
-| `wc4_crypt.py` | AES-256-CBC toolkit: `decrypt` `encrypt` `query` `edit` `grep` `verify` `roundtrip` |
-| `wc4_unlock.py` | Full-unlock patcher (runs automatically inside `build`) |
-| `patch_lang_notosans.py` | Cyrillic font fix — run on `decompiled/` |
-| `wc_spec_dump.py` | Dump unit/general stats to Markdown tables |
+| `scripts/wc4_crypt.py` | AES-256-CBC toolkit: `decrypt` `encrypt` `query` `edit` `grep` `verify` `roundtrip` |
+| `patches/enable_all/wc4_unlock.py` | Full-unlock patcher (runs as the `enable_all` patch inside `build`) |
+| `patches/ru_translation/patch_lang_notosans.py` | Cyrillic font fix (opt-in via `-Dwc4_ru_font_rebuild=ON`) |
+| `scripts/wc_spec_dump.py` | Dump unit/general stats to Markdown tables |
 
 ## Saves
 
@@ -93,6 +137,7 @@ All targets are **file-tracked** — rerunning `build` or `deploy-*` redoes only
 
 - **Releases** ship both signed APKs per version: [Releases](https://github.com/e-gleba/world_conqueror_4_ru/releases).
 - **CI** builds inside the `ghcr.io` builder image; use the ▶ buttons above to run workflows manually.
+- The legacy `diff/` and `diff_mod/` overlays are gone — the build installs patches from `patches/` only, so edit patch payloads there. Unlock regression fixtures live in `tests/fixtures/` (see `docs/unlock-invariants.md`).
 
 <div align="center">
 <sub>MIT · Built for the reverse-engineering and modding community. Not affiliated with EasyTech.</sub>

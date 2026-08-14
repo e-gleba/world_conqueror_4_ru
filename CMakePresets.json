@@ -49,19 +49,19 @@
         {
             "name": "decompile",
             "displayName": "Decompile APK",
-            "description": "apktool d + decrypt JSON + overlay diff/",
+            "description": "apktool d + decrypt JSON (patches apply via the patches target)",
             "configurePreset": "default",
             "targets": [
                 "decompile"
             ]
         },
         {
-            "name": "sync",
-            "displayName": "Sync diff overlays",
-            "description": "Rebuild orig/ baseline, sync diff/ and diff_mod/",
+            "name": "patches",
+            "displayName": "Apply patches",
+            "description": "Install all patches/ into decompiled/ (per-patch: patch-<name>)",
             "configurePreset": "default",
             "targets": [
-                "sync"
+                "patches"
             ]
         },
         {
@@ -94,7 +94,7 @@
     ],
     "workflowPresets": [
         {
-            "$comment": "Full pipeline: configure once, then build (implies sync) + deploy",
+            "$comment": "Full pipeline: configure once, then build + deploy",
             "name": "release",
             "displayName": "Build and deploy",
             "steps": [
