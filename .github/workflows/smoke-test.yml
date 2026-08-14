@@ -18,7 +18,7 @@ jobs:
     runs-on: [self-hosted, waydroid]
     steps:
       - name: Download APK artifact
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           run-id: ${{ inputs.artifact_run_id }}
           name: ${{ inputs.apk_artifact_name }}
@@ -56,7 +56,7 @@ jobs:
           fi
 
       - name: Upload logcat
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: waydroid-logcat-${{ inputs.apk_artifact_name }}-${{ github.run_id }}
