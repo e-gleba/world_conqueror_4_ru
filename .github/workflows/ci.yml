@@ -16,6 +16,13 @@ on:
       - '.github/logo.svg'
       - '.github/dependabot.yml'
       - '.github/ISSUE_TEMPLATE/**'
+  workflow_dispatch:
+    inputs:
+      cmake_args:
+        description: 'Extra cmake args, e.g. -DWC4_PATCH_ANTI_SAVE=OFF -DWC4_PATCH_ENABLE_ALL=OFF'
+        required: false
+        type: string
+        default: ''
 
 permissions:
   contents: read
@@ -25,6 +32,8 @@ env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}/build-env
   BASE_RELEASE: v1.24.2_ru
+  # SHA-256 digest of the original_5play_mod.apk asset of BASE_RELEASE
+  APK_SHA256: 3c86937dc5a4de5cefd0e5303ae3824957085d14a0e3b2a318a9d7789df99b96
 
 jobs:
   build:
@@ -62,6 +71,7 @@ jobs:
           if [ "$APK" != "base-apk/original.apk" ]; then
             mv -f "$APK" base-apk/original.apk
           fi
+          echo "$APK_SHA256  base-apk/original.apk" | sha256sum -c -
           ls -la base-apk/
 
       - name: Cache decompiled source & tools
@@ -70,7 +80,7 @@ jobs:
           path: |
             decompiled
             build/tools
-          key: wc4-build-${{ env.BASE_RELEASE }}-${{ hashFiles('CMakeLists.txt', 'patches/**') }}
+          key: wc4-build-${{ env.BASE_RELEASE }}-${{ hashFiles('CMakeLists.txt', 'cmake/**', 'patches/**') }}
           restore-keys: |
             wc4-build-${{ env.BASE_RELEASE }}-
 
@@ -80,11 +90,12 @@ jobs:
             -v "${{ github.workspace }}:/workspace" \
             -w /workspace \
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest \
-            bash -c '
+            bash -c '\
               cmake --preset default \
-                -Dapk_input=/workspace/base-apk/original.apk && \
-              cmake --build build --target decompile && \
-              cmake --build build --target build
+                -Dapk_input=/workspace/base-apk/original.apk \
+                -Dapk_input_sha256=${{ env.APK_SHA256 }} \
+                ${{ inputs.cmake_args }} && \
+              cmake --build build --target apks
             '
 
       - name: Run patch tests (ctest)

@@ -21,62 +21,76 @@
 
 ## What it does
 
-- **Decompiles** the APK and **decrypts** its AES-256-CBC game data (5 header formats auto-detected)
-- **Patches** the decompiled tree with named, self-contained modules under `patches/` — RU localization, anti-GDPR, anti-5play, save-system fixes
-- **Unlocks** all content — generals, stages, conquests, tech (25 categories, combat stats untouched)
-- **Rebuilds and signs** two APK variants (`wc4_ru`, `wc4_ru_mod`) and **deploys** the mod via Waydroid or adb
-- Every step is a file-tracked CMake artifact — rebuilds only what changed, no manual tool juggling
+Three-state pipeline:
+
+1. **Configure** — fetch the base APK (SHA-256 verified) and tools, **decompile**, **decrypt** → pristine `decompiled/`
+2. **Build** — per variant: fresh copy of `decompiled/`, **patch** (each patch is a standalone CMake project applied via its install phase), **encrypt**, `apktool b`, **sign**
+3. **Deploy** — install via Waydroid or adb, **launch** the app and **watch the logs**
 
 ## Quick start
 
-**Requires:** Java 11+, Python 3.12+ (`pip install cryptography`), CMake 4.2+. apktool and uber-apk-signer are auto-downloaded; Waydroid or adb is only needed for the deploy targets.
+**Requires:** Java 11+, Python 3.12+ (`pip install cryptography`), CMake 4.2+ (Ninja). apktool and uber-apk-signer auto-download; Waydroid/adb only for deploy.
 
 ```bash
-# 1. configure (empty apk_input auto-downloads the base APK from releases)
-cmake --preset default -Dapk_input=/path/to/wc4.apk
-
-# 2. decompile + decrypt → decompiled/
-cmake --build build --target decompile
-
-# 3. apply all patches → decompiled/ (also runs automatically during `build`)
-cmake --build build --target patches
-
-# 4. encrypt + rebuild + sign → build/wc4_ru-aligned-debugSigned.apk (+ _mod)
-cmake --build build --target build
-
-# 5. install the mod variant to waydroid (or: deploy-adb for an adb device)
-cmake --build build --target deploy-waydroid
+cmake --preset default -Dapk_input=/path/to/wc4.apk  # empty = auto-download the pinned APK
+cmake --workflow --preset build       # configure + decompile + patch + sign → build/wc4_*.apk
+cmake --workflow --preset test        # build + ctest
+cmake --workflow --preset deploy      # build + install/launch on waydroid + log watch
+cmake --workflow --preset deploy-adb  # build + install/launch on a phone via adb + log watch
 ```
 
-All targets are **file-tracked** — rerunning `build` or `deploy-*` redoes only what changed (an edit in `decompiled/` or in a patch payload rebuilds the APKs, nothing else). Delete `build/` to force a full rebuild.
+Granular targets: `decompile`, `apks`, `apk-<variant>`, `tree-<variant>`, `deploy-waydroid`, `deploy-adb`.
+
+Everything is file-tracked: editing `decompiled/` or a patch payload rebuilds only the affected variant. Delete `build/` to force everything; delete `decompiled/` to force a re-decompile.
+
+## Deploy & log watch
+
+Deploy targets install the APK, launch the app (via `monkey`, no hardcoded activity), then tail logcat:
+
+- **debug ON** — infinite log tail, Ctrl+C to stop. Default for `deploy-adb` (real phone — you're watching it).
+- **debug OFF** — CI-style bounded watch: capture `deploy_watch_timeout` seconds (default 10) of logcat, fail on fatal/crash patterns — same idea as the smoke-test workflow, locally. Default for `deploy-waydroid`.
+
+```bash
+cmake --preset default -Ddeploy_debug_waydroid=ON   # infinite tail on waydroid
+cmake --preset default -Ddeploy_debug_adb=OFF       # bounded watch on the phone
+cmake --preset default -Ddeploy_watch_timeout=20    # longer bounded window
+```
+
+## Variants
+
+One decompiled APK → any combination of signed APKs. A variant is one line in `CMakeLists.txt`:
+
+```cmake
+wc4_add_variant(ru     PATCHES ru_translation anti_gdpr anti_5play anti_save)
+wc4_add_variant(ru_mod PATCHES ru_translation anti_gdpr anti_5play anti_save enable_all)
+```
+
+Each produces `build/wc4_<name>-aligned-debugSigned.apk`.
 
 ## Patches
 
-Each patch is a directory under `patches/` with a `CMakeLists.txt` **manifest** plus its payload files. Manifests are not `add_subdirectory`d — the framework (`patches/CMakeLists.txt`) `include()`s them at configure time, generates a standalone `<name>.install.cmake` per patch, and applies it with `cmake -P` as a file-tracked build edge (`file(INSTALL)` inside). Patch dirs are relocatable: payload paths are relative to the patch dir.
+Each `patches/<name>/` is a **standalone CMake project** that knows only its own dir. Applying a patch = configuring it with the variant tree as install prefix and running its install phase (the framework does this via ExternalProject):
 
-| Patch | Installs | Destination | Effect |
-| --- | --- | --- | --- |
-| `ru_translation` | `stringtable_ru.ini` template → `stringtable_<slot>.ini`, `ru.lproj/` → `<slot>.lproj/`, `tex_title_hd_ru.webp` → `tex_title_hd_<slot>.webp` (`-Dwc4_ru_target_slots`, default `de`; every stringtable gets `lang_<slot>=Русский`) | `assets/` | RU localization |
-| | `font/NotoSans_Lang.otf` | `assets/font/` | cyrillic font (pre-patched; `-Dwc4_ru_font_rebuild=ON` rebuilds glyphs via fontforge) |
-| `anti_gdpr` | `WC4Activity$53.smali` | `smali/com/easytech/wc4/android/` | no-op TradPlus GDPR consent callback |
-| `anti_5play` | `Recovery.smali` | `smali_classes5/com/fiveplay/mod/RMS/` | 5play recovery hook just restarts the game |
-| `anti_save` | `AndroidManifest.xml` | `.` (apk root) | `MANAGE_EXTERNAL_STORAGE` permission |
-| | `WC4Activity.smali` | `smali/com/easytech/wc4/android/` | public Documents save dir + legacy save migration |
-| `enable_all` | — (script patch) | `stage_mod/` tree | runs `wc4_unlock.py` on the mod-variant data |
+```bash
+# exactly what the framework runs per patch — try it by hand:
+cmake -S patches/anti_gdpr -B /tmp/anti_gdpr -DCMAKE_INSTALL_PREFIX=build/ru/tree
+cmake --install /tmp/anti_gdpr
+```
 
-Per-patch targets exist as `patch-<name>`; the aggregate `patches` target applies every `decompiled/` patch. `enable_all` targets the `stage_mod/` tree instead — it is copied from the fully patched `decompiled/` first, so the plain `wc4_ru` APK never sees it.
+File patches are plain `install(FILES ...)` rules; tool steps (locale rewrite, unlock) run from `install(CODE ...)`. Add a patch = new dir with a `CMakeLists.txt` + payload, listed in the variants that want it. Every patch gets a toggle, all ON by default — `-DWC4_PATCH_ANTI_SAVE=OFF` skips it everywhere; the variant re-stages from a fresh copy, no re-decompile. An optional `patches/<name>/ctest.cmake` registers ctest tests against the first variant tree using the patch.
+
+## Integrity
+
+- The auto-downloaded base APK is pinned to the SHA-256 digest published on the [v1.24.2_ru release](https://github.com/e-gleba/world_conqueror_4_ru/releases/tag/v1.24.2_ru) — a mismatch fails the configure.
+- Passing your own APK? Its SHA-256 is printed at configure; pin it with `-Dapk_input_sha256=<hash>`.
 
 ## Tests
 
-Patch validation runs through **ctest** (on by default via `-DBUILD_TESTING=ON`):
-
 ```bash
-# tests read the patched tree — build it first
-cmake --build build --target decompile patches
-ctest --test-dir build --output-on-failure   # or: ctest --preset default
+cmake --build build --target apks && ctest --test-dir build --output-on-failure
 ```
 
-`ru_translation_stringtable_parity` verifies that every hijacked slot table (`-Dwc4_ru_target_slots`) mirrors the RU template exactly — entry counts and key sets only, never values. The remaining stock tables are compared too, but their key drift is printed as informational key-only hints: stock locales legitimately diverge upstream (cn carries anti-addiction keys, de uses `dialogue_2297` where the others use `dialogue_2301`). CI runs it after every build.
+`ru_translation_stringtable_parity` checks that every hijacked slot table mirrors the RU template (keys and counts only); stock-table drift is informational. CI runs it after every build.
 
 ## Saves
 
@@ -88,9 +102,9 @@ ctest --test-dir build --output-on-failure   # or: ctest --preset default
 
 ## Notes
 
-- **Releases** ship both signed APKs per version: [Releases](https://github.com/e-gleba/world_conqueror_4_ru/releases).
-- **CI** builds inside the `ghcr.io` builder image; use the ▶ buttons above to run workflows manually.
-- The legacy `diff/` and `diff_mod/` overlays are gone — the build installs patches from `patches/` only, so edit patch payloads there. Unlock regression fixtures live in `tests/fixtures/` (see `docs/unlock-invariants.md`).
+- **Releases** ship both signed APKs per version: [Releases](https://github.com/e-gleba/world_conqueror_4_ru/releases). The release workflow builds → smoke-tests on a self-hosted Waydroid runner → publishes.
+- **CI** builds inside the `ghcr.io` builder image; `ci.yml` accepts a `cmake_args` dispatch input for ad-hoc toggle combos (e.g. `-DWC4_PATCH_ENABLE_ALL=OFF`).
+- Unlock regression fixtures live in `tests/fixtures/` (see `patches/enable_all/docs/unlock_invariants.md`).
 
 <div align="center">
 <sub>MIT · Built for the reverse-engineering and modding community. Not affiliated with EasyTech.</sub>

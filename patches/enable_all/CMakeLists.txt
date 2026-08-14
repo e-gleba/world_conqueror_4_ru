@@ -1,13 +1,23 @@
 # enable_all — unlock all content: generals, stages, conquests, tech.
 #
-# Script patch (no file payload): rewrites the decrypted JSON data of
-# the mod-variant stage with wc4_unlock.py (25 categories, combat stats
-# untouched). Applies into stage_mod/ — the plain wc4_ru APK never sees
-# this patch.
+# Script patch (no file payload): at install time wc4_unlock.py rewrites
+# the decrypted JSON data of the target tree (25 categories, combat stats
+# untouched). Include it in a variant's PATCHES list to unlock that APK.
 
-wc4_patch_tree(stage_mod)
+cmake_minimum_required(VERSION 4.2)
+project(wc4_patch_enable_all LANGUAGES NONE)
 
-wc4_patch_run(
-    COMMAND
-        "${python3_bin}" "${wc4_unlock}" "@ROOT@/assets/data"
-)
+find_package(Python3 REQUIRED COMPONENTS Interpreter)
+
+# The target tree is passed explicitly as -DWC4_TREE=<tree> (the framework
+# does this per variant). It is baked into the install script at configure
+# time — deterministic, no reliance on the install prefix (ExternalProject
+# does not forward -DCMAKE_INSTALL_PREFIX to the install step, so the
+# prefix would stay the /usr/local default).
+set(WC4_TREE
+    "${CMAKE_INSTALL_PREFIX}"
+    CACHE PATH "decompiled tree this patch installs into")
+
+set(script "${CMAKE_CURRENT_BINARY_DIR}/install_enable_all.cmake")
+configure_file(install_enable_all.cmake.in "${script}" @ONLY)
+install(SCRIPT "${script}")

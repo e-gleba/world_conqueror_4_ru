@@ -11,11 +11,14 @@ on:
 permissions:
   contents: write
   packages: read
+  actions: read
 
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}/build-env
   BASE_RELEASE: v1.24.2_ru
+  # SHA-256 digest of the original_5play_mod.apk asset of BASE_RELEASE
+  APK_SHA256: 3c86937dc5a4de5cefd0e5303ae3824957085d14a0e3b2a318a9d7789df99b96
 
 jobs:
   build:
@@ -49,6 +52,11 @@ jobs:
             -p '*.apk' \
             -D base-apk \
             --skip-existing
+          APK=$(ls base-apk/*.apk | head -1)
+          if [ "$APK" != "base-apk/original.apk" ]; then
+            mv -f "$APK" base-apk/original.apk
+          fi
+          echo "$APK_SHA256  base-apk/original.apk" | sha256sum -c -
           ls -la base-apk/
 
       - name: Cache decompiled source & tools
@@ -57,23 +65,21 @@ jobs:
           path: |
             decompiled
             build/tools
-          key: wc4-build-${{ env.BASE_RELEASE }}-${{ hashFiles('CMakeLists.txt', 'patches/**') }}
+          key: wc4-build-${{ env.BASE_RELEASE }}-${{ hashFiles('CMakeLists.txt', 'cmake/**', 'patches/**') }}
           restore-keys: |
             wc4-build-${{ env.BASE_RELEASE }}-
 
       - name: Build APKs in container
         run: |
-          BASE_APK=$(ls base-apk/*.apk | head -1)
-          echo "Using base APK: $BASE_APK"
           docker run --rm \
             -v "${{ github.workspace }}:/workspace" \
             -w /workspace \
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest \
-            bash -c "
+            bash -c "\
               cmake --preset default \
-                -Dapk_input=/workspace/$BASE_APK && \
-              cmake --build build --target decompile && \
-              cmake --build build --target build
+                -Dapk_input=/workspace/base-apk/original.apk \
+                -Dapk_input_sha256=${{ env.APK_SHA256 }} && \
+              cmake --build build --target apks \
             "
 
       - name: Validate APK outputs
@@ -86,6 +92,46 @@ jobs:
           done
           echo "✅ Both debug-signed APKs validated."
 
+      - name: Upload wc4_ru-aligned-debugSigned APK
+        uses: actions/upload-artifact@v7
+        with:
+          name: wc4_ru-aligned-debugSigned
+          path: build/wc4_ru-aligned-debugSigned.apk
+          compression-level: 0
+          retention-days: 7
+
+      - name: Upload wc4_ru_mod-aligned-debugSigned APK
+        uses: actions/upload-artifact@v7
+        with:
+          name: wc4_ru_mod-aligned-debugSigned
+          path: build/wc4_ru_mod-aligned-debugSigned.apk
+          compression-level: 0
+          retention-days: 7
+
+  smoke:
+    needs: build
+    uses: ./.github/workflows/smoke-test.yml
+    with:
+      apk_artifact_name: wc4_ru_mod-aligned-debugSigned
+
+  publish:
+    needs: smoke
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Download wc4_ru APK
+        uses: actions/download-artifact@v8
+        with:
+          name: wc4_ru-aligned-debugSigned
+          path: dist
+
+      - name: Download wc4_ru_mod APK
+        uses: actions/download-artifact@v8
+        with:
+          name: wc4_ru_mod-aligned-debugSigned
+          path: dist
+
       - name: Create tag & GitHub Release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -97,5 +143,5 @@ jobs:
           gh release create ${{ inputs.version }} \
             --generate-notes \
             --title "${{ inputs.version }}" \
-            build/wc4_ru-aligned-debugSigned.apk \
-            build/wc4_ru_mod-aligned-debugSigned.apk
+            dist/wc4_ru-aligned-debugSigned.apk \
+            dist/wc4_ru_mod-aligned-debugSigned.apk

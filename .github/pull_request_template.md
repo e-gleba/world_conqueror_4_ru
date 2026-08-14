@@ -11,11 +11,12 @@
 
 ## Verification
 <!-- Checklist — tick what you actually ran -->
-- [ ] `cmake --preset default -Dapk_input=<apk> && cmake --build build --target decompile && cmake --build build --target build` passes
+- [ ] `cmake --preset default -Dapk_input=<apk> && cmake --build build --target apks` passes
 - [ ] Output APKs validated (`build/wc4_ru-aligned-debugSigned.apk`, `build/wc4_ru_mod-aligned-debugSigned.apk`)
+- [ ] `ctest --test-dir build --output-on-failure` passes
 - [ ] `pre-commit run --all-files` passes
 - [ ] Smoke-tested on Waydroid (if in-game behavior changed)
-- [ ] Documentation updated (`readme.md`, `docs/`) if behavior or options changed
+- [ ] Documentation updated (`readme.md`) if behavior or options changed
 
 ## Notes for Reviewer
 <!-- Anything non-obvious? Breaking changes? Open questions? -->

@@ -9,33 +9,27 @@
     },
     "configurePresets": [
         {
-            "$comment": "Base preset — inherit in all others. Override apk_input to skip auto-download.",
+            "$comment": "apk_input empty = auto-download the pinned release APK (SHA-256 verified). Toggle patches with -DWC4_PATCH_<NAME>=OFF.",
             "name": "default",
             "displayName": "Default",
-            "description": "Out-of-source build under build/",
+            "description": "Out-of-source build under build/ (Ninja)",
             "generator": "Ninja",
             "binaryDir": "${sourceDir}/build",
             "cacheVariables": {
-                "java_bin": {
-                    "type": "FILEPATH",
-                    "value": "java"
-                },
-                "python3_bin": {
-                    "type": "FILEPATH",
-                    "value": "python3"
-                },
-                "waydroid_bin": {
-                    "type": "FILEPATH",
-                    "value": "waydroid"
-                },
-                "adb_bin": {
-                    "type": "FILEPATH",
-                    "value": "adb"
-                },
                 "apk_input": {
-                    "$comment": "Leave empty to auto-download original.apk from GitHub release",
+                    "$comment": "Leave empty to auto-download original.apk from the pinned GitHub release",
                     "type": "FILEPATH",
                     "value": ""
+                },
+                "apk_input_sha256": {
+                    "$comment": "Expected SHA-256 of apk_input — empty prints the actual hash without verifying",
+                    "type": "STRING",
+                    "value": ""
+                },
+                "deploy_variant": {
+                    "$comment": "Variant installed by the deploy-* targets",
+                    "type": "STRING",
+                    "value": "ru_mod"
                 },
                 "adb_serial": {
                     "$comment": "adb device serial for deploy-adb — empty uses the default/only device",
@@ -48,35 +42,26 @@
     "buildPresets": [
         {
             "name": "decompile",
-            "displayName": "Decompile APK",
-            "description": "apktool d + decrypt JSON (patches apply via the patches target)",
+            "displayName": "Decompile",
+            "description": "apktool d + decrypt JSON => pristine decompiled/",
             "configurePreset": "default",
             "targets": [
                 "decompile"
             ]
         },
         {
-            "name": "patches",
-            "displayName": "Apply patches",
-            "description": "Install all patches/ into decompiled/ (per-patch: patch-<name>)",
-            "configurePreset": "default",
-            "targets": [
-                "patches"
-            ]
-        },
-        {
-            "name": "build",
+            "name": "apks",
             "displayName": "Build APKs",
-            "description": "Stage, encrypt, apktool b, sign — produces wc4_ru and wc4_ru_mod",
+            "description": "Per variant: fresh copy + patch install + encrypt + apktool b + sign",
             "configurePreset": "default",
             "targets": [
-                "build"
+                "apks"
             ]
         },
         {
             "name": "deploy-waydroid",
             "displayName": "Deploy to Waydroid",
-            "description": "Install both signed APKs via waydroid",
+            "description": "Install + launch deploy_variant via waydroid, then watch logs (deploy_debug_waydroid=OFF: bounded crash watch; ON: infinite tail)",
             "configurePreset": "default",
             "targets": [
                 "deploy-waydroid"
@@ -85,7 +70,7 @@
         {
             "name": "deploy-adb",
             "displayName": "Deploy via adb",
-            "description": "Install both signed APKs via adb (set adb_serial to pick a device)",
+            "description": "Install + launch deploy_variant on a phone via adb, then watch logs (deploy_debug_adb=ON: infinite tail; OFF: bounded crash watch). Set adb_serial to pick a device.",
             "configurePreset": "default",
             "targets": [
                 "deploy-adb"
@@ -96,7 +81,7 @@
         {
             "name": "default",
             "displayName": "Patch tests",
-            "description": "ctest patch validation — build the decompile + patches targets first",
+            "description": "ctest patch validation — build the apks target first",
             "configurePreset": "default",
             "output": {
                 "outputOnFailure": true
@@ -108,9 +93,9 @@
     ],
     "workflowPresets": [
         {
-            "$comment": "Full pipeline: configure once, then build + deploy",
-            "name": "release",
-            "displayName": "Build and deploy",
+            "$comment": "compile: configure + all APK variants",
+            "name": "build",
+            "displayName": "build",
             "steps": [
                 {
                     "type": "configure",
@@ -118,11 +103,56 @@
                 },
                 {
                     "type": "build",
-                    "name": "build"
+                    "name": "apks"
+                }
+            ]
+        },
+        {
+            "$comment": "compile + ctest patch validation",
+            "name": "test",
+            "displayName": "test",
+            "steps": [
+                {
+                    "type": "configure",
+                    "name": "default"
+                },
+                {
+                    "type": "build",
+                    "name": "apks"
+                },
+                {
+                    "type": "test",
+                    "name": "default"
+                }
+            ]
+        },
+        {
+            "$comment": "compile + install/launch via waydroid + log watch (bounded unless -Ddeploy_debug_waydroid=ON)",
+            "name": "deploy",
+            "displayName": "deploy (waydroid)",
+            "steps": [
+                {
+                    "type": "configure",
+                    "name": "default"
                 },
                 {
                     "type": "build",
                     "name": "deploy-waydroid"
+                }
+            ]
+        },
+        {
+            "$comment": "compile + install/launch on a phone via adb + log watch (infinite tail unless -Ddeploy_debug_adb=OFF; set adb_serial to pick a device)",
+            "name": "deploy-adb",
+            "displayName": "deploy (adb / phone)",
+            "steps": [
+                {
+                    "type": "configure",
+                    "name": "default"
+                },
+                {
+                    "type": "build",
+                    "name": "deploy-adb"
                 }
             ]
         }

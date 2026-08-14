@@ -107,4 +107,3 @@ cmake/toolchains/.macos-toolchain-deps/
 cmake/toolchains/.macos-sdk-cache/
 
 decompiled/
-decompiled_mod/
