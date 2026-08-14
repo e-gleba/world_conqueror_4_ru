@@ -59,20 +59,19 @@ jobs:
             -c android.intent.category.LAUNCHER -n "$PKG/.WC4Activity"
           PID=$(adb shell pidof "$PKG" 2>/dev/null | tr -d '\r' || true)
           echo "⏳ Watching logcat for 10 seconds (pid: ${PID:-none — app died at launch})..."
-          if [ -n "$PID" ]; then
-            # app-scoped: only the game's process
-            timeout 10 adb logcat -v time --pid "$PID" > crash.log || true
-          else
-            # instant crash: the buffer was cleared pre-launch, so it only
-            # holds the launch window — keep the app's / crash lines
-            timeout 10 adb logcat -v time 2>&1 | \
-              grep -E "$PKG|AndroidRuntime|FATAL|DEBUG|libc|ActivityManager" \
-              > crash.log || true
-          fi
+          # UNFILTERED capture: a native crash is logged by crash_dump
+          # (tag DEBUG) and the death notice by system_server (tag
+          # ActivityManager) — under *their* PIDs, so `logcat --pid`
+          # would silently miss them. The buffer was cleared pre-launch,
+          # so this holds only the launch window.
+          timeout 10 adb logcat -v time > crash_raw.log || true
+          # App scope: header PID/TID, package name, or crash channels.
+          grep -E " ${PID:-0} |$PKG|FATAL|Fatal signal|DEBUG|tombstone|has died|Force finishing|AndroidRuntime|libc" \
+            crash_raw.log > crash.log || true
 
       - name: Analyze logcat for crashes
         run: |
-          if grep -iE "fatal|crash|exception|kill.*wc4|native.*crash" crash.log; then
+          if grep -iE "fatal|crash|exception|kill.*wc4|native.*crash|has died|force finishing" crash.log; then
             echo "❌ Crash or fatal exception detected in 10s window."
             cat crash.log
             exit 1
@@ -85,5 +84,7 @@ jobs:
         if: always()
         with:
           name: waydroid-logcat-${{ inputs.apk_artifact_name }}-${{ github.run_id }}
-          path: crash.log
+          path: |
+            crash.log
+            crash_raw.log
           retention-days: 14

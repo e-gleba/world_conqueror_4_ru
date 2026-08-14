@@ -6,14 +6,20 @@
 #         -P deploy_apk.cmake
 #
 # Installs the APK, force-stops any stale instance, launches the main
-# activity explicitly, then watches the app's own logs (PID-scoped):
+# activity explicitly, then watches logcat for crashes:
 #
-#   DEBUG=ON   infinite PID-scoped logcat tail (Ctrl+C to stop) — you are
-#              at the device, watching it run.
-#   DEBUG=OFF  CI-style bounded watch: capture the app's logcat for
-#              TIMEOUT seconds, then scan for fatal/crash patterns and
-#              exit non-zero on a hit — same idea as the smoke-test
-#              workflow, but local.
+#   DEBUG=ON   infinite UNFILTERED logcat tail (Ctrl+C to stop).
+#   DEBUG=OFF  CI-style bounded watch: capture logcat for TIMEOUT seconds,
+#              keep the app's lines + crash channels, scan for fatal
+#              patterns and exit non-zero on a hit.
+#
+# Why not `logcat --pid <app>`? A Java crash (FATAL EXCEPTION) is logged by
+# the app process itself, but a NATIVE crash is logged by crash_dump (tag
+# DEBUG) and the "Process ... has died" notice by system_server (tag
+# ActivityManager) — both under *their* PIDs. A PID-scoped logcat therefore
+# shows nothing when the app segfaults or is killed: the log just stops.
+# The buffer is cleared right before launch, so an unfiltered capture holds
+# only the launch window and can be safely post-filtered.
 
 foreach(req IN ITEMS PKG APK BACKEND)
     if(NOT DEFINED ${req} OR "${${req}}" STREQUAL "")
@@ -116,45 +122,35 @@ execute_process(
 string(STRIP "${pid}" pid)
 
 if(pid_rc EQUAL 0 AND pid MATCHES "^[0-9]+$")
-    # PID-scoped: only this process, so an instant crash is captured.
-    set(log_pid --pid "${pid}")
+    # Space-padded so it matches the header PID/TID columns and the
+    # "pid: N" / "pid N" mentions in crash_dump / system_server lines.
+    set(pid_alt " ${pid} ")
     set(scope "pid ${pid}")
 else()
-    # App died before we could grab a PID (instant crash). The buffer was
-    # cleared right before launch, so a full capture still holds only the
-    # launch window; lines are post-filtered to the app + crash channels
-    # below.
-    set(log_pid)
+    # App died before we could grab a PID (instant crash) — the package
+    # name / crash channels in the line filter below still catch it.
+    set(pid_alt " pid=NONE ") # never matches
     set(scope "package ${PKG} (no live pid)")
 endif()
 message(STATUS "watching ${scope}")
 
-# App-scope line filter for the no-pid fallback: lines mentioning the
-# package or a crash channel (AndroidRuntime = Java crashes, DEBUG/libc =
-# native crashes, ActivityManager = ANR / force-close).
+# App-scope line filter: the app's header PID/TID, any mention of the
+# package, or a crash channel (AndroidRuntime = Java crash, DEBUG/libc/
+# tombstone = native crash report from crash_dump, ActivityManager death
+# notices from system_server).
 set(app_line_regex
-    "[^\n]*(${PKG}|AndroidRuntime|FATAL|DEBUG|libc|ActivityManager)[^\n]*")
+    "[^\n]*(${pid_alt}|${PKG}|FATAL|Fatal signal|DEBUG|tombstone|has died|Force finishing|AndroidRuntime|libc)[^\n]*")
 
 # --- log watch --------------------------------------------------------------
 
 if(DEBUG)
-    if(log_pid)
-        # infinite PID-scoped tail — Ctrl+C to stop
-        execute_process(
-            COMMAND ${adb} logcat -v time ${log_pid}
-            COMMAND_ECHO STDOUT)
-    else()
-        # No live process to tail — an infinite UNFILTERED tail is
-        # useless. Dump the post-launch buffer once, app-scoped.
-        execute_process(
-            COMMAND ${adb} logcat -d -v time
-            OUTPUT_VARIABLE log
-            ERROR_VARIABLE log
-            COMMAND_ERROR_IS_FATAL NONE)
-        string(REGEX MATCHALL "${app_line_regex}" log_lines "${log}")
-        string(REPLACE ";" "\n" log "${log_lines}")
-        message(STATUS "app log after failed launch:\n${log}")
-    endif()
+    # Infinite tail. Unfiltered on purpose: native crashes and kill notices
+    # are logged by crash_dump / system_server, not by the app PID — a
+    # --pid tail would silently miss exactly the lines you are looking
+    # for. Narrow the stream yourself, e.g.:
+    #   adb logcat -v time | grep -E "${PKG}|FATAL|Fatal signal|DEBUG"
+    message(STATUS "unfiltered logcat tail — Ctrl+C to stop")
+    execute_process(COMMAND ${adb} logcat -v time COMMAND_ECHO STDOUT)
     return()
 endif()
 
@@ -164,20 +160,17 @@ endif()
 # *lines* and exits immediately, so it cannot be used here.
 message(STATUS "watching logcat for ${TIMEOUT}s (DEBUG=OFF)")
 execute_process(
-    COMMAND ${adb} logcat -v time ${log_pid}
-    OUTPUT_VARIABLE log
-    ERROR_VARIABLE log
+    COMMAND ${adb} logcat -v time
+    OUTPUT_VARIABLE log_raw
+    ERROR_VARIABLE log_raw
     RESULT_VARIABLE log_rc
     TIMEOUT ${TIMEOUT}
     COMMAND_ERROR_IS_FATAL NONE)
 
-if(NOT log_pid)
-    # Device-wide capture (no live pid): keep only the app's lines.
-    string(REGEX MATCHALL "${app_line_regex}" log_lines "${log}")
-    string(REPLACE ";" "\n" log "${log_lines}")
-endif()
+string(REGEX MATCHALL "${app_line_regex}" log_lines "${log_raw}")
+string(REPLACE ";" "\n" log "${log_lines}")
 
-if(log MATCHES "FATAL EXCEPTION|AndroidRuntime|Fatal signal|ANR in ${PKG}")
+if(log MATCHES "FATAL EXCEPTION|Fatal signal|has died|Force finishing|ANR in ${PKG}")
     message(
         FATAL_ERROR
             "crash pattern detected in the ${TIMEOUT}s window after launching ${component}:\n"
