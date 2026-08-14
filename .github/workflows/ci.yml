@@ -6,10 +6,16 @@ on:
     paths-ignore:
       - '**.md'
       - '.github/logo.png'
+      - '.github/logo.svg'
+      - '.github/dependabot.yml'
+      - '.github/ISSUE_TEMPLATE/**'
   pull_request:
     paths-ignore:
       - '**.md'
       - '.github/logo.png'
+      - '.github/logo.svg'
+      - '.github/dependabot.yml'
+      - '.github/ISSUE_TEMPLATE/**'
 
 permissions:
   contents: read

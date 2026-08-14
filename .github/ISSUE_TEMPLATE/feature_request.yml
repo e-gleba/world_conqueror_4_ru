@@ -1,0 +1,45 @@
+---
+name: Feature Request
+description: Suggest a patch improvement, new script capability, or pipeline/docs enhancement.
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this for concrete, actionable proposals. For open-ended ideas, open a Discussion first.
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: One-paragraph elevator pitch
+    validations:
+      required: true
+  - type: textarea
+    id: motivation
+    attributes:
+      label: Motivation
+      description: Why is this needed? Who benefits? What gap does it close?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed implementation
+      description: Concrete changes — scripts, CMake targets/options, workflows, docs. Keep it surgical.
+    validations:
+      required: true
+  - type: checkboxes
+    id: criteria
+    attributes:
+      label: Acceptance criteria
+      description: Check what you can commit to verifying
+      options:
+        - label: I can test the full pipeline locally (decompile + build)
+          required: false
+        - label: I can smoke-test the APK on Waydroid
+          required: false
+        - label: Documentation update included in proposal
+          required: false
+        - label: I searched existing issues/PRs for duplicates
+          required: true
