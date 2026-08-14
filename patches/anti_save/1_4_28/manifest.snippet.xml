@@ -1,0 +1,14 @@
+<!-- anti_save - manifest merge snippet -->
+
+<!-- Inside <manifest>: ensure these exist. MANAGE_EXTERNAL_STORAGE is the
+     line the patch adds; READ/WRITE_EXTERNAL_STORAGE usually already exist
+     in stock EasyTech manifests - add only what is missing. -->
+<uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" />
+<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+
+<!-- Inside <application>: optional, only if the target must also work on
+     API 29 without the all-files-access grant flow:
+
+     android:requestLegacyExternalStorage="true"
+-->

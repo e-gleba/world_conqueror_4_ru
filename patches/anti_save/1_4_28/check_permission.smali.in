@@ -1,0 +1,133 @@
+# =============================================================================
+# anti_save - API-30-aware storage permission gate (template)
+#
+# WHOLE-METHOD REPLACEMENT: delete the host activity's existing
+#     .method private checkPermission()V ... .end method
+# and put this block in its place after token substitution. Do NOT append -
+# a duplicate method signature is a build error.
+#
+# Tokens:
+#   @SELF@   host class descriptor (used for the ->TAG field reads)
+#
+# Host requirements / deps:
+#   - host class is an android/app/Activity subclass (p0 is the Activity)
+#   - androidx/core/app/ActivityCompat present in the APK (EasyTech games
+#     ship it). If absent and minSdk >= 23, swap to framework calls:
+#       Activity->checkSelfPermission(Ljava/lang/String;)I
+#       Activity->requestPermissions([Ljava/lang/String;I)V
+#   - com/easytech/lib/ecLogUtil present (EasyTech shared lib). If absent,
+#     swap both ecLogDebug calls for android/util/Log->d.
+#   - host has a static TAG:Ljava/lang/String; field. If absent, replace the
+#     two sget-object @SELF@->TAG reads with a const-string.
+#
+# Register note: this body needs .locals 4 (stock WC4 method had 3; the
+# API-30 branch is why it was bumped). Keep .locals 4 as-is.
+# =============================================================================
+
+.method private checkPermission()V
+    .locals 4
+
+    sget v0, Landroid/os/Build$VERSION;->SDK_INT:I
+    const/16 v1, 0x1e
+
+    if-ge v0, v1, :cond_api30
+
+    const-string v0, "android.permission.WRITE_EXTERNAL_STORAGE"
+
+    invoke-static {p0, v0}, Landroidx/core/app/ActivityCompat;->checkSelfPermission(Landroid/content/Context;Ljava/lang/String;)I
+
+    move-result v1
+
+    if-eqz v1, :cond_granted
+
+    invoke-static {p0, v0}, Landroidx/core/app/ActivityCompat;->shouldShowRequestPermissionRationale(Landroid/app/Activity;Ljava/lang/String;)Z
+
+    move-result v1
+
+    if-eqz v1, :cond_0
+
+    const-string v1, "Please open the relevant authority"
+
+    const/4 v2, 0x0
+
+    invoke-static {p0, v1, v2}, Landroid/widget/Toast;->makeText(Landroid/content/Context;Ljava/lang/CharSequence;I)Landroid/widget/Toast;
+
+    move-result-object v1
+
+    invoke-virtual {v1}, Landroid/widget/Toast;->show()V
+
+    :cond_0
+    filled-new-array {v0}, [Ljava/lang/String;
+
+    move-result-object v0
+
+    const/4 v1, 0x1
+
+    invoke-static {p0, v0, v1}, Landroidx/core/app/ActivityCompat;->requestPermissions(Landroid/app/Activity;[Ljava/lang/String;I)V
+
+    goto :goto_0
+
+    :cond_granted
+    sget-object v0, @SELF@->TAG:Ljava/lang/String;
+
+    const-string v1, "Authorized success"
+
+    invoke-static {v0, v1}, Lcom/easytech/lib/ecLogUtil;->ecLogDebug(Ljava/lang/String;Ljava/lang/String;)V
+
+    goto :goto_0
+
+    :cond_api30
+    invoke-static {}, Landroid/os/Environment;->isExternalStorageManager()Z
+
+    move-result v0
+
+    if-eqz v0, :cond_request_manage
+
+    sget-object v0, @SELF@->TAG:Ljava/lang/String;
+
+    const-string v1, "Authorized success"
+
+    invoke-static {v0, v1}, Lcom/easytech/lib/ecLogUtil;->ecLogDebug(Ljava/lang/String;Ljava/lang/String;)V
+
+    goto :goto_0
+
+    :cond_request_manage
+    new-instance v0, Landroid/content/Intent;
+
+    const-string v1, "android.settings.MANAGE_APP_ALL_FILES_ACCESS_PERMISSION"
+
+    invoke-direct {v0, v1}, Landroid/content/Intent;-><init>(Ljava/lang/String;)V
+
+    new-instance v1, Ljava/lang/StringBuilder;
+
+    invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v2, "package:"
+
+    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v1
+
+    invoke-virtual {p0}, Landroid/app/Activity;->getPackageName()Ljava/lang/String;
+
+    move-result-object v2
+
+    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v1
+
+    invoke-virtual {v1}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v1
+
+    invoke-static {v1}, Landroid/net/Uri;->parse(Ljava/lang/String;)Landroid/net/Uri;
+
+    move-result-object v1
+
+    invoke-virtual {v0, v1}, Landroid/content/Intent;->setData(Landroid/net/Uri;)Landroid/content/Intent;
+
+    invoke-virtual {p0, v0}, Landroid/app/Activity;->startActivity(Landroid/content/Intent;)V
+
+    :goto_0
+    return-void
+.end method
