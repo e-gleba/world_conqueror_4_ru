@@ -34,16 +34,16 @@ set(wc4_crypt
     "wc4 encrypt/decrypt script"
 )
 set(wc4_unlock
-    "${CMAKE_CURRENT_SOURCE_DIR}/scripts/wc4_unlock.py"
+    "${CMAKE_CURRENT_SOURCE_DIR}/patches/enable_all/wc4_unlock.py"
     CACHE FILEPATH
-    "wc4 unlock-all script"
+    "wc4 unlock-all script (enable_all patch)"
 )
 set(wc4_header "MD5_SIZE" CACHE STRING "wc4-crypt header format")
 
 set(diff_dir
     "${CMAKE_CURRENT_SOURCE_DIR}/diff"
     CACHE PATH
-    "Overlay: ru translation vs vanilla"
+    "Legacy overlay: ru translation vs vanilla (sync target; superseded by patches/)"
 )
 set(diff_mod_dir
     "${CMAKE_CURRENT_SOURCE_DIR}/diff_mod"
@@ -405,13 +405,9 @@ file(
     LIST_DIRECTORIES FALSE
     "${decompiled_dir}/*"
 )
-file(
-    GLOB_RECURSE diff_overlay_files
-    CONFIGURE_DEPENDS
-    LIST_DIRECTORIES FALSE
-    "${diff_dir}/*"
-)
 
+# Base tree: decompile + decrypt only. Named patches (patches/) install
+# on top of this tree — see the `patches` / `patch-<name>` targets.
 add_custom_command(
     OUTPUT "${stamp_decompiled}"
     COMMAND
@@ -429,19 +425,14 @@ add_custom_command(
         "-DMODE=decrypt" "-DDIR=${decompiled_dir}/${assets_data_rel}" -P
         "${CMAKE_CURRENT_BINARY_DIR}/crypt_json.cmake"
     COMMAND
-        "${CMAKE_COMMAND}" -E make_directory "${diff_dir}"
-    COMMAND
-        "${CMAKE_COMMAND}" -E copy_directory "${diff_dir}" "${decompiled_dir}"
-    COMMAND
         "${CMAKE_COMMAND}" -E touch "${stamp_decompiled}"
     DEPENDS
         "${apk_input}"
         "${apktool_jar}"
         "${wc4_crypt}"
         "${CMAKE_CURRENT_BINARY_DIR}/crypt_json.cmake"
-        ${diff_overlay_files}
     COMMENT
-        "decompile => decompiled/ (apktool d + decrypt json + overlay diff/)"
+        "decompile => decompiled/ (apktool d + decrypt json)"
     USES_TERMINAL
     VERBATIM
 )
@@ -472,46 +463,21 @@ add_custom_command(
     VERBATIM
 )
 
-# stage_mod stays DECRYPTED: it is the audit baseline for diff_mod/.
-# Encryption happens only in the throwaway build_*/ trees below.
-add_custom_command(
-    OUTPUT "${stamp_stage_mod}"
-    COMMAND
-        "${CMAKE_COMMAND}" -E rm -rf "${stage_mod}"
-    COMMAND
-        "${CMAKE_COMMAND}" -E copy_directory "${decompiled_dir}" "${stage_mod}"
-    COMMAND
-        "${CMAKE_COMMAND}" -E echo
-        "+ ${python3_bin} ${wc4_unlock} ${stage_mod}/${assets_data_rel}"
-    COMMAND
-        "${python3_bin}" "${wc4_unlock}" "${stage_mod}/${assets_data_rel}"
-    COMMAND
-        "${CMAKE_COMMAND}" -E touch "${stamp_stage_mod}"
-    DEPENDS
-        "${wc4_unlock}"
-        ${decompiled_files}
-    COMMENT
-        "stage_mod: copy decompiled/ + apply unlock"
-    USES_TERMINAL
-    VERBATIM
-)
+# Named patches: each patches/<name>/CMakeLists.txt manifest declares
+# install rules; the framework generates one `cmake -P` install script
+# per patch and registers its stamp in wc4_decompiled_stamps /
+# wc4_stage_stamps (mod variant). Also produces stage_mod/ + diff_mod/.
+add_subdirectory(patches)
 
-add_custom_command(
-    OUTPUT "${stamp_diff_mod}"
-    COMMAND
-        "${CMAKE_COMMAND}" "-DSRC=${stage_mod}" "-DORIG=${decompiled_dir}"
-        "-DDIFF=${diff_mod_dir}" -P
-        "${CMAKE_CURRENT_BINARY_DIR}/diff_sync.cmake"
-    COMMAND
-        "${CMAKE_COMMAND}" -E touch "${stamp_diff_mod}"
-    DEPENDS
-        "${stamp_stage_mod}"
-        "${CMAKE_CURRENT_BINARY_DIR}/diff_sync.cmake"
-    COMMENT
-        "audit: stage_mod vs decompiled/ => diff_mod/"
-    USES_TERMINAL
-    VERBATIM
-)
+get_property(decompiled_stamps GLOBAL PROPERTY wc4_decompiled_stamps)
+get_property(stage_stamps GLOBAL PROPERTY wc4_stage_stamps)
+
+if(NOT stage_stamps)
+    message(
+        FATAL_ERROR
+        "no stage_mod patch registered (enable_all) — cannot build the mod variant"
+    )
+endif()
 
 add_custom_command(
     OUTPUT "${signed_ru}"
@@ -542,6 +508,7 @@ add_custom_command(
         "${CMAKE_CURRENT_BINARY_DIR}/crypt_json.cmake"
         "${apktool_jar}"
         "${signer_jar}"
+        ${decompiled_stamps}
         ${decompiled_files}
     COMMENT
         "wc4_ru: encrypt + apktool b + sign => wc4_ru-aligned-debugSigned.apk"
@@ -573,7 +540,7 @@ add_custom_command(
         "${java_bin}" -jar "${signer_jar}" -a "${apk_mod_unsigned}" --out
         "${CMAKE_CURRENT_BINARY_DIR}" --allowResign
     DEPENDS
-        "${stamp_stage_mod}"
+        ${stage_stamps}
         "${wc4_crypt}"
         "${CMAKE_CURRENT_BINARY_DIR}/crypt_json.cmake"
         "${apktool_jar}"

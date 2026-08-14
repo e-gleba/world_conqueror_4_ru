@@ -12,7 +12,7 @@ from types import ModuleType
 from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
-UNLOCK_SCRIPT = ROOT / "scripts" / "wc4_unlock.py"
+UNLOCK_SCRIPT = ROOT / "patches" / "enable_all" / "wc4_unlock.py"
 FIXTURE_DIR = ROOT / "diff_mod" / "assets" / "data"
 
 
