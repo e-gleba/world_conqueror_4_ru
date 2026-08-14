@@ -1,0 +1,20 @@
+# =============================================================================
+# anti_save - disconnect fallback (template)
+#
+# WHOLE-METHOD REPLACEMENT for the host's
+#   .method private onDisconnected()V
+# A lost Google Play Games connection becomes a successful offline login
+# with the constant profile id.
+#
+# Tokens: @SELF@ @PROFILE_ID@
+# =============================================================================
+
+.method private onDisconnected()V
+    .locals 2
+
+    const/4 v0, 0x1
+    const-string v1, "@PROFILE_ID@"
+    invoke-direct {p0, v0, v1, v1}, @SELF@->handleLoginResult(ZLjava/lang/String;Ljava/lang/String;)V
+
+    return-void
+.end method

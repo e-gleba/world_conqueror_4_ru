@@ -1,0 +1,91 @@
+# =============================================================================
+# anti_save - login bypass + save-root redirect (template)
+#
+# WHOLE-METHOD REPLACEMENT for the host's
+#   .method private handleLoginResult(ZLjava/lang/String;Ljava/lang/String;)V
+# Forces a successful offline login with a constant profile id, pins
+# appDataDir to GetPublicSaveRoot(), runs MigrateSaves(), then queues the
+# stock GL runnable.
+#
+# Tokens: @SELF@ @PROFILE_ID@
+# Literal sibling refs - adjust per target, numbers drift between versions:
+#   Lcom/easytech/wc4/android/WC4Activity$30;  (login Runnable inner class)
+#   Lcom/easytech/wc4/android/ecGLSurfaceView; (GL view)
+# Deps: com/easytech/lib/ecLogUtil.
+# =============================================================================
+
+.method private handleLoginResult(ZLjava/lang/String;Ljava/lang/String;)V
+    .locals 4
+
+    # --- PATCH: force success + hardcoded profile ID ---
+    const/4 p1, 0x1
+    const-string p2, "@PROFILE_ID@"
+    const-string p3, "@PROFILE_ID@"
+    # --- end force ---
+
+    const/4 v3, 0x0
+    invoke-direct {p0, v3}, @SELF@->LoggingDialog(Z)V
+
+    sget-boolean v0, @SELF@->gameInited:Z
+    if-eqz v0, :cond_0
+    return-void
+
+    :cond_0
+    # --- PATCH: always GetPublicSaveRoot, kill dataDir fallback ---
+    invoke-static {}, @SELF@->GetPublicSaveRoot()Ljava/lang/String;
+    move-result-object v0
+    sput-object v0, @SELF@->appDataDir:Ljava/lang/String;
+    # --- end patch ---
+
+    new-instance v0, Ljava/lang/StringBuilder;
+    invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
+    sget-object v1, @SELF@->appDataDir:Ljava/lang/String;
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    const-string v1, "/"
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    invoke-virtual {v0, p2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+    move-result-object v0
+
+    # p1 is always 1, so we always take the success branch
+    new-instance v1, Ljava/io/File;
+    invoke-direct {v1, v0}, Ljava/io/File;-><init>(Ljava/lang/String;)V
+    invoke-virtual {v1}, Ljava/io/File;->exists()Z
+    move-result v2
+    if-nez v2, :cond_2
+    invoke-virtual {v1}, Ljava/io/File;->mkdirs()Z
+    move-result v2
+    goto :goto_1
+
+    :cond_2
+    const/4 v2, 0x1
+
+    :goto_1
+
+    invoke-static {}, @SELF@->MigrateSaves()V
+
+    const/4 v1, 0x1
+    sput-boolean v1, @SELF@->gameInited:Z
+    sput-object p2, @SELF@->GOOGLE_PLAYER_ID:Ljava/lang/String;
+
+    sget-object v1, @SELF@->TAG:Ljava/lang/String;
+    new-instance v3, Ljava/lang/StringBuilder;
+    invoke-direct {v3}, Ljava/lang/StringBuilder;-><init>()V
+    invoke-virtual {v3, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    const-string v0, ",result"
+    invoke-virtual {v3, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    invoke-virtual {v3, v2}, Ljava/lang/StringBuilder;->append(Z)Ljava/lang/StringBuilder;
+    invoke-virtual {v3}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+    move-result-object v0
+    invoke-static {v1, v0}, Lcom/easytech/lib/ecLogUtil;->ecLogInfo(Ljava/lang/String;Ljava/lang/String;)V
+
+    sget-object v0, @SELF@->mGLView:Lcom/easytech/wc4/android/ecGLSurfaceView;
+    if-eqz v0, :cond_5
+    new-instance v1, Lcom/easytech/wc4/android/WC4Activity$30;
+    invoke-direct {v1, p0, p1, p2}, Lcom/easytech/wc4/android/WC4Activity$30;-><init>(@SELF@ZLjava/lang/String;)V
+    invoke-virtual {v0, v1}, Lcom/easytech/wc4/android/ecGLSurfaceView;->queueEvent(Ljava/lang/Runnable;)V
+
+    :cond_5
+    return-void
+.end method
