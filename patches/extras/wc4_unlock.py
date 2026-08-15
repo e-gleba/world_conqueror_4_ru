@@ -1,10 +1,13 @@
 #!/usr/bin/env python3
-"""wc4_unlock.py v7 — World Conqueror 4 ultimate unlocker.
+"""wc4_unlock.py v8 — World Conqueror 4 ultimate unlocker.
 
 Patches ALL JSON data files in-place to unlock everything.
 Does NOT change any stat/combat/effect values.
 PRESERVES AdvanceID chains in GeneralPromotionSettings.
-PRESERVES facility requirements in EliteArmySettings.
+Elite units recruit in any lvl-1 city (RequireCityType => 20001);
+naval elites (ArmyType==4) KEEP port requirements (20701/20703).
+TechResearchSettings: all AA/satellite/building/army unlocks are granted
+at the starting level; research cost zeroed.
 Does NOT touch ScenarioSettings.json.
 Does NOT touch FrontierStageSetting / FrontierNodeSetting / FrontierChapterSetting.
 Price field intentionally excluded — uint32 underflow risk with active promotions.
@@ -188,7 +191,8 @@ _r("ArmyGroupChallengeSettings.json", "UnlockId", "zero")
 
 # =====================================================================
 # 12. ELITE ARMY UPGRADES
-#     RequireCityType is a facility id and is intentionally untouched.
+#     Costs/HQ gates cleared here. RequireCityType is rewritten by
+#     post_process_elites(): non-naval => 20001, naval keeps ports.
 # =====================================================================
 _r("EliteArmySettings.json", "NeedHQLv", "zero")
 _r("EliteArmySettings.json", "CostGold", "zero")
@@ -309,6 +313,12 @@ _r("WarZoneStageSetting.json", "UnlockStageId", "clear")
 # =====================================================================
 _r("ElitePassSettings.json", "Point", "cost1")
 
+# =====================================================================
+# 26. TECH RESEARCH — research free; unlocks moved to the starting
+#     level by post_process_techresearch()
+# =====================================================================
+_r("TechResearchSettings.json", "NeedAtomic", "zero")
+
 
 # ---------------------------------------------------------------------------
 # Engine
@@ -405,6 +415,75 @@ def post_process_tutorial(root: Path) -> None:
     )
 
 
+def post_process_elites(root: Path) -> None:
+    """Elite units recruit in any lvl-1 city. Naval keeps port requirement."""
+    path = root / "EliteArmySettings.json"
+    if not path.exists():
+        return
+
+    data = _read(path)
+    n = 0
+    for entry in data:
+        if not isinstance(entry, dict):
+            continue
+        if entry.get("ArmyType") == 4:
+            continue  # naval: ports 20701/20703 — see docs/unlock_invariants.md
+        if entry.get("RequireCityType") != 20001:
+            entry["RequireCityType"] = 20001
+            n += 1
+
+    _write(path, data)
+    print(
+        f"  ELITE  EliteArmySettings.json: RequireCityType=>20001 on {n} entries"
+        f" (naval kept on ports)"
+    )
+
+
+def post_process_techresearch(root: Path) -> None:
+    """Grant all tech-research unlocks (AA, satellite, buildings, armies)
+    at the starting level, so nothing depends on research progress."""
+    path = root / "TechResearchSettings.json"
+    if not path.exists():
+        return
+
+    data = _read(path)
+    entries = [e for e in data if isinstance(e, dict)]
+    start = next((e for e in entries if e.get("Level") == -1), None)
+    if start is None:
+        start = next((e for e in entries if e.get("Level") == 1), None)
+    if start is None:
+        print("  WARN   TechResearchSettings.json: no starting-level entry", file=sys.stderr)
+        return
+
+    def _ids(field: str) -> list[int]:
+        return sorted(
+            {
+                v
+                for e in entries
+                for v in e.get(field, [])
+                if isinstance(v, int) and not isinstance(v, bool) and v
+            }
+        )
+
+    buildings = _ids("UnlockedBuilding")
+    armies = _ids("UnlockedArmy")
+    start["UnlockedBuilding"] = buildings
+    start["UnlockedArmy"] = armies
+    start["UnlockedAntiAir"] = max(
+        (e.get("UnlockedAntiAir", 0) for e in entries), default=0
+    )
+    start["UnlockedSatellite"] = max(
+        (e.get("UnlockedSatellite", 0) for e in entries), default=0
+    )
+
+    _write(path, data)
+    print(
+        f"  TECH   TechResearchSettings.json: start level grants "
+        f"AA={start['UnlockedAntiAir']}, satellite={start['UnlockedSatellite']}, "
+        f"buildings={len(buildings)}, armies={len(armies)}"
+    )
+
+
 def main() -> None:
     if len(sys.argv) != 2:
         print(f"usage: {sys.argv[0]} <data_dir>", file=sys.stderr)
@@ -443,6 +522,8 @@ def main() -> None:
                 print(f"  ERR    {path.name}: no result", file=sys.stderr)
 
     post_process_tutorial(root)
+    post_process_elites(root)
+    post_process_techresearch(root)
     print(f"\n  patched: {touched}  |  mutations: {total}")
 
 

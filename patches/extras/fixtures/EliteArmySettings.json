@@ -25,7 +25,7 @@
     "CostTech": 0,
     "CostItem": 1,
     "CostBadge": 0,
-    "RequireCityType": 20003
+    "RequireCityType": 20001
   },
   {
     "Id": 31001,
@@ -39,7 +39,7 @@
     "CostTech": 0,
     "CostItem": 1,
     "CostBadge": 0,
-    "RequireCityType": 20101
+    "RequireCityType": 20001
   },
   {
     "Id": 41001,
@@ -53,7 +53,7 @@
     "CostTech": 0,
     "CostItem": 1,
     "CostBadge": 0,
-    "RequireCityType": 20401
+    "RequireCityType": 20001
   },
   {
     "Id": 51001,

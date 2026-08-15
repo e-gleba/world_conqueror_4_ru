@@ -13,7 +13,8 @@ double as the expected output: re-running the unlock on them must be a no-op
 docs/unlock_invariants.md:
 
   1. registry safety — RequireCityType is never a rule; Price is never a rule
-  2. elite facility requirements preserved byte-for-byte (naval stays on ports)
+  2. elite facility requirements: non-naval => 20001 (any lvl-1 city),
+     naval stays on ports (20701/20703)
   3. wonder costs zeroed, medal costs bounded, FunctionEffect never touched
   4. idempotence — re-running the unlock on a patched tree changes nothing
 """
@@ -48,11 +49,14 @@ def read_json(path: Path) -> Any:
 
 
 def run_unlock(unlock: ModuleType, fixture: Path) -> Any:
-    """Copy a fixture into a temp dir, run the unlock on it, return the result."""
+    """Copy a fixture into a temp dir, run the full unlock pipeline on it."""
     with tempfile.TemporaryDirectory() as temp_dir:
-        path = Path(temp_dir) / fixture.name
+        root = Path(temp_dir)
+        path = root / fixture.name
         path.write_text(fixture.read_text(encoding="utf-8"), encoding="utf-8")
         unlock.process(path, unlock.FILE_RULES[path.name])
+        unlock.post_process_elites(root)
+        unlock.post_process_techresearch(root)
         return read_json(path)
 
 
@@ -60,6 +64,8 @@ def assert_rule_registry_safe(unlock: ModuleType) -> None:
     elite_fields = {field for field, _, _ in unlock.FILE_RULES["EliteArmySettings.json"]}
     wonder_fields = {field for field, _, _ in unlock.FILE_RULES["WonderSettings.json"]}
 
+    # RequireCityType is rewritten only by post_process_elites() with a naval
+    # guard — it must never become a blanket registry rule.
     assert "RequireCityType" not in elite_fields, "RequireCityType selects facilities — never patch it"
     assert wonder_fields == {
         "CostGold",
@@ -74,22 +80,20 @@ def assert_rule_registry_safe(unlock: ModuleType) -> None:
         assert "Price" not in {field for field, _, _ in rules}, f"{name}: Price must never be a rule"
 
 
-def assert_elite_requirements_preserved(unlock: ModuleType) -> None:
-    source = read_json(FIXTURE_DIR / "EliteArmySettings.json")
-    requirements = {
-        entry["Id"]: entry["RequireCityType"]
-        for entry in source
-        if isinstance(entry, dict) and "RequireCityType" in entry
-    }
-
+def assert_elite_requirements_rewritten(unlock: ModuleType) -> None:
     patched = run_unlock(unlock, FIXTURE_DIR / "EliteArmySettings.json")
 
-    assert requirements
-    assert {entry["Id"]: entry["RequireCityType"] for entry in patched} == requirements
-    assert any(
-        entry["ArmyType"] == 4 and entry["RequireCityType"] in (20701, 20703)
-        for entry in patched
-    ), "naval elite units must remain bound to ports"
+    assert patched
+    assert any(entry["ArmyType"] == 4 for entry in patched), "fixture must cover naval elites"
+    for entry in patched:
+        if entry["ArmyType"] == 4:
+            assert entry["RequireCityType"] in (20701, 20703), (
+                "naval elite units must remain bound to ports"
+            )
+        else:
+            assert entry["RequireCityType"] == 20001, (
+                "non-naval elites must recruit in any lvl-1 city"
+            )
 
 
 def assert_wonder_costs_bounded(unlock: ModuleType) -> None:
@@ -112,7 +116,7 @@ def assert_idempotent(unlock: ModuleType) -> None:
 def main() -> None:
     unlock = load_unlock()
     assert_rule_registry_safe(unlock)
-    assert_elite_requirements_preserved(unlock)
+    assert_elite_requirements_rewritten(unlock)
     assert_wonder_costs_bounded(unlock)
     assert_idempotent(unlock)
     print("extras unlock checks: ok")
