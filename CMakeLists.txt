@@ -35,7 +35,7 @@ project(
 set(apk_default_url
     "https://github.com/e-gleba/world_conqueror_4_ru/releases/download/v1.28.0_pdalife/world-conqueror-4-ww2-strategy-v1-28-0-mod.apk"
 )
-# SHA-256 of the asset above (digest published on GitHub release v1.24.2_ru).
+# SHA-256 of the asset above (digest published on GitHub release v1.28.0_pdalife).
 set(apk_default_sha256
     "270a1b93b2529ec00c24e9f0d4b48b34fe7a0ac8d9bca0311348f6d0b68819c6")
 
@@ -52,6 +52,17 @@ set(apktool_version
 set(uber_signer_version
     "1.3.0"
     CACHE STRING "uber-apk-signer version")
+
+# Pinned tool hashes — wc4_fetch verifies the jars at configure time, so a
+# truncated or corrupted download fails loudly instead of breaking targets
+# mid-build. renovate tracks the versions (.github/renovate.json); on a
+# version bump the configure error prints the actual hash — paste it here.
+set(apktool_sha256
+    "dbf930b076c6b9be08d57c449cacefc3bdd6b71ebd59b3066fc0e1f5b14f9423"
+    CACHE STRING "SHA-256 of apktool_${apktool_version}.jar")
+set(uber_signer_sha256
+    "e1299fd6fcf4da527dd53735b56127e8ea922a321128123b9c32d619bba1d835"
+    CACHE STRING "SHA-256 of uber-apk-signer-${uber_signer_version}.jar")
 
 set(apktool_jobs
     "8"
@@ -220,8 +231,8 @@ endif()
 message(STATUS "apk_input: ${apk_input} (SHA-256: ${apk_input_actual})")
 
 file(MAKE_DIRECTORY "${tools_dir}")
-wc4_fetch("${apktool_url}" "${apktool_jar}" "")
-wc4_fetch("${signer_url}" "${signer_jar}" "")
+wc4_fetch("${apktool_url}" "${apktool_jar}" "${apktool_sha256}")
+wc4_fetch("${signer_url}" "${signer_jar}" "${uber_signer_sha256}")
 
 execute_process(
     COMMAND "${python3_bin}" "${wc4_crypt}" --version COMMAND_ECHO STDOUT
