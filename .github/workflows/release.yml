@@ -100,17 +100,20 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
+      # Named artifacts extract directly into `path` (no per-artifact
+      # subdirectory) — point each at the dir the release step expects.
+      # Flat `dist` also collided: both zips hold wc4_wc4-....apk.
       - name: Download mod APK
         uses: actions/download-artifact@v8
         with:
           name: wc4-mod-aligned-debugSigned
-          path: dist
+          path: dist/wc4-mod-aligned-debugSigned
 
       - name: Download clean APK
         uses: actions/download-artifact@v8
         with:
           name: wc4-clean-aligned-debugSigned
-          path: dist
+          path: dist/wc4-clean-aligned-debugSigned
 
       - name: Create tag & GitHub Release
         env:
