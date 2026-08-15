@@ -2,6 +2,7 @@
 .super Ljava/lang/Object;
 .source "WC4Activity.java"
 
+
 # interfaces
 .implements Lcom/tradplus/ads/open/TradPlusSdk$TPGDPRListener;
 
