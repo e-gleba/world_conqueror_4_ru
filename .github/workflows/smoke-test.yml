@@ -12,14 +12,14 @@ on:
         description: 'Artifact name to test'
         required: false
         type: string
-        default: 'wc4_ru_mod-aligned-debugSigned'
+        default: 'wc4_wc4-aligned-debugSigned'
   workflow_call:
     inputs:
       apk_artifact_name:
         description: 'Artifact name to test'
         required: false
         type: string
-        default: 'wc4_ru_mod-aligned-debugSigned'
+        default: 'wc4_wc4-aligned-debugSigned'
 
 permissions:
   contents: read
@@ -43,7 +43,12 @@ jobs:
 
       - name: Install APK
         run: |
-          APK=$(ls apks/*.apk | head -1)
+          set -euo pipefail
+          APK=$(find apks -maxdepth 1 -name '*.apk' -print -quit)
+          if [ -z "$APK" ]; then
+            echo "::error::no .apk in the downloaded artifact (apks/) — check apk_artifact_name / artifact_run_id"
+            exit 1
+          fi
           echo "Installing: $APK"
           waydroid app remove com.easytech.wc4.android || true
           waydroid app install "$APK"

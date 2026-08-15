@@ -19,7 +19,7 @@ on:
   workflow_dispatch:
     inputs:
       cmake_args:
-        description: 'Extra cmake args, e.g. -DWC4_PATCH_ANTI_SAVE=OFF -DWC4_PATCH_ENABLE_ALL=OFF'
+        description: 'Extra cmake args, e.g. -DWC4_PATCH_EXTRAS=OFF or -DWC4_PATCHES=ru_translation;expose_saves'
         required: false
         type: string
         default: ''
@@ -104,7 +104,7 @@ jobs:
             -v "${{ github.workspace }}:/workspace" \
             -w /workspace \
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest \
-            ctest --test-dir build --output-on-failure
+            ctest --preset default
 
       - name: Validate APK output
         run: |

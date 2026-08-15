@@ -22,7 +22,7 @@ env:
 
 jobs:
   # One decompiled APK, two patch combinations driven by the WC4_PATCH_*
-  # toggles: mod = all patches, clean = enable_all off.
+  # toggles: mod = all patches, clean = extras off.
   build:
     runs-on: ubuntu-latest
     strategy:
@@ -33,7 +33,7 @@ jobs:
           - variant: mod
             cmake_args: ''
           - variant: clean
-            cmake_args: '-DWC4_PATCH_ENABLE_ALL=OFF'
+            cmake_args: '-DWC4_PATCH_EXTRAS=OFF'
     steps:
       - uses: actions/checkout@v7
 
