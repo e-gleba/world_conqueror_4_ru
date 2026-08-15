@@ -26,8 +26,14 @@ permissions:
   actions: read
 
 jobs:
-  waydroid:
-    runs-on: [self-hosted, waydroid]
+  emulator:
+    # GitHub-hosted. Was [self-hosted, waydroid]: with that runner offline
+    # the job queued forever and blocked release.yml's publish job. API 31
+    # x86_64 google_apis translates the game's ARM-native libs (ARM
+    # translation ships in API 30+ emulator images) and predates API 34's
+    # low-targetSdk install block.
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - name: Download APK artifact
         uses: actions/download-artifact@v8
@@ -36,59 +42,65 @@ jobs:
           name: ${{ inputs.apk_artifact_name }}
           path: apks
 
-      - name: Ensure Waydroid session
+      # The runner user is not in the kvm group by default.
+      - name: Enable KVM
         run: |
-          waydroid session start &
-          sleep 5
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
 
-      - name: Install APK
-        run: |
-          set -euo pipefail
-          APK=$(find apks -maxdepth 1 -name '*.apk' -print -quit)
-          if [ -z "$APK" ]; then
-            echo "::error::no .apk in the downloaded artifact (apks/) — check apk_artifact_name / artifact_run_id"
-            exit 1
-          fi
-          echo "Installing: $APK"
-          waydroid app remove com.easytech.wc4.android || true
-          waydroid app install "$APK"
+      # All adb work happens inside `script`: the emulator is killed when
+      # the step ends. Install/launch/watch mirror the adb backend of
+      # cmake/deploy_apk.cmake.
+      - name: Boot emulator, install APK, 10-second crash watch
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 31
+          target: google_apis
+          arch: x86_64
+          script: |
+            set -euo pipefail
+            APK=$(find apks -maxdepth 1 -name '*.apk' -print -quit)
+            if [ -z "$APK" ]; then
+              echo "::error::no .apk in the downloaded artifact (apks/) — check apk_artifact_name / artifact_run_id"
+              exit 1
+            fi
+            echo "Installing: $APK"
+            PKG=com.easytech.wc4.android
+            adb uninstall "$PKG" || true
+            adb install "$APK"
 
-      - name: Launch & 10-second crash watch
-        run: |
-          PKG=com.easytech.wc4.android
-          adb shell am force-stop "$PKG" || true
-          adb logcat -c || true
-          # Explicit component, same as cmake/deploy_apk.cmake. No
-          # '|| true': an unresolvable component fails the step.
-          adb shell am start -W -a android.intent.action.MAIN \
-            -c android.intent.category.LAUNCHER -n "$PKG/.WC4Activity"
-          PID=$(adb shell pidof "$PKG" 2>/dev/null | tr -d '\r' || true)
-          echo "⏳ Watching logcat for 10 seconds (pid: ${PID:-none — app died at launch})..."
-          # UNFILTERED capture: a native crash is logged by crash_dump
-          # (tag DEBUG) and the death notice by system_server (tag
-          # ActivityManager) — under *their* PIDs, so `logcat --pid`
-          # would silently miss them. The buffer was cleared pre-launch,
-          # so this holds only the launch window.
-          timeout 10 adb logcat -v time > crash_raw.log || true
-          # App scope: header PID/TID, package name, or crash channels.
-          grep -E " ${PID:-0} |$PKG|FATAL|Fatal signal|DEBUG|tombstone|has died|Force finishing|AndroidRuntime|libc" \
-            crash_raw.log > crash.log || true
+            adb shell am force-stop "$PKG" || true
+            adb logcat -c || true
+            # Explicit component, same as cmake/deploy_apk.cmake. No
+            # '|| true': an unresolvable component fails the step.
+            adb shell am start -W -a android.intent.action.MAIN \
+              -c android.intent.category.LAUNCHER -n "$PKG/.WC4Activity"
+            PID=$(adb shell pidof "$PKG" 2>/dev/null | tr -d '\r' || true)
+            echo "⏳ Watching logcat for 10 seconds (pid: ${PID:-none — app died at launch})..."
+            # UNFILTERED capture: a native crash is logged by crash_dump
+            # (tag DEBUG) and the death notice by system_server (tag
+            # ActivityManager) — under *their* PIDs, so `logcat --pid`
+            # would silently miss them. The buffer was cleared pre-launch,
+            # so this holds only the launch window.
+            timeout 10 adb logcat -v time > crash_raw.log || true
+            # App scope: header PID/TID, package name, or crash channels.
+            grep -E " ${PID:-0} |$PKG|FATAL|Fatal signal|DEBUG|tombstone|has died|Force finishing|AndroidRuntime|libc" \
+              crash_raw.log > crash.log || true
 
-      - name: Analyze logcat for crashes
-        run: |
-          if grep -iE "fatal|crash|exception|kill.*wc4|native.*crash|has died|force finishing" crash.log; then
-            echo "❌ Crash or fatal exception detected in 10s window."
-            cat crash.log
-            exit 1
-          else
-            echo "✅ No crash detected in 10s window."
-          fi
+            if grep -iE "fatal|crash|exception|kill.*wc4|native.*crash|has died|force finishing" crash.log; then
+              echo "❌ Crash or fatal exception detected in 10s window."
+              cat crash.log
+              exit 1
+            else
+              echo "✅ No crash detected in 10s window."
+            fi
 
       - name: Upload logcat
         uses: actions/upload-artifact@v7
         if: always()
         with:
-          name: waydroid-logcat-${{ inputs.apk_artifact_name }}-${{ github.run_id }}
+          name: emulator-logcat-${{ inputs.apk_artifact_name }}-${{ github.run_id }}
           path: |
             crash.log
             crash_raw.log
