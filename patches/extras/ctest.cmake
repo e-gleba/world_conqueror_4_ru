@@ -5,5 +5,5 @@
 find_package(Python3 REQUIRED COMPONENTS Interpreter)
 
 add_test(
-    NAME enable_all_unlock
+    NAME extras_unlock
     COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_LIST_DIR}/test_unlock.py")

@@ -1,16 +1,18 @@
-# anti_gdpr — strip the GDPR consent dialog.
+# disable_gdpr — strip the GDPR consent dialog.
 #
-# File patch: drops a patched WC4Activity$53.smali (consent screen
-# removed) over the stock one in the target tree. Pure install(FILES)
-# rule — no scripts.
+# File patch: drops a patched WC4Activity$53.smali (consent callbacks
+# failed()/success() gutted to return-void) over the stock one in the
+# target tree. Pure install(FILES) rule — no scripts.
 #
-# 1.4.28: the class moved from smali/ to smali_classes15/. Payload:
-# 1_4_28/WC4Activity$53.smali — stock 1.4.28 file with
-# failed()/success() gutted to return-void (same change as the
-# previous version, see 1_4_28/previouse_version_patch.patch).
+# 1.4.28: the class lives in smali_classes15/, not smali/ — installing
+# to the old path would leave the stock class untouched (first dex wins).
+#
+# Test standalone:
+#   cmake -S patches/disable_gdpr -B /tmp/disable_gdpr -DWC4_TREE=<tree>
+#   cmake --install /tmp/disable_gdpr
 
 cmake_minimum_required(VERSION 4.2)
-project(wc4_patch_anti_gdpr LANGUAGES NONE)
+project(wc4_patch_disable_gdpr LANGUAGES NONE)
 
 # The target tree comes in as -DWC4_TREE=<tree>; redirect the /usr/local
 # default install prefix to it so the plain install(FILES) rule below
@@ -24,4 +26,5 @@ if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
         CACHE PATH "install prefix" FORCE)
 endif()
 
-install(FILES "WC4Activity$53.smali" DESTINATION smali/com/easytech/wc4/android)
+install(FILES "WC4Activity$53.smali"
+        DESTINATION smali_classes15/com/easytech/wc4/android)

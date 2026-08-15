@@ -76,7 +76,7 @@ def replace_method(src: str, header: str, body: str, name: str) -> str:
 
 def insert_after_method(src: str, header: str, body: str) -> str:
     if INSERT_GUARD in src:
-        print("[anti_save] helpers already present, skip insert")
+        print("[expose_saves] helpers already present, skip insert")
         return src
     rx = method_rx(header)
     if not rx.search(src):
@@ -88,7 +88,7 @@ def patch_set_package_name(src: str) -> str:
     if NATIVE_SET_PATHS.search(src):
         return NATIVE_SET_PATHS.sub(lambda _: NATIVE_SET_PATHS_NEW, src, count=1)
     if INSERT_GUARD in src:
-        print("[anti_save] setPackageName already patched")
+        print("[expose_saves] setPackageName already patched")
         return src
     die("cannot find setPackageName nativeSetPaths block")
 
@@ -117,7 +117,7 @@ def patch_smali(tree: Path, snippets: Path) -> None:
         text = replace_method(text, header, read_snippet(snippets, name), name)
     text = patch_set_package_name(text)
     path.write_text(text, encoding="utf-8")
-    print(f"[anti_save] patched {path.relative_to(tree)}")
+    print(f"[expose_saves] patched {path.relative_to(tree)}")
 
 
 def patch_manifest(tree: Path) -> None:
@@ -126,7 +126,7 @@ def patch_manifest(tree: Path) -> None:
         die(f"manifest not found: {path}")
     text = path.read_text(encoding="utf-8")
     if "MANAGE_EXTERNAL_STORAGE" in text:
-        print("[anti_save] manifest already has MANAGE_EXTERNAL_STORAGE")
+        print("[expose_saves] manifest already has MANAGE_EXTERNAL_STORAGE")
         return
     needle = "android.permission.WRITE_EXTERNAL_STORAGE"
     idx = text.find(needle)
@@ -136,7 +136,7 @@ def patch_manifest(tree: Path) -> None:
     if line_end < 0:
         die("WRITE_EXTERNAL_STORAGE line has no newline")
     path.write_text(text[: line_end + 1] + MANAGE_PERM + text[line_end + 1 :], encoding="utf-8")
-    print("[anti_save] + MANAGE_EXTERNAL_STORAGE")
+    print("[expose_saves] + MANAGE_EXTERNAL_STORAGE")
 
 
 def main() -> None:

@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-"""Regression checks for the enable_all unlock patch (wc4_unlock.py).
+"""Regression checks for the extras unlock patch (wc4_unlock.py).
 
 Lives with the patch; registered with ctest via ctest.cmake. Runs against
 compact fixtures — no decompiled tree needed, so it is fast and can also be
 run directly:
 
-    python3 patches/enable_all/test_unlock.py
+    python3 patches/extras/test_unlock.py
 
 Fixtures are already-PATCHED snapshots of the real v1.24.2 data, so they
 double as the expected output: re-running the unlock on them must be a no-op
@@ -115,7 +115,7 @@ def main() -> None:
     assert_elite_requirements_preserved(unlock)
     assert_wonder_costs_bounded(unlock)
     assert_idempotent(unlock)
-    print("enable_all unlock checks: ok")
+    print("extras unlock checks: ok")
 
 
 if __name__ == "__main__":

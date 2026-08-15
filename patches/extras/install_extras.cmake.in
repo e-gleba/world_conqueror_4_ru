@@ -1,0 +1,7 @@
+# Install-time script for the extras patch (configured with @ONLY@).
+# @WC4_TREE@ is the variant tree, passed to the patch as -DWC4_TREE=<tree>
+# and baked in at configure time.
+execute_process(
+    COMMAND "@Python3_EXECUTABLE@" "@CMAKE_CURRENT_SOURCE_DIR@/wc4_unlock.py"
+            "@WC4_TREE@/assets/data"
+    COMMAND_ERROR_IS_FATAL ANY)

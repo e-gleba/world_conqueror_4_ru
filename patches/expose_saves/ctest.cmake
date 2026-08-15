@@ -5,5 +5,5 @@
 find_package(Python3 REQUIRED COMPONENTS Interpreter)
 
 add_test(
-    NAME anti_save_patch
+    NAME expose_saves_patch
     COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_LIST_DIR}/test_patch.py")

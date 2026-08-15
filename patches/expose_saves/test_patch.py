@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""Regression checks for the anti_save surgical patcher (patch.py).
+"""Regression checks for the expose_saves surgical patcher (patch.py).
 
 Lives with the patch; registered with ctest via ctest.cmake. Runs against
 compact fixtures — no decompiled tree needed:
 
-    python3 patches/anti_save/test_patch.py
+    python3 patches/expose_saves/test_patch.py
 """
 
 from __future__ import annotations
@@ -78,7 +78,7 @@ def main() -> None:
         assert_patched(tree)
         run_patch(tree, snippets)
         assert_patched(tree)
-    print("anti_save patch checks: ok")
+    print("expose_saves patch checks: ok")
 
 
 if __name__ == "__main__":

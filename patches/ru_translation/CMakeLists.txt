@@ -14,6 +14,13 @@
 # language menu whatever the current locale is. Untouched slots keep
 # their stock files from the APK.
 #
+# After a game bump, reconcile the template with the fresh stock table
+# of the hijacked slot (inserts new keys inline in stock order, drops
+# removed ones, dumps the translation TODO line by line):
+#
+#   python3 patches/ru_translation/sync_stringtable.py \
+#       --stock decompiled/assets/stringtable_de.ini
+#
 # Test standalone:
 #   cmake -S patches/ru_translation -B /tmp/ru -DWC4_TREE=<tree>
 #   cmake --install /tmp/ru

@@ -1,11 +1,16 @@
-# enable_all — unlock all content: generals, stages, conquests, tech.
+# extras — unlock all content: generals, stages, conquests, tech.
 #
 # Script patch (no file payload): at install time wc4_unlock.py rewrites
 # the decrypted JSON data of the target tree (25 categories, combat stats
-# untouched). Include it in a variant's PATCHES list to unlock that APK.
+# untouched). Selected like every other patch: the WC4_PATCH_EXTRAS toggle
+# or the WC4_PATCHES allowlist.
+#
+# Test standalone:
+#   cmake -S patches/extras -B /tmp/extras -DWC4_TREE=<tree>
+#   cmake --install /tmp/extras
 
 cmake_minimum_required(VERSION 4.2)
-project(wc4_patch_enable_all LANGUAGES NONE)
+project(wc4_patch_extras LANGUAGES NONE)
 
 find_package(Python3 REQUIRED COMPONENTS Interpreter)
 
@@ -18,6 +23,6 @@ set(WC4_TREE
     "${CMAKE_INSTALL_PREFIX}"
     CACHE PATH "decompiled tree this patch installs into")
 
-set(script "${CMAKE_CURRENT_BINARY_DIR}/install_enable_all.cmake")
-configure_file(install_enable_all.cmake.in "${script}" @ONLY)
+set(script "${CMAKE_CURRENT_BINARY_DIR}/install_extras.cmake")
+configure_file(install_extras.cmake.in "${script}" @ONLY)
 install(SCRIPT "${script}")

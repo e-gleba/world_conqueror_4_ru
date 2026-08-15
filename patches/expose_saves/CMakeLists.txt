@@ -1,4 +1,4 @@
-# anti_save — public Documents save root + offline login.
+# expose_saves — public Documents save root + offline login.
 #
 # Script patch (no full-file payload): at install time patch.py
 # surgically rewrites the stock tree — inserts helper methods, replaces
@@ -7,11 +7,11 @@
 # the snippets re-checked against stock method headers.
 #
 # Test standalone:
-#   cmake -S patches/anti_save -B /tmp/anti_save -DWC4_TREE=<tree>
-#   cmake --install /tmp/anti_save
+#   cmake -S patches/expose_saves -B /tmp/expose_saves -DWC4_TREE=<tree>
+#   cmake --install /tmp/expose_saves
 
 cmake_minimum_required(VERSION 4.2)
-project(wc4_patch_anti_save LANGUAGES NONE)
+project(wc4_patch_expose_saves LANGUAGES NONE)
 
 find_package(Python3 REQUIRED COMPONENTS Interpreter)
 
@@ -46,6 +46,6 @@ foreach(
                    @ONLY)
 endforeach()
 
-set(script "${CMAKE_CURRENT_BINARY_DIR}/install_anti_save.cmake")
-configure_file(install_anti_save.cmake.in "${script}" @ONLY)
+set(script "${CMAKE_CURRENT_BINARY_DIR}/install_expose_saves.cmake")
+configure_file(install_expose_saves.cmake.in "${script}" @ONLY)
 install(SCRIPT "${script}")

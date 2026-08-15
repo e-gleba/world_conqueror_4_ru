@@ -32,10 +32,10 @@ No new field is added to force wonder blueprints open. Their availability is sav
 Run directly (no decompiled tree needed — it uses compact fixtures):
 
 ```bash
-python3 patches/enable_all/test_unlock.py
+python3 patches/extras/test_unlock.py
 ```
 
-or via ctest after a build (`enable_all_unlock`).
+or via ctest after a build (`extras_unlock`).
 
 Checks:
 
