@@ -12,10 +12,9 @@ MaxFormation => 4 (observed max). Only where non-zero.
 Facilities: production/recovery maxed to observed values.
 TechResearchSettings: all AA/satellite/building/army unlocks are granted
 at the starting level; research cost zeroed.
-SkillSettings: every percent-based (damage multiplier) skill chain gets an
-ultimate level appended — Level+1 (capped at the observed max of 10),
-SkillEffect=32767 (int16 max, percent), ActivatesChance=100, CostMedal=1.
-Flat-effect skills are left untouched.
+SkillSettings: every skill chain gets an ultimate level appended
+(Level+1, capped at the observed max of 10; SkillEffect=420,
+ActivatesChance=100, CostMedal=1).
 Does NOT touch ScenarioSettings.json.
 Does NOT touch FrontierStageSetting / FrontierNodeSetting / FrontierChapterSetting.
 Price field intentionally excluded — uint32 underflow risk with active promotions.
@@ -506,28 +505,15 @@ def post_process_techresearch(root: Path) -> None:
     )
 
 
-# int16 max — the largest percent value that survives a 16-bit SkillEffect
-# field. int32-safe by a huge margin: max unit attack ~420, so ultimate
-# damage ~420 x 328 ~ 138k, nowhere near the 2.1e9 int32 ceiling.
-SKILL_EFFECT_ULTIMATE = 32767
-
-
 def post_process_skills(root: Path) -> None:
-    """Append an ultimate level to every percent-based skill chain.
+    """Append an ultimate level to every skill chain.
 
-    Chains are linked lists via UpgradeId (0 = terminal). Only chains whose
-    terminal row has IfPercent == 1 get the ultimate level — those are the
-    damage multipliers; flat-effect skills (heal etc.) are left untouched.
-    Ultimate row: Level+1 (capped at the observed max of 10),
-    SkillEffect=SKILL_EFFECT_ULTIMATE, ActivatesChance=100, CostMedal=1;
-    everything else is copied from the terminal row.
-
-    Field width of SkillEffect is unverified — observed max 150 rules out
-    int8 only. If the engine field is uint8, 32767 wraps; fall back to 254,
-    then to 150 (observed max). Verify on device.
-
-    Idempotence marker: SKILL_EFFECT_ULTIMATE never occurs in original data
-    (observed max 150), so re-runs skip rows the patch itself added.
+    Chains are linked lists via UpgradeId (0 = terminal). Each terminal row
+    gets one more level: Level+1 (capped at the observed max of 10),
+    SkillEffect=420, ActivatesChance=100, CostMedal=1; everything else is
+    copied from the terminal row. Idempotence marker: SkillEffect == 420
+    never occurs in original data (observed max 150), so re-runs skip our
+    own rows.
     """
     path = root / "SkillSettings.json"
     if not path.exists():
@@ -542,10 +528,8 @@ def post_process_skills(root: Path) -> None:
     for entry in rows:
         if entry.get("UpgradeId") != 0:
             continue  # not a chain terminal
-        if entry.get("SkillEffect") == SKILL_EFFECT_ULTIMATE:
+        if entry.get("SkillEffect") == 420:
             continue  # our own ultimate row — idempotence marker
-        if entry.get("IfPercent") != 1:
-            continue  # damage multipliers only: percent-based skills
         level = entry.get("Level")
         if not isinstance(level, int) or isinstance(level, bool) or level >= 10:
             continue  # already at the observed max level
@@ -555,7 +539,7 @@ def post_process_skills(root: Path) -> None:
         ultimate.update(
             Id=next_id,
             Level=level + 1,
-            SkillEffect=SKILL_EFFECT_ULTIMATE,
+            SkillEffect=420,
             ActivatesChance=100,
             CostMedal=1,
             UpgradeId=0,
@@ -569,7 +553,7 @@ def post_process_skills(root: Path) -> None:
     _write(path, data)
     print(
         f"  SKILL  SkillSettings.json: +{added} ultimate levels"
-        f" (effect={SKILL_EFFECT_ULTIMATE}%, chance=100, percent-chains only)"
+        f" (effect=420, chance=100)"
     )
 
 

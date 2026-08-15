@@ -42,27 +42,20 @@ count persists. If it breaks, revert to 18 (the observed maximum).
 ## Skill ultimate levels
 
 `SkillSettings.json` rows are linked lists via `UpgradeId` (0 = chain
-terminal). `post_process_skills` appends one ultimate level to every
-percent-based chain (terminal row has `IfPercent == 1` — those are the
-damage multipliers; flat-effect skills are left untouched):
+terminal). `post_process_skills` appends one ultimate level to every chain:
 `Level+1` (capped at the observed maximum of 10 — levels 1..10 exist in the
 original data, so the engine and UI provably handle them),
-`SkillEffect=32767`, `ActivatesChance=100`, `CostMedal=1`; all other fields
+`SkillEffect=420`, `ActivatesChance=100`, `CostMedal=1`; all other fields
 are copied from the terminal row. New row ids start above the observed
 maximum id.
 
-Why 32767: it is the int16 maximum — the largest percent that survives a
-16-bit `SkillEffect` field. int32 overflow is impossible by a huge margin:
-max unit attack is ~420, so ultimate damage is ~420 x 328 ~ 138k against a
-2.1e9 ceiling. The observed `SkillEffect` maximum of 150 rules out int8 but
-NOT uint8 — if the engine field is uint8, 32767 wraps; fall back to 254,
-then to 150. Verify on device.
+`SkillEffect=420` exceeds the observed maximum of 150 — the field width in
+the engine is unverified (needs at least int16). Negative effects are NOT
+used: debuff skills encode the debuff in `Type` with a positive
+`SkillEffect`; a negative value risks an unsigned wrap.
 
-Negative effects are NOT used: debuff skills encode the debuff in `Type`
-with a positive `SkillEffect`; a negative value risks an unsigned wrap.
-
-Idempotence marker: `SkillEffect == 32767` never occurs in the original
-data, so re-runs skip rows the patch itself added.
+Idempotence marker: `SkillEffect == 420` never occurs in the original data,
+so re-runs skip rows the patch itself added.
 
 ## Tech research
 
