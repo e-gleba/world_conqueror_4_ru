@@ -1,0 +1,31 @@
+{
+    "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+    "extends": ["config:recommended"],
+    "enabledManagers": ["regex"],
+    "customManagers": [
+        {
+            "customType": "regex",
+            "description": "apktool build tool pinned in CMakeLists.txt",
+            "fileMatch": ["^CMakeLists\\.txt$"],
+            "matchStrings": [
+                "set\\(apktool_version\\s+\"(?<currentValue>[^\"]+)\""
+            ],
+            "depNameTemplate": "apktool",
+            "packageNameTemplate": "iBotPeaches/Apktool",
+            "datasourceTemplate": "github-releases",
+            "extractVersionTemplate": "^v(?<version>.+)$"
+        },
+        {
+            "customType": "regex",
+            "description": "uber-apk-signer build tool pinned in CMakeLists.txt",
+            "fileMatch": ["^CMakeLists\\.txt$"],
+            "matchStrings": [
+                "set\\(uber_signer_version\\s+\"(?<currentValue>[^\"]+)\""
+            ],
+            "depNameTemplate": "uber-apk-signer",
+            "packageNameTemplate": "patrickfav/uber-apk-signer",
+            "datasourceTemplate": "github-releases",
+            "extractVersionTemplate": "^v(?<version>.+)$"
+        }
+    ]
+}

@@ -8,6 +8,7 @@ on:
       - '.github/logo.png'
       - '.github/logo.svg'
       - '.github/dependabot.yml'
+      - '.github/renovate.json'
       - '.github/ISSUE_TEMPLATE/**'
   pull_request:
     paths-ignore:
@@ -15,6 +16,7 @@ on:
       - '.github/logo.png'
       - '.github/logo.svg'
       - '.github/dependabot.yml'
+      - '.github/renovate.json'
       - '.github/ISSUE_TEMPLATE/**'
   workflow_dispatch:
     inputs:
@@ -31,9 +33,6 @@ permissions:
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}/build-env
-  BASE_RELEASE: v1.24.2_ru
-  # SHA-256 digest of the original_5play_mod.apk asset of BASE_RELEASE
-  APK_SHA256: 3c86937dc5a4de5cefd0e5303ae3824957085d14a0e3b2a318a9d7789df99b96
 
 jobs:
   build:
@@ -52,37 +51,20 @@ jobs:
           docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest 2>/dev/null || \
           docker build -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest .
 
-      - name: Download base APK
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          mkdir -p base-apk
-          gh release download ${{ env.BASE_RELEASE }} \
-            --repo ${{ github.repository }} \
-            -p 'original.apk' \
-            -D base-apk \
-            --skip-existing || \
-          gh release download ${{ env.BASE_RELEASE }} \
-            --repo ${{ github.repository }} \
-            -p '*.apk' \
-            -D base-apk \
-            --skip-existing
-          APK=$(ls base-apk/*.apk | head -1)
-          if [ "$APK" != "base-apk/original.apk" ]; then
-            mv -f "$APK" base-apk/original.apk
-          fi
-          echo "$APK_SHA256  base-apk/original.apk" | sha256sum -c -
-          ls -la base-apk/
-
-      - name: Cache decompiled source & tools
+      # The base APK, its SHA-256 and the tool versions are pinned in
+      # CMakeLists.txt — cmake downloads and verifies them itself, so CI
+      # has nothing to duplicate. CMakeLists.txt is in the cache key, so
+      # bumping the APK or a tool busts the cache automatically.
+      - name: Cache base APK, decompiled source & tools
         uses: actions/cache@v6
         with:
           path: |
-            decompiled
+            build/original.apk
             build/tools
-          key: wc4-build-${{ env.BASE_RELEASE }}-${{ hashFiles('CMakeLists.txt', 'cmake/**', 'patches/**') }}
+            decompiled
+          key: wc4-build-${{ hashFiles('CMakeLists.txt', 'cmake/**', 'patches/**') }}
           restore-keys: |
-            wc4-build-${{ env.BASE_RELEASE }}-
+            wc4-build-
 
       - name: Configure & build APKs in container
         run: |
@@ -91,10 +73,7 @@ jobs:
             -w /workspace \
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest \
             bash -c '\
-              cmake --preset default \
-                -Dapk_input=/workspace/base-apk/original.apk \
-                -Dapk_input_sha256=${{ env.APK_SHA256 }} \
-                ${{ inputs.cmake_args }} && \
+              cmake --preset default ${{ inputs.cmake_args }} && \
               cmake --build build --target apks
             '
 

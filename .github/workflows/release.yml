@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Version tag (e.g. v1.24.2_ru3)'
+        description: 'Version tag (e.g. v1.28.0_ru)'
         required: true
         type: string
 
@@ -16,9 +16,6 @@ permissions:
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}/build-env
-  BASE_RELEASE: v1.24.2_ru
-  # SHA-256 digest of the original_5play_mod.apk asset of BASE_RELEASE
-  APK_SHA256: 3c86937dc5a4de5cefd0e5303ae3824957085d14a0e3b2a318a9d7789df99b96
 
 jobs:
   # One decompiled APK, two patch combinations driven by the WC4_PATCH_*
@@ -48,37 +45,19 @@ jobs:
           docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest 2>/dev/null || \
           docker build -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest .
 
-      - name: Download base APK
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          mkdir -p base-apk
-          gh release download ${{ env.BASE_RELEASE }} \
-            --repo ${{ github.repository }} \
-            -p 'original.apk' \
-            -D base-apk \
-            --skip-existing || \
-          gh release download ${{ env.BASE_RELEASE }} \
-            --repo ${{ github.repository }} \
-            -p '*.apk' \
-            -D base-apk \
-            --skip-existing
-          APK=$(ls base-apk/*.apk | head -1)
-          if [ "$APK" != "base-apk/original.apk" ]; then
-            mv -f "$APK" base-apk/original.apk
-          fi
-          echo "$APK_SHA256  base-apk/original.apk" | sha256sum -c -
-          ls -la base-apk/
-
-      - name: Cache decompiled source & tools
+      # The base APK, its SHA-256 and the tool versions are pinned in
+      # CMakeLists.txt — cmake downloads and verifies them itself, so the
+      # workflow has nothing to duplicate.
+      - name: Cache base APK, decompiled source & tools
         uses: actions/cache@v6
         with:
           path: |
-            decompiled
+            build/original.apk
             build/tools
-          key: wc4-build-${{ env.BASE_RELEASE }}-${{ hashFiles('CMakeLists.txt', 'cmake/**', 'patches/**') }}
+            decompiled
+          key: wc4-build-${{ hashFiles('CMakeLists.txt', 'cmake/**', 'patches/**') }}
           restore-keys: |
-            wc4-build-${{ env.BASE_RELEASE }}-
+            wc4-build-
 
       - name: Build APK in container
         run: |
@@ -87,10 +66,7 @@ jobs:
             -w /workspace \
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest \
             bash -c "\
-              cmake --preset default \
-                -Dapk_input=/workspace/base-apk/original.apk \
-                -Dapk_input_sha256=${{ env.APK_SHA256 }} \
-                ${{ matrix.cmake_args }} && \
+              cmake --preset default ${{ matrix.cmake_args }} && \
               cmake --build build --target apks \
             "
 
