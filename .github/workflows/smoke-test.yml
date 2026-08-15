@@ -75,7 +75,8 @@ jobs:
 
       # All adb work happens inside `script`: the emulator is killed when
       # the step ends. Install/launch/watch mirror the adb backend of
-      # cmake/deploy_apk.cmake.
+      # cmake/deploy_apk.cmake. The action runs `script` via /usr/bin/sh
+      # (dash on Ubuntu) — re-exec under bash for `set -o pipefail`.
       - name: Boot emulator, install APK, 10-second crash watch
         uses: reactivecircus/android-emulator-runner@v2
         with:
@@ -83,7 +84,8 @@ jobs:
           target: google_apis
           arch: x86_64
           script: |
-            set -euo pipefail
+            bash -seuo pipefail <<'WC4_SMOKE'
+            cd "$GITHUB_WORKSPACE"
             APK=$(find apks -maxdepth 1 -name '*.apk' -print -quit)
             if [ -z "$APK" ]; then
               echo "::error::no .apk in the downloaded artifact (apks/) — check apk_artifact_name"
@@ -119,6 +121,7 @@ jobs:
             else
               echo "✅ No crash detected in 10s window."
             fi
+            WC4_SMOKE
 
       - name: Upload logcat
         uses: actions/upload-artifact@v7
