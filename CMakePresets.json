@@ -9,7 +9,7 @@
     },
     "configurePresets": [
         {
-            "$comment": "apk_input empty = auto-download the pinned release APK (SHA-256 verified). Pick the patch combination with -DWC4_PATCH_<NAME>=ON/OFF.",
+            "$comment": "apk_input empty = auto-download the pinned release APK (SHA-256 verified). Patch combination: -DWC4_PATCH_<NAME>=ON/OFF toggles or the WC4_PATCHES allowlist — unknown names fail the configure.",
             "name": "default",
             "displayName": "Default",
             "description": "Out-of-source build under build/ (Ninja)",
@@ -23,6 +23,11 @@
                 },
                 "apk_input_sha256": {
                     "$comment": "Expected SHA-256 of apk_input — empty prints the actual hash without verifying",
+                    "type": "STRING",
+                    "value": ""
+                },
+                "WC4_PATCHES": {
+                    "$comment": "Explicit patch allowlist, e.g. \"ru_translation;extras\" — empty = every WC4_PATCH_<NAME>=ON",
                     "type": "STRING",
                     "value": ""
                 },

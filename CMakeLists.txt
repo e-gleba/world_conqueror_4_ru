@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 4.2...4.2)
+cmake_minimum_required(VERSION 4.2)
 
 project(
     apk_reverse_engineering
@@ -18,9 +18,16 @@ project(
 #                 and watch the logs
 #
 # decompiled/ is PRISTINE — patches never touch it. Every variant builds
-# from a fresh copy under build/<variant>/tree, so toggling patches
-# (-DWC4_PATCH_<NAME>=OFF) or editing patch payloads rebuilds only that
-# copy, never a re-decompile.
+# from a fresh copy under build/<variant>/tree, so changing the patch set
+# or editing patch payloads rebuilds only that copy, never a re-decompile.
+#
+# Patch selection (cmake/wc4_patches.cmake) — one combination per build
+# tree, validated at configure time (an unknown name fails the configure
+# instead of silently building the wrong APK):
+#
+#   -DWC4_PATCH_<NAME>=ON/OFF   per-patch toggles, all ON by default
+#   -DWC4_PATCHES="a;b"         explicit allowlist, wins over the toggles —
+#                               the CI / release / matrix knob
 # ---------------------------------------------------------------------------
 
 # --- inputs -----------------------------------------------------------------
@@ -263,11 +270,11 @@ if(BUILD_TESTING)
 endif()
 
 # --- state 2: variant = copy + patch (install phase) + encrypt + sign -------
-# One decompiled APK => a signed APK built from ALL ENABLED patches. The
-# patch combination lives in the WC4_PATCH_<NAME> toggles (all ON by
-# default), not in a hardcoded list — CI / release / matrix jobs pick a
-# combination with -DWC4_PATCH_<NAME>=ON/OFF. Add another output APK with
-# one more wc4_add_variant(<name>) line.
+# One decompiled APK => a signed APK built from ALL SELECTED patches. The
+# combination is picked at configure time — WC4_PATCH_<NAME> toggles (all
+# ON by default) or the WC4_PATCHES allowlist — never a hardcoded list, so
+# CI / release / matrix jobs choose with -D flags. Add another output APK
+# with one more wc4_add_variant(<name>) line.
 
 include(cmake/wc4_patches.cmake)
 wc4_discover_patches()

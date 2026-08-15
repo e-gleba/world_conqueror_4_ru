@@ -1,4 +1,4 @@
-# wc4_patches.cmake — patch framework: discovery, feature toggles, variants.
+# wc4_patches.cmake — patch framework: discovery, selection, variants.
 #
 # A patch is a patches/<name>/ directory that is a STANDALONE CMake
 # project (own cmake_minimum_required + project) knowing only its own
@@ -14,21 +14,22 @@
 # hand with the two commands above — that is exactly what the framework
 # runs per patch.
 #
-# Discovery is automatic: every patches/<name>/ gets a feature toggle
-# option(WC4_PATCH_<NAME> ... ON) — all enabled by default.
+# Discovery is automatic: every patches/<name>/ is a patch. Selection is
+# one combination per build tree, validated at configure time — an
+# unknown name fails the configure instead of silently building the
+# wrong APK:
 #
-# wc4_add_variant(<name>) defines one output APK built from ALL ENABLED
+#   -DWC4_PATCH_<NAME>=ON/OFF   per-patch toggle (all ON by default)
+#   -DWC4_PATCHES="a;b"         explicit allowlist — wins over the toggles;
+#                               the CI / release / matrix knob
+#
+# wc4_add_variant(<name>) defines one output APK built from ALL SELECTED
 # patches: the variant stages a FRESH copy of the pristine decompiled/
-# tree, applies every enabled patch via ExternalProject install steps,
-# then encrypts + rebuilds + signs into build/wc4_<name>-aligned-debugSigned.apk.
-# The stage re-copies whenever the toggle set or a patch payload changes, so
-# patches always install onto a clean tree and toggling never triggers a
-# re-decompile.
-#
-# The patch combination is controlled entirely by the WC4_PATCH_<NAME>
-# toggles (no hardcoded per-variant list), so CI / release / matrix jobs
-# pick a combination with -DWC4_PATCH_<NAME>=ON/OFF. Add another output
-# APK with one more wc4_add_variant(<name>) line.
+# tree, applies every selected patch via ExternalProject install steps,
+# then encrypts + rebuilds + signs into
+# build/wc4_<name>-aligned-debugSigned.apk. The stage re-copies whenever
+# the selection or a patch payload changes, so patches always install
+# onto a clean tree and re-selecting never triggers a re-decompile.
 #
 # Optional hook: patches/<name>/ctest.cmake is include()d once (for the
 # first variant applying the patch, with wc4_test_tree set to that
@@ -37,7 +38,7 @@
 include_guard(GLOBAL)
 include(ExternalProject)
 
-# --- discovery: find patches, create toggles --------------------------------
+# --- discovery + selection --------------------------------------------------
 
 function(wc4_discover_patches)
     file(
@@ -45,11 +46,8 @@ function(wc4_discover_patches)
         CONFIGURE_DEPENDS
         LIST_DIRECTORIES FALSE
         "${PROJECT_SOURCE_DIR}/patches/*/CMakeLists.txt")
-    list(SORT manifests)
 
     set(known)
-    set(enabled)
-
     foreach(manifest IN LISTS manifests)
         cmake_path(
             GET
@@ -61,34 +59,93 @@ function(wc4_discover_patches)
             patch_dir
             FILENAME
             name)
-        string(TOUPPER "${name}" upper)
-
-        option(WC4_PATCH_${upper} "enable patch '${name}'" ON)
         list(APPEND known "${name}")
+    endforeach()
+    list(SORT known)
 
-        if(WC4_PATCH_${upper})
-            list(APPEND enabled "${name}")
-        else()
-            message(STATUS "patch '${name}': disabled (WC4_PATCH_${upper}=OFF)")
+    # One toggle per patch, all ON by default.
+    foreach(name IN LISTS known)
+        string(TOUPPER "${name}" upper)
+        option(WC4_PATCH_${upper} "enable patch '${name}'" ON)
+    endforeach()
+
+    set(WC4_PATCHES
+        ""
+        CACHE STRING
+              "explicit patch allowlist (semicolon list; empty = every WC4_PATCH_<NAME>=ON)"
+    )
+
+    # Strict selection: a WC4_PATCH_* knob or WC4_PATCHES entry that names
+    # no known patch is a typo — fail loudly instead of silently building
+    # the wrong combination.
+    get_cmake_property(cache_vars CACHE_VARIABLES)
+    foreach(var IN LISTS cache_vars)
+        if(var MATCHES "^WC4_PATCH_(.+)$")
+            string(TOLOWER "${CMAKE_MATCH_1}" name)
+            string(TOUPPER "${CMAKE_MATCH_1}" upper)
+            if(NOT name IN_LIST known)
+                message(
+                    FATAL_ERROR
+                        "unknown patch toggle '${var}' — known patches: ${known}\n"
+                        "  fix: correct the name, or drop the stale knob with -U${var}"
+                )
+            elseif(NOT var STREQUAL "WC4_PATCH_${upper}")
+                message(
+                    FATAL_ERROR
+                        "patch toggle '${var}' has no effect — use 'WC4_PATCH_${upper}'"
+                )
+            endif()
         endif()
     endforeach()
 
-    set(WC4_PATCHES "${known}" PARENT_SCOPE)
-    set(WC4_PATCHES_ENABLED "${enabled}" PARENT_SCOPE)
-    message(STATUS "patches enabled: ${enabled}")
+    if(WC4_PATCHES)
+        set(enabled)
+        foreach(name IN LISTS WC4_PATCHES)
+            string(STRIP "${name}" name)
+            if(NOT name IN_LIST known)
+                message(
+                    FATAL_ERROR
+                        "WC4_PATCHES: unknown patch '${name}' — known patches: ${known}"
+                )
+            endif()
+            list(APPEND enabled "${name}")
+        endforeach()
+        set(source " (WC4_PATCHES allowlist)")
+    else()
+        set(enabled)
+        foreach(name IN LISTS known)
+            string(TOUPPER "${name}" upper)
+            if(WC4_PATCH_${upper})
+                list(APPEND enabled "${name}")
+            else()
+                message(STATUS "patch '${name}': disabled (WC4_PATCH_${upper}=OFF)")
+            endif()
+        endforeach()
+        set(source " (WC4_PATCH_<NAME> toggles)")
+    endif()
+
+    set(wc4_patches_known
+        "${known}"
+        PARENT_SCOPE)
+    set(wc4_patches_enabled
+        "${enabled}"
+        PARENT_SCOPE)
+    message(STATUS "patches known: ${known}")
+    message(STATUS "patches enabled${source}: ${enabled}")
 endfunction()
 
-# --- variants ----------------------------------------------------------------
-# A variant builds from ALL enabled patches — the combination lives in the
-# WC4_PATCH_<NAME> toggles, not in a hardcoded list, so CI / release /
-# matrix jobs pick it with -DWC4_PATCH_<NAME>=ON/OFF.
+# --- variants ---------------------------------------------------------------
+# A variant builds from ALL selected patches — the combination is picked at
+# configure time (WC4_PATCH_<NAME> toggles or the WC4_PATCHES allowlist), so
+# CI / release / matrix jobs choose it with -D flags, one build tree per
+# combination.
 
 function(wc4_add_variant name)
-    set(active ${WC4_PATCHES_ENABLED})
+    set(active ${wc4_patches_enabled})
     if(NOT active)
         message(
             FATAL_ERROR
-                "variant '${name}': no patches enabled — every WC4_PATCH_* is OFF"
+                "variant '${name}': no patches selected — set WC4_PATCHES or turn a WC4_PATCH_<NAME> toggle ON"
         )
     endif()
 
@@ -110,8 +167,8 @@ function(wc4_add_variant name)
         list(APPEND payload_deps ${payloads_${p}})
     endforeach()
 
-    # Patch-set fingerprint: flipping a WC4_PATCH_* toggle rewrites this
-    # file, forcing a fresh stage on any generator (content unchanged =>
+    # Selection fingerprint: changing the patch set rewrites this file,
+    # forcing a fresh stage on any generator (content unchanged =>
     # timestamp untouched => no rebuild).
     file(
         GENERATE
@@ -135,8 +192,9 @@ function(wc4_add_variant name)
     add_custom_target(stage-${name} DEPENDS "${stage_stamp}")
 
     # Apply each patch as an external project: configure with the variant
-    # tree passed as -DWC4_TREE=<tree>, then run its install phase. Steps
-    # re-run whenever the stage refreshed or the patch payload changed.
+    # tree passed as -DWC4_TREE=<tree>, then run its install phase. A
+    # configure re-run cascades to the install step, so depending the
+    # configure step on the stage + payload covers both.
     set(patch_eps)
 
     foreach(p IN LISTS active)
@@ -157,14 +215,11 @@ function(wc4_add_variant name)
         ExternalProject_Add_StepDependencies(${ep} configure
                                              "${stage_stamp}"
                                              ${payloads_${p}})
-        ExternalProject_Add_StepDependencies(${ep} install "${stage_stamp}"
-                                             ${payloads_${p}})
 
         list(APPEND patch_eps "${ep}")
 
         # ctest hook: registered once, against the first variant's tree
-        if(BUILD_TESTING
-           AND EXISTS "${PROJECT_SOURCE_DIR}/patches/${p}/ctest.cmake")
+        if(BUILD_TESTING AND EXISTS "${PROJECT_SOURCE_DIR}/patches/${p}/ctest.cmake")
             get_property(hooked GLOBAL PROPERTY wc4_ctest_hooks)
             if(NOT p IN_LIST hooked)
                 set(wc4_test_tree "${tree}")
@@ -180,9 +235,7 @@ function(wc4_add_variant name)
     # EP completion rule, which Ninja cannot resolve as a buildable output
     # ("missing and no known rule to make it").
     add_custom_target(patch-${name})
-    if(patch_eps)
-        add_dependencies(patch-${name} ${patch_eps})
-    endif()
+    add_dependencies(patch-${name} ${patch_eps})
 
     # encrypt + compile + sign
     add_custom_command(
@@ -221,5 +274,7 @@ function(wc4_add_variant name)
 
     set_property(GLOBAL APPEND PROPERTY wc4_variants "${name}")
     set_property(GLOBAL APPEND PROPERTY wc4_all_apks "${signed}")
-    set(wc4_variant_${name}_apk "${signed}" PARENT_SCOPE)
+    set(wc4_variant_${name}_apk
+        "${signed}"
+        PARENT_SCOPE)
 endfunction()
