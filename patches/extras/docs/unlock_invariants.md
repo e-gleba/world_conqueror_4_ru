@@ -75,7 +75,13 @@ unchanged.
 - effects: `Type`, `IfPercent`, `FunctionEffect`
 - reward: `PrizeExp`
 
-The mod patch changes only cost fields. `FunctionEffect` is intentionally preserved because values such as `10000`, `16000`, and `20000` are daily resource output, not prices.
+The mod patch changes only cost fields, and sets them to **1, not 0**
+(`cost1`). Rationale: the engine subtracts discounts/promotions from the
+construction price at runtime, and the price field is unsigned —
+`uint32(0 - N)` wraps to ~4 billion, which is exactly the "huge wonder
+price" bug observed in-game. A price of 1 can never underflow and is still
+effectively free. `FunctionEffect` is intentionally preserved because values
+such as `10000`, `16000`, and `20000` are daily resource output, not prices.
 
 No new field is added to force wonder blueprints open. Their availability is save/progression state populated when the corresponding scenario or Domination stage is completed. Mutating effect or stage data to bypass that state would be speculative and risks save incompatibility.
 
@@ -93,6 +99,6 @@ Checks:
 
 1. the rule registry never touches `RequireCityType` or `Price`
 2. non-naval elite requirements are rewritten to `20001`; naval elite requirements still point to ports
-3. all wonder resource costs become zero and medal costs remain in `0..1`
+3. all wonder costs stay in `0..1` (never zeroed — uint32 wrap on discounts)
 4. wonder effects stay within the original schema range
 5. re-running the unlock on a patched tree is a no-op (idempotence)

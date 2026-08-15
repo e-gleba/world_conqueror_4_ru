@@ -15,7 +15,8 @@ docs/unlock_invariants.md:
   1. registry safety — RequireCityType is never a rule; Price is never a rule
   2. elite facility requirements: non-naval => 20001 (any lvl-1 city),
      naval stays on ports (20701/20703)
-  3. wonder costs zeroed, medal costs bounded, FunctionEffect never touched
+  3. wonder costs in 0..1 (never zeroed — uint32 wrap on discounts),
+     FunctionEffect never touched
   4. idempotence — re-running the unlock on a patched tree changes nothing
 """
 
@@ -100,9 +101,11 @@ def assert_wonder_costs_bounded(unlock: ModuleType) -> None:
     patched = run_unlock(unlock, FIXTURE_DIR / "WonderSettings.json")
 
     for entry in patched:
-        for field in ("CostGold", "CostIndustry", "CostEnergy", "CostTech"):
-            assert entry[field] == 0
-        assert 0 <= entry["CostMedals"] <= 1
+        # Costs must be 0 or 1, never zeroed to exactly 0 by the patch:
+        # the engine subtracts discounts from the price and uint32(0 - N)
+        # wraps to ~4 billion. cost1 keeps the price at 1.
+        for field in ("CostGold", "CostIndustry", "CostEnergy", "CostTech", "CostMedals"):
+            assert 0 <= entry[field] <= 1, f"{field} must be 0 or 1"
         assert 1 <= entry["FunctionEffect"] <= 20_000, "FunctionEffect is an effect value, not a price"
 
 

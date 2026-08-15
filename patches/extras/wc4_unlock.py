@@ -18,6 +18,8 @@ ActivatesChance=100, CostMedal=1).
 Does NOT touch ScenarioSettings.json.
 Does NOT touch FrontierStageSetting / FrontierNodeSetting / FrontierChapterSetting.
 Price field intentionally excluded — uint32 underflow risk with active promotions.
+Wonder costs are 1, not 0 — the engine subtracts discounts from the price,
+and uint32(0 - N) wraps to a huge number.
 
 Tutorial mission (Id=10001) grants HQ 50 + 1M medals + unlocks ALL stages.
 
@@ -251,11 +253,13 @@ _r("AirDefenceSettings.json", "CostAtomic", "zero")
 
 # =====================================================================
 # 15. WONDERS
+#     Costs are 1, not 0: the engine subtracts discounts from the price,
+#     and uint32(0 - N) wraps to ~4 billion (huge price bug in-game).
 # =====================================================================
-_r("WonderSettings.json", "CostGold", "zero")
-_r("WonderSettings.json", "CostIndustry", "zero")
-_r("WonderSettings.json", "CostEnergy", "zero")
-_r("WonderSettings.json", "CostTech", "zero")
+_r("WonderSettings.json", "CostGold", "cost1")
+_r("WonderSettings.json", "CostIndustry", "cost1")
+_r("WonderSettings.json", "CostEnergy", "cost1")
+_r("WonderSettings.json", "CostTech", "cost1")
 _r("WonderSettings.json", "CostMedals", "cost1")
 
 # =====================================================================
