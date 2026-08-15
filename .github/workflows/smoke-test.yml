@@ -80,7 +80,8 @@ jobs:
           sudo udevadm trigger --name-match=kvm
 
       # One line only — see the checkout comment. The emulator is killed
-      # when the script ends, so all adb work happens inside it.
+      # when the script ends, so all adb work happens inside it. The
+      # app-scoped logcat is printed to stdout by the script itself.
       - name: Boot emulator, install APK, 10-second crash watch
         uses: reactivecircus/android-emulator-runner@v2
         with:
@@ -88,13 +89,3 @@ jobs:
           target: google_apis
           arch: x86_64
           script: cd "$GITHUB_WORKSPACE" && bash scripts/smoke_test.sh
-
-      - name: Upload logcat
-        uses: actions/upload-artifact@v7
-        if: always()
-        with:
-          name: emulator-logcat-${{ inputs.apk_artifact_name }}-${{ github.run_id }}
-          path: |
-            crash.log
-            crash_raw.log
-          retention-days: 14

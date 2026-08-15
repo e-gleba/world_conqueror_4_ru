@@ -37,9 +37,19 @@ timeout 10 adb logcat -v time > crash_raw.log || true
 grep -E " ${PID:-0} |$PKG|FATAL|Fatal signal|DEBUG|tombstone|has died|Force finishing|AndroidRuntime|libc" \
     crash_raw.log > crash.log || true
 
-if grep -iE "fatal|crash|exception|kill.*wc4|native.*crash|has died|force finishing" crash.log; then
-    echo "❌ Crash or fatal exception detected in 10s window."
+# The job log is the report: print the app-scoped logcat to stdout in a
+# collapsible group. No artifact upload — the run log outlives the old
+# 14-day artifact retention.
+echo "::group::app logcat — $PKG (10s after launch)"
+if [ -s crash.log ]; then
     cat crash.log
+else
+    echo "(no app-scoped lines captured)"
+fi
+echo "::endgroup::"
+
+if grep -qiE "fatal|crash|exception|kill.*wc4|native.*crash|has died|force finishing" crash.log; then
+    echo "::error::crash or fatal exception detected in the 10s window — see 'app logcat' above"
     exit 1
 else
     echo "✅ No crash detected in 10s window."
