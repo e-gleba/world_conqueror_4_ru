@@ -6,8 +6,9 @@ Does NOT change combat values (attack/defence/HP/mobility/range).
 PRESERVES AdvanceID chains in GeneralPromotionSettings.
 Elite units recruit in any lvl-1 city (RequireCityType => 20001);
 naval elites (ArmyType==4) KEEP port requirements (20701/20703).
-Army caps raised to the observed maximum: MaxElite => 18, MaxFormation => 4
-(only where non-zero — units without elites stay untouched).
+Army caps: MaxElite => 254 for elite-capable units (EXPERIMENTAL — fits
+uint8 and avoids the 0xFF sentinel, but exceeds the observed max of 18);
+MaxFormation => 4 (observed max). Only where non-zero.
 Facilities: production/recovery maxed to observed values.
 TechResearchSettings: all AA/satellite/building/army unlocks are granted
 at the starting level; research cost zeroed.
@@ -209,8 +210,10 @@ _r("EliteChallengeSettings.json", "UnlockId", "zero")
 
 # =====================================================================
 # 13. ARMY PURCHASE
-#     MaxElite/MaxFormation: raised to the observed maximum only where
-#     non-zero — the engine provably handles these values.
+#     MaxFormation => 4: observed maximum, engine provably handles it.
+#     MaxElite => 254: EXPERIMENTAL — fits uint8 and avoids the 0xFF
+#     sentinel, but exceeds the observed max (18). Verify on device:
+#     recruit elites, save, reload, check the count persists.
 # =====================================================================
 _r("ArmySettings.json", "CostMoney", "cost1")
 _r("ArmySettings.json", "CostGear", "zero")
@@ -218,7 +221,7 @@ _r("ArmySettings.json", "CostAtomic", "zero")
 _r("ArmySettings.json", "CostPoints", "zero")
 _r("ArmySettings.json", "BuildTime", "zero")
 _r("ArmySettings.json", "BuildCD", "zero")
-_r("ArmySettings.json", "MaxElite", "set_nz", 18)
+_r("ArmySettings.json", "MaxElite", "set_nz", 254)
 _r("ArmySettings.json", "MaxFormation", "set_nz", 4)
 
 # =====================================================================

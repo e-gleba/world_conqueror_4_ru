@@ -24,14 +24,20 @@ in `post_process_elites()` only.
 
 ## Army caps and facility output
 
-`ArmySettings.MaxElite` / `MaxFormation` and the `FacilitySettings`
-production/recovery fields (`ProduceMoney`, `ProduceGear`, `ProduceAtomic`,
-`ArmyRecovery`, `CityRecovery`) are raised only to values observed in the
-original v1.24.2 data (18 / 4 / 120 / 20 / 14 / 16 / 4), and only where they
-are non-zero (`set_nz`): units without an elite version keep `MaxElite: 0`,
-facilities that never produced a resource stay as they are. The engine
-provably handles these values, so the change is safe. Exceeding the observed
-maxima is untested and stays out of the reliable patch.
+`ArmySettings.MaxFormation` and the `FacilitySettings` production/recovery
+fields (`ProduceMoney`, `ProduceGear`, `ProduceAtomic`, `ArmyRecovery`,
+`CityRecovery`) are raised only to values observed in the original v1.24.2
+data (4 / 120 / 20 / 14 / 16 / 4), and only where they are non-zero
+(`set_nz`): facilities that never produced a resource stay as they are. The
+engine provably handles these values, so the change is safe.
+
+`MaxElite` is the deliberate exception — EXPERIMENTAL. It is set to 254 for
+every elite-capable unit (non-zero values; units without an elite version
+keep 0). Rationale: 254 fits in a uint8 and avoids 0xFF (255), which is
+commonly a sentinel value. But it exceeds the observed maximum of 18: if the
+engine or the save format stores the counter narrower than a byte, counts
+will misbehave. Verify on device: recruit elites, save, reload, check the
+count persists. If it breaks, revert to 18 (the observed maximum).
 
 ## Tech research
 
