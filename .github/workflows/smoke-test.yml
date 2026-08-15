@@ -3,13 +3,8 @@ name: smoke-test
 on:
   workflow_dispatch:
     inputs:
-      artifact_run_id:
-        description: 'Run ID with the APK artifacts (empty = this run)'
-        required: false
-        type: string
-        default: ''
       apk_artifact_name:
-        description: 'Artifact name to test'
+        description: 'Artifact name to test (taken from the latest successful ci run on this branch)'
         required: false
         type: string
         default: 'wc4_wc4-aligned-debugSigned'
@@ -20,6 +15,10 @@ on:
         required: false
         type: string
         default: 'wc4_wc4-aligned-debugSigned'
+      source_run_id:
+        description: 'Run ID with the APK artifacts — callers pass github.run_id'
+        required: true
+        type: string
 
 permissions:
   contents: read
@@ -35,10 +34,41 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
+      # The smoke logic lives in scripts/smoke_test.sh —
+      # android-emulator-runner executes each `script` line as a separate
+      # `sh -c` process, so anything beyond one line must be a file.
+      # Checkout first: it must not wipe the downloaded apks/ afterwards.
+      - uses: actions/checkout@v7
+
+      # Called from ci.yml / release.yml, the artifacts live in the
+      # caller's run — passed in explicitly via source_run_id. (Reusable
+      # workflows inherit the CALLER'S event_name — pull_request, push,
+      # ... — so event_name cannot detect a reusable call.) Dispatched
+      # standalone, take the latest successful ci run on this branch: no
+      # run IDs to paste, and a green-only source can never be mid-build.
+      - name: Resolve artifact source run
+        id: src
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          RUN_ID="${{ inputs.source_run_id }}"
+          if [ -z "$RUN_ID" ]; then
+            RUN_ID=$(gh api "repos/${{ github.repository }}/actions/workflows/ci.yml/runs?status=success&branch=${{ github.ref_name }}&per_page=1" \
+              --jq '.workflow_runs[0].id // empty')
+          fi
+          if [ -z "$RUN_ID" ]; then
+            echo "::error::no successful ci run on '${{ github.ref_name }}' to take artifacts from"
+            exit 1
+          fi
+          echo "run_id=$RUN_ID" >> "$GITHUB_OUTPUT"
+          echo "Artifacts in run $RUN_ID:"
+          gh api "repos/${{ github.repository }}/actions/runs/$RUN_ID/artifacts" \
+            --jq '.artifacts[] | "- \(.name) (expired: \(.expired))"'
+
       - name: Download APK artifact
         uses: actions/download-artifact@v8
         with:
-          run-id: ${{ inputs.artifact_run_id || github.run_id }}
+          run-id: ${{ steps.src.outputs.run_id }}
           name: ${{ inputs.apk_artifact_name }}
           path: apks
 
@@ -49,59 +79,13 @@ jobs:
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
 
-      # All adb work happens inside `script`: the emulator is killed when
-      # the step ends. Install/launch/watch mirror the adb backend of
-      # cmake/deploy_apk.cmake.
+      # One line only — see the checkout comment. The emulator is killed
+      # when the script ends, so all adb work happens inside it. The
+      # app-scoped logcat is printed to stdout by the script itself.
       - name: Boot emulator, install APK, 10-second crash watch
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 31
           target: google_apis
           arch: x86_64
-          script: |
-            set -euo pipefail
-            APK=$(find apks -maxdepth 1 -name '*.apk' -print -quit)
-            if [ -z "$APK" ]; then
-              echo "::error::no .apk in the downloaded artifact (apks/) — check apk_artifact_name / artifact_run_id"
-              exit 1
-            fi
-            echo "Installing: $APK"
-            PKG=com.easytech.wc4.android
-            adb uninstall "$PKG" || true
-            adb install "$APK"
-
-            adb shell am force-stop "$PKG" || true
-            adb logcat -c || true
-            # Explicit component, same as cmake/deploy_apk.cmake. No
-            # '|| true': an unresolvable component fails the step.
-            adb shell am start -W -a android.intent.action.MAIN \
-              -c android.intent.category.LAUNCHER -n "$PKG/.WC4Activity"
-            PID=$(adb shell pidof "$PKG" 2>/dev/null | tr -d '\r' || true)
-            echo "⏳ Watching logcat for 10 seconds (pid: ${PID:-none — app died at launch})..."
-            # UNFILTERED capture: a native crash is logged by crash_dump
-            # (tag DEBUG) and the death notice by system_server (tag
-            # ActivityManager) — under *their* PIDs, so `logcat --pid`
-            # would silently miss them. The buffer was cleared pre-launch,
-            # so this holds only the launch window.
-            timeout 10 adb logcat -v time > crash_raw.log || true
-            # App scope: header PID/TID, package name, or crash channels.
-            grep -E " ${PID:-0} |$PKG|FATAL|Fatal signal|DEBUG|tombstone|has died|Force finishing|AndroidRuntime|libc" \
-              crash_raw.log > crash.log || true
-
-            if grep -iE "fatal|crash|exception|kill.*wc4|native.*crash|has died|force finishing" crash.log; then
-              echo "❌ Crash or fatal exception detected in 10s window."
-              cat crash.log
-              exit 1
-            else
-              echo "✅ No crash detected in 10s window."
-            fi
-
-      - name: Upload logcat
-        uses: actions/upload-artifact@v7
-        if: always()
-        with:
-          name: emulator-logcat-${{ inputs.apk_artifact_name }}-${{ github.run_id }}
-          path: |
-            crash.log
-            crash_raw.log
-          retention-days: 14
+          script: cd "$GITHUB_WORKSPACE" && bash scripts/smoke_test.sh

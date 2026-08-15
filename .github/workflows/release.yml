@@ -92,6 +92,7 @@ jobs:
     uses: ./.github/workflows/smoke-test.yml
     with:
       apk_artifact_name: wc4-mod-aligned-debugSigned
+      source_run_id: ${{ github.run_id }}
 
   publish:
     needs: smoke
