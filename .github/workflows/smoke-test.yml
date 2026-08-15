@@ -3,13 +3,8 @@ name: smoke-test
 on:
   workflow_dispatch:
     inputs:
-      artifact_run_id:
-        description: 'Run ID with the APK artifacts (empty = latest successful ci run on this branch)'
-        required: false
-        type: string
-        default: ''
       apk_artifact_name:
-        description: 'Artifact name to test'
+        description: 'Artifact name to test (taken from the latest successful ci run on this branch)'
         required: false
         type: string
         default: 'wc4_wc4-aligned-debugSigned'
@@ -35,27 +30,23 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      # Empty artifact_run_id used to fall back to THIS run, which never
-      # has APKs — the download then failed with a confusing "Artifact not
-      # found". Resolve the source run explicitly and show its artifacts.
+      # Called from ci.yml / release.yml, the artifacts live in the
+      # caller's run (reusable workflows share its run context). Dispatched
+      # standalone, take the latest successful ci run on this branch — no
+      # run IDs to paste, and a green-only source can never be mid-build.
       - name: Resolve artifact source run
         id: src
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          RUN_ID="${{ inputs.artifact_run_id }}"
-          if [ -z "$RUN_ID" ]; then
-            if [ "${{ github.event_name }}" = "workflow_call" ]; then
-              # Reusable call (release.yml): artifacts live in the caller's run.
-              RUN_ID="${{ github.run_id }}"
-            else
-              # Manual dispatch: latest successful ci run on this branch.
-              RUN_ID=$(gh api "repos/${{ github.repository }}/actions/workflows/ci.yml/runs?status=success&branch=${{ github.ref_name }}&per_page=1" \
-                --jq '.workflow_runs[0].id // empty')
-            fi
+          if [ "${{ github.event_name }}" = "workflow_call" ]; then
+            RUN_ID="${{ github.run_id }}"
+          else
+            RUN_ID=$(gh api "repos/${{ github.repository }}/actions/workflows/ci.yml/runs?status=success&branch=${{ github.ref_name }}&per_page=1" \
+              --jq '.workflow_runs[0].id // empty')
           fi
           if [ -z "$RUN_ID" ]; then
-            echo "::error::no successful ci run on '${{ github.ref_name }}' — pass artifact_run_id explicitly"
+            echo "::error::no successful ci run on '${{ github.ref_name }}' to take artifacts from"
             exit 1
           fi
           echo "run_id=$RUN_ID" >> "$GITHUB_OUTPUT"
@@ -90,7 +81,7 @@ jobs:
             set -euo pipefail
             APK=$(find apks -maxdepth 1 -name '*.apk' -print -quit)
             if [ -z "$APK" ]; then
-              echo "::error::no .apk in the downloaded artifact (apks/) — check apk_artifact_name / artifact_run_id"
+              echo "::error::no .apk in the downloaded artifact (apks/) — check apk_artifact_name"
               exit 1
             fi
             echo "Installing: $APK"

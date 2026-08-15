@@ -26,9 +26,13 @@ on:
         type: string
         default: ''
 
+# actions: read is for the called smoke-test workflow — a reusable
+# workflow's token is capped by the caller's permissions, and listing /
+# downloading artifacts needs actions: read.
 permissions:
   contents: read
   packages: read
+  actions: read
 
 env:
   REGISTRY: ghcr.io
@@ -101,3 +105,11 @@ jobs:
           path: build/wc4_wc4-aligned-debugSigned.apk
           compression-level: 0
           retention-days: 7
+
+  # Extended test on the build: boot the freshly built APK in an emulator
+  # and watch it for crashes. Same reusable workflow release.yml calls.
+  smoke:
+    needs: build
+    uses: ./.github/workflows/smoke-test.yml
+    with:
+      apk_artifact_name: wc4_wc4-aligned-debugSigned
