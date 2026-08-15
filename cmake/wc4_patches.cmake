@@ -9,10 +9,10 @@
 #   cmake --install <build>
 #
 # File patches are plain install(FILES ...) rules (their CMakeLists
-# redirects the /usr/local default prefix to WC4_TREE); tool steps live
-# in install(SCRIPT) scripts configured with @WC4_TREE@. Test a patch by
-# hand with the two commands above — that is exactly what the framework
-# runs per patch.
+# redirects the /usr/local default prefix to WC4_TREE); tool steps are
+# install(CODE) blocks configured inline with string(CONFIGURE @ONLY).
+# Test a patch by hand with the two commands above — that is exactly
+# what the framework runs per patch.
 #
 # Discovery is automatic: every patches/<name>/ is a patch. Selection is
 # one combination per build tree, validated at configure time — an
@@ -31,9 +31,11 @@
 # the selection or a patch payload changes, so patches always install
 # onto a clean tree and re-selecting never triggers a re-decompile.
 #
-# Optional hook: patches/<name>/ctest.cmake is include()d once (for the
-# first variant applying the patch, with wc4_test_tree set to that
-# variant's tree) to register ctest tests.
+# Tests: every patches/<name>/test_*.py becomes one ctest named
+# <name>_<script stem minus test_>, registered once (against the first
+# variant applying the patch). A fixtures/ dir next to the script means
+# the test is self-contained and runs bare; otherwise it is passed the
+# variant tree as --tree <tree>.
 
 include_guard(GLOBAL)
 include(ExternalProject)
@@ -134,6 +136,41 @@ function(wc4_discover_patches)
     message(STATUS "patches enabled${source}: ${enabled}")
 endfunction()
 
+# --- tests ------------------------------------------------------------------
+
+# Register a patch's tests (see the header for the convention). Registered
+# once per patch, against the first variant applying it.
+function(wc4_register_patch_tests name tree)
+    if(NOT BUILD_TESTING)
+        return()
+    endif()
+    get_property(hooked GLOBAL PROPERTY wc4_ctest_hooks)
+    if(name IN_LIST hooked)
+        return() # already registered for an earlier variant
+    endif()
+    set_property(GLOBAL APPEND PROPERTY wc4_ctest_hooks "${name}")
+
+    file(
+        GLOB test_srcs
+        CONFIGURE_DEPENDS
+        LIST_DIRECTORIES FALSE
+        "${PROJECT_SOURCE_DIR}/patches/${name}/test_*.py")
+    foreach(test_src IN LISTS test_srcs)
+        cmake_path(
+            GET
+            test_src
+            STEM
+            test_stem)
+        string(REGEX REPLACE "^test_" "" test_name "${test_stem}")
+        set(test_args)
+        if(NOT IS_DIRECTORY "${PROJECT_SOURCE_DIR}/patches/${name}/fixtures")
+            set(test_args --tree "${tree}")
+        endif()
+        add_test(NAME "${name}_${test_name}"
+                 COMMAND "${python3_bin}" "${test_src}" ${test_args})
+    endforeach()
+endfunction()
+
 # --- variants ---------------------------------------------------------------
 # A variant builds from ALL selected patches — the combination is picked at
 # configure time (WC4_PATCH_<NAME> toggles or the WC4_PATCHES allowlist), so
@@ -218,15 +255,7 @@ function(wc4_add_variant name)
 
         list(APPEND patch_eps "${ep}")
 
-        # ctest hook: registered once, against the first variant's tree
-        if(BUILD_TESTING AND EXISTS "${PROJECT_SOURCE_DIR}/patches/${p}/ctest.cmake")
-            get_property(hooked GLOBAL PROPERTY wc4_ctest_hooks)
-            if(NOT p IN_LIST hooked)
-                set(wc4_test_tree "${tree}")
-                include("${PROJECT_SOURCE_DIR}/patches/${p}/ctest.cmake")
-                set_property(GLOBAL APPEND PROPERTY wc4_ctest_hooks "${p}")
-            endif()
-        endif()
+        wc4_register_patch_tests("${p}" "${tree}")
     endforeach()
 
     # Real target that runs all of this variant's patch installs. The apk

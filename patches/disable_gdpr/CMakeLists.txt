@@ -4,8 +4,10 @@
 # failed()/success() gutted to return-void) over the stock one in the
 # target tree. Pure install(FILES) rule — no scripts.
 #
-# 1.4.28: the class lives in smali_classes15/, not smali/ — installing
-# to the old path would leave the stock class untouched (first dex wins).
+# The pinned base APK keeps this class in smali/. If a future APK moves
+# it to another dex (smali_classes<N>/), point DESTINATION there —
+# installing to the wrong dex leaves the stock class untouched (first
+# dex wins).
 #
 # Test standalone:
 #   cmake -S patches/disable_gdpr -B /tmp/disable_gdpr -DWC4_TREE=<tree>

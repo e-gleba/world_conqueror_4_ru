@@ -21,7 +21,8 @@ Counts unique keys only — never values, never line order. An entry is a
 `<key>=<value>` line; comments (`;...`) and empty lines are ignored.
 
 Needs the patched tree: build the decompile + patch-ru_translation
-targets first.
+targets first. The framework runs this as `test_stringtables.py --tree
+<variant tree>`; every argument has a self-locating default.
 """
 
 import argparse
@@ -49,18 +50,26 @@ def read_keys(path):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--reference", required=True, help="RU template .ini")
+    parser.add_argument(
+        "--reference",
+        default=Path(__file__).with_name("stringtable_ru.ini"),
+        help="RU template .ini (default: stringtable_ru.ini next to this script)",
+    )
+    parser.add_argument(
+        "--tree",
+        metavar="TREE",
+        help="patched variant tree — its assets/ dir is checked",
+    )
     parser.add_argument(
         "--dir",
-        required=True,
-        help="patched assets/ dir with stringtable_*.ini",
+        help="patched assets/ dir with stringtable_*.ini (overrides --tree)",
     )
     parser.add_argument(
         "--slots",
-        required=True,
         nargs="+",
         metavar="SLOT",
-        help="hijacked locale postfixes — their tables are strictly verified",
+        default=["de"],
+        help="hijacked locale postfixes — their tables are strictly verified (default de)",
     )
     parser.add_argument(
         "--stock",
@@ -74,7 +83,12 @@ def main():
     if not reference.is_file():
         die(f"reference not found: {reference}")
 
-    assets = Path(args.dir)
+    if args.dir:
+        assets = Path(args.dir)
+    elif args.tree:
+        assets = Path(args.tree) / "assets"
+    else:
+        die("pass --tree <variant tree> or --dir <assets dir>")
     if not assets.is_dir():
         die(
             f"assets dir not found: {assets}\n"

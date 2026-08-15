@@ -16,7 +16,7 @@ project(wc4_patch_expose_saves LANGUAGES NONE)
 find_package(Python3 REQUIRED COMPONENTS Interpreter)
 
 # The target tree is passed explicitly as -DWC4_TREE=<tree> (the framework
-# does this per variant). It is baked into the install script at configure
+# does this per variant). It is baked into the install code at configure
 # time — deterministic, no reliance on the install prefix (ExternalProject
 # does not forward -DCMAKE_INSTALL_PREFIX to the install step, so the
 # prefix would stay the /usr/local default).
@@ -46,6 +46,15 @@ foreach(
                    @ONLY)
 endforeach()
 
-set(script "${CMAKE_CURRENT_BINARY_DIR}/install_expose_saves.cmake")
-configure_file(install_expose_saves.cmake.in "${script}" @ONLY)
-install(SCRIPT "${script}")
+# install step: splice the configured snippets into the stock tree
+string(
+    CONFIGURE
+        [=[
+execute_process(
+    COMMAND "@Python3_EXECUTABLE@" "@CMAKE_CURRENT_SOURCE_DIR@/patch.py"
+            --tree "@WC4_TREE@" --snippets "@CMAKE_CURRENT_BINARY_DIR@/smali"
+    COMMAND_ERROR_IS_FATAL ANY)
+]=]
+        install_code
+    @ONLY)
+install(CODE "${install_code}")

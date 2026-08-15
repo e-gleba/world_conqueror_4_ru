@@ -15,7 +15,7 @@ project(wc4_patch_extras LANGUAGES NONE)
 find_package(Python3 REQUIRED COMPONENTS Interpreter)
 
 # The target tree is passed explicitly as -DWC4_TREE=<tree> (the framework
-# does this per variant). It is baked into the install script at configure
+# does this per variant). It is baked into the install code at configure
 # time — deterministic, no reliance on the install prefix (ExternalProject
 # does not forward -DCMAKE_INSTALL_PREFIX to the install step, so the
 # prefix would stay the /usr/local default).
@@ -23,6 +23,14 @@ set(WC4_TREE
     "${CMAKE_INSTALL_PREFIX}"
     CACHE PATH "decompiled tree this patch installs into")
 
-set(script "${CMAKE_CURRENT_BINARY_DIR}/install_extras.cmake")
-configure_file(install_extras.cmake.in "${script}" @ONLY)
-install(SCRIPT "${script}")
+string(
+    CONFIGURE
+        [=[
+execute_process(
+    COMMAND "@Python3_EXECUTABLE@" "@CMAKE_CURRENT_SOURCE_DIR@/wc4_unlock.py"
+            "@WC4_TREE@/assets/data"
+    COMMAND_ERROR_IS_FATAL ANY)
+]=]
+        install_code
+    @ONLY)
+install(CODE "${install_code}")

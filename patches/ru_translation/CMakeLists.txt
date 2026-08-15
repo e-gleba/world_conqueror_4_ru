@@ -31,7 +31,7 @@ project(wc4_patch_ru_translation LANGUAGES NONE)
 find_package(Python3 REQUIRED COMPONENTS Interpreter)
 
 # The target tree is passed explicitly as -DWC4_TREE=<tree> (the framework
-# does this per variant) and baked into the install scripts at configure
+# does this per variant) and baked into the install code at configure
 # time — deterministic, no reliance on the install prefix.
 set(WC4_TREE
     "${CMAKE_INSTALL_PREFIX}"
@@ -48,9 +48,24 @@ if(WC4_RU_TARGET_SLOTS STREQUAL "")
     message(FATAL_ERROR "ru_translation: WC4_RU_TARGET_SLOTS is empty")
 endif()
 
-set(locale_script "${CMAKE_CURRENT_BINARY_DIR}/install_ru_locale.cmake")
-configure_file(install_ru_locale.cmake.in "${locale_script}" @ONLY)
-install(SCRIPT "${locale_script}")
+# install step: apply the RU payload over every hijacked slot
+string(
+    CONFIGURE
+        [=[
+execute_process(
+    COMMAND "@Python3_EXECUTABLE@"
+            "@CMAKE_CURRENT_SOURCE_DIR@/apply_ru_locale.py"
+            --template "@CMAKE_CURRENT_SOURCE_DIR@/stringtable_ru.ini"
+            --title-image "@CMAKE_CURRENT_SOURCE_DIR@/image/tex_title_hd_ru.webp"
+            --lproj "@CMAKE_CURRENT_SOURCE_DIR@/ru.lproj"
+            --assets "@WC4_TREE@/assets"
+            --replace @WC4_RU_TARGET_SLOTS@
+            --lang-name "@WC4_RU_LANGUAGE_NAME@"
+    COMMAND_ERROR_IS_FATAL ANY)
+]=]
+        install_locale_code
+    @ONLY)
+install(CODE "${install_locale_code}")
 
 # Cyrillic font, two mutually exclusive sources:
 #
@@ -76,9 +91,18 @@ if(WC4_RU_FONT_REBUILD)
 endif()
 
 if(WC4_RU_FONT_REBUILD AND FONTFORGE_BIN)
-    set(font_script "${CMAKE_CURRENT_BINARY_DIR}/install_ru_font.cmake")
-    configure_file(install_ru_font.cmake.in "${font_script}" @ONLY)
-    install(SCRIPT "${font_script}")
+    string(
+        CONFIGURE
+            [=[
+execute_process(
+    COMMAND "@FONTFORGE_BIN@" -script
+            "@CMAKE_CURRENT_SOURCE_DIR@/patch_lang_notosans.py"
+            "@WC4_TREE@/assets/font/NotoSans_Lang.otf"
+    COMMAND_ERROR_IS_FATAL ANY)
+]=]
+            install_font_code
+        @ONLY)
+    install(CODE "${install_font_code}")
 else()
     # File install: redirect the /usr/local default prefix to the tree.
     if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
