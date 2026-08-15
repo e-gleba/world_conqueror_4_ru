@@ -21,8 +21,6 @@ if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
         CACHE PATH "install prefix" FORCE)
 endif()
 
-install(FILES 1_4_28/AndroidManifest.xml DESTINATION .)
+install(FILES AndroidManifest.xml DESTINATION .)
 
-# 1.4.28: smali port disabled for now — manifest only.
-install(FILES 1_4_28/WC4Activity.smali
-        DESTINATION smali/com/easytech/wc4/android)
+install(FILES WC4Activity.smali DESTINATION smali/com/easytech/wc4/android)
