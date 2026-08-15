@@ -15,6 +15,10 @@ on:
         required: false
         type: string
         default: 'wc4_wc4-aligned-debugSigned'
+      source_run_id:
+        description: 'Run ID with the APK artifacts — callers pass github.run_id'
+        required: true
+        type: string
 
 permissions:
   contents: read
@@ -31,17 +35,18 @@ jobs:
     timeout-minutes: 15
     steps:
       # Called from ci.yml / release.yml, the artifacts live in the
-      # caller's run (reusable workflows share its run context). Dispatched
-      # standalone, take the latest successful ci run on this branch — no
+      # caller's run — passed in explicitly via source_run_id. (Reusable
+      # workflows inherit the CALLER'S event_name — pull_request, push,
+      # ... — so event_name cannot detect a reusable call.) Dispatched
+      # standalone, take the latest successful ci run on this branch: no
       # run IDs to paste, and a green-only source can never be mid-build.
       - name: Resolve artifact source run
         id: src
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          if [ "${{ github.event_name }}" = "workflow_call" ]; then
-            RUN_ID="${{ github.run_id }}"
-          else
+          RUN_ID="${{ inputs.source_run_id }}"
+          if [ -z "$RUN_ID" ]; then
             RUN_ID=$(gh api "repos/${{ github.repository }}/actions/workflows/ci.yml/runs?status=success&branch=${{ github.ref_name }}&per_page=1" \
               --jq '.workflow_runs[0].id // empty')
           fi
