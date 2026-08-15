@@ -30,7 +30,7 @@ set(apk_default_url
 )
 # SHA-256 of the asset above (digest published on GitHub release v1.24.2_ru).
 set(apk_default_sha256
-    "3c86937dc5a4de5cefd0e5303ae3824957085d14a0e3b2a318a9d7789df99b96")
+    "270a1b93b2529ec00c24e9f0d4b48b34fe7a0ac8d9bca0311348f6d0b68819c6")
 
 set(apk_input
     ""

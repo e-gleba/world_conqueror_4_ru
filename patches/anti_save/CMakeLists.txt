@@ -24,4 +24,5 @@ endif()
 install(FILES 1_4_28/AndroidManifest.xml DESTINATION .)
 
 # 1.4.28: smali port disabled for now — manifest only.
-# install(FILES 1_4_28/WC4Activity.smali DESTINATION smali/com/easytech/wc4/android)
+install(FILES 1_4_28/WC4Activity.smali
+        DESTINATION smali/com/easytech/wc4/android)
