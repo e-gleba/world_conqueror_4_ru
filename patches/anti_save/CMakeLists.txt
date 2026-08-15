@@ -1,26 +1,51 @@
-# anti_save — save-system overhaul.
+# anti_save — public Documents save root + offline login.
 #
-# File patch: AndroidManifest.xml adds MANAGE_EXTERNAL_STORAGE.
-# The WC4Activity.smali side of the overhaul (offline login success,
-# public Documents/EasyTechGame/WC4 save root, legacy save migration)
-# is NOT ported to 1.4.28 yet — only the manifest is installed. The
-# smali install rule below is commented out until the 1.4.28
-# WC4Activity port lands; the previous-version changes are documented
-# in 1_4_28/previous_version_patch_what_was_added.patch.
-# Pure install(FILES) rules — no scripts.
+# Script patch (no full-file payload): at install time patch.py
+# surgically rewrites the stock tree — inserts helper methods, replaces
+# five WC4Activity methods, splices nativeSetPaths, and adds one
+# uses-permission to AndroidManifest.xml. The next APK bump only needs
+# the snippets re-checked against stock method headers.
+#
+# Test standalone:
+#   cmake -S patches/anti_save -B /tmp/anti_save -DWC4_TREE=<tree>
+#   cmake --install /tmp/anti_save
 
 cmake_minimum_required(VERSION 4.2)
 project(wc4_patch_anti_save LANGUAGES NONE)
 
+find_package(Python3 REQUIRED COMPONENTS Interpreter)
+
+# The target tree is passed explicitly as -DWC4_TREE=<tree> (the framework
+# does this per variant). It is baked into the install script at configure
+# time — deterministic, no reliance on the install prefix (ExternalProject
+# does not forward -DCMAKE_INSTALL_PREFIX to the install step, so the
+# prefix would stay the /usr/local default).
 set(WC4_TREE
     "${CMAKE_INSTALL_PREFIX}"
     CACHE PATH "decompiled tree this patch installs into")
-if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
-    set(CMAKE_INSTALL_PREFIX
-        "${WC4_TREE}"
-        CACHE PATH "install prefix" FORCE)
-endif()
 
-install(FILES AndroidManifest.xml DESTINATION .)
+set(WC4_SAVE_PROFILE
+    "2342342223"
+    CACHE STRING "offline profile id used as the public save folder name")
+set(WC4_SAVE_SUBDIR
+    "EasyTechGame/WC4"
+    CACHE STRING "Documents/ relative save root")
 
-install(FILES WC4Activity.smali DESTINATION smali/com/easytech/wc4/android)
+set(snippets "${CMAKE_CURRENT_BINARY_DIR}/smali")
+foreach(
+    name
+    IN
+    ITEMS
+    helpers
+    checkPermission
+    handleLoginResult
+    onDisconnected
+    onCreate
+    onResume)
+    configure_file("smali/${name}.smali.in" "${snippets}/${name}.smali"
+                   @ONLY)
+endforeach()
+
+set(script "${CMAKE_CURRENT_BINARY_DIR}/install_anti_save.cmake")
+configure_file(install_anti_save.cmake.in "${script}" @ONLY)
+install(SCRIPT "${script}")

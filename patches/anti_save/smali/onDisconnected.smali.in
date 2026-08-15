@@ -1,0 +1,10 @@
+.method private onDisconnected()V
+    .locals 2
+
+    const/4 v0, 0x1
+    const-string v1, "@WC4_SAVE_PROFILE@"
+
+    invoke-direct {p0, v0, v1, v1}, Lcom/easytech/wc4/android/WC4Activity;->handleLoginResult(ZLjava/lang/String;Ljava/lang/String;)V
+
+    return-void
+.end method
