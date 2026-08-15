@@ -39,6 +39,24 @@ engine or the save format stores the counter narrower than a byte, counts
 will misbehave. Verify on device: recruit elites, save, reload, check the
 count persists. If it breaks, revert to 18 (the observed maximum).
 
+## Skill ultimate levels
+
+`SkillSettings.json` rows are linked lists via `UpgradeId` (0 = chain
+terminal). `post_process_skills` appends one ultimate level to every chain:
+`Level+1` (capped at the observed maximum of 10 — levels 1..10 exist in the
+original data, so the engine and UI provably handle them),
+`SkillEffect=420`, `ActivatesChance=100`, `CostMedal=1`; all other fields
+are copied from the terminal row. New row ids start above the observed
+maximum id.
+
+`SkillEffect=420` exceeds the observed maximum of 150 — the field width in
+the engine is unverified (needs at least int16). Negative effects are NOT
+used: debuff skills encode the debuff in `Type` with a positive
+`SkillEffect`; a negative value risks an unsigned wrap.
+
+Idempotence marker: `SkillEffect == 420` never occurs in the original data,
+so re-runs skip rows the patch itself added.
+
 ## Tech research
 
 `TechResearchSettings.json` gates anti-air, satellites, buildings and units

@@ -12,6 +12,9 @@ MaxFormation => 4 (observed max). Only where non-zero.
 Facilities: production/recovery maxed to observed values.
 TechResearchSettings: all AA/satellite/building/army unlocks are granted
 at the starting level; research cost zeroed.
+SkillSettings: every skill chain gets an ultimate level appended
+(Level+1, capped at the observed max of 10; SkillEffect=420,
+ActivatesChance=100, CostMedal=1).
 Does NOT touch ScenarioSettings.json.
 Does NOT touch FrontierStageSetting / FrontierNodeSetting / FrontierChapterSetting.
 Price field intentionally excluded — uint32 underflow risk with active promotions.
@@ -133,6 +136,7 @@ _r("GeneralStageSettings.json", "UnlockStageId", "zero")
 
 # =====================================================================
 # 7. SKILLS
+#     Ultimate level rows are appended by post_process_skills().
 # =====================================================================
 _r("SkillSettings.json", "CostMedal", "cost1")
 _r("SkillSettings.json", "OpenDefault", "set", 1)
@@ -501,6 +505,58 @@ def post_process_techresearch(root: Path) -> None:
     )
 
 
+def post_process_skills(root: Path) -> None:
+    """Append an ultimate level to every skill chain.
+
+    Chains are linked lists via UpgradeId (0 = terminal). Each terminal row
+    gets one more level: Level+1 (capped at the observed max of 10),
+    SkillEffect=420, ActivatesChance=100, CostMedal=1; everything else is
+    copied from the terminal row. Idempotence marker: SkillEffect == 420
+    never occurs in original data (observed max 150), so re-runs skip our
+    own rows.
+    """
+    path = root / "SkillSettings.json"
+    if not path.exists():
+        return
+
+    data = _read(path)
+    rows = [e for e in data if isinstance(e, dict)]
+    used = {e.get("Id") for e in rows}
+    next_id = max((i for i in used if isinstance(i, int)), default=3795) + 1
+
+    added = 0
+    for entry in rows:
+        if entry.get("UpgradeId") != 0:
+            continue  # not a chain terminal
+        if entry.get("SkillEffect") == 420:
+            continue  # our own ultimate row — idempotence marker
+        level = entry.get("Level")
+        if not isinstance(level, int) or isinstance(level, bool) or level >= 10:
+            continue  # already at the observed max level
+        while next_id in used:
+            next_id += 1
+        ultimate = dict(entry)
+        ultimate.update(
+            Id=next_id,
+            Level=level + 1,
+            SkillEffect=420,
+            ActivatesChance=100,
+            CostMedal=1,
+            UpgradeId=0,
+        )
+        entry["UpgradeId"] = next_id
+        used.add(next_id)
+        next_id += 1
+        data.append(ultimate)
+        added += 1
+
+    _write(path, data)
+    print(
+        f"  SKILL  SkillSettings.json: +{added} ultimate levels"
+        f" (effect=420, chance=100)"
+    )
+
+
 def main() -> None:
     if len(sys.argv) != 2:
         print(f"usage: {sys.argv[0]} <data_dir>", file=sys.stderr)
@@ -541,6 +597,7 @@ def main() -> None:
     post_process_tutorial(root)
     post_process_elites(root)
     post_process_techresearch(root)
+    post_process_skills(root)
     print(f"\n  patched: {touched}  |  mutations: {total}")
 
 
