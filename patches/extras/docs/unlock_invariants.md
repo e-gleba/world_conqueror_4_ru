@@ -22,6 +22,17 @@ port-based recruitment. HQ and resource costs are removed for all entries.
 The rewrite must never become a blanket registry rule — the naval guard lives
 in `post_process_elites()` only.
 
+## Army caps and facility output
+
+`ArmySettings.MaxElite` / `MaxFormation` and the `FacilitySettings`
+production/recovery fields (`ProduceMoney`, `ProduceGear`, `ProduceAtomic`,
+`ArmyRecovery`, `CityRecovery`) are raised only to values observed in the
+original v1.24.2 data (18 / 4 / 120 / 20 / 14 / 16 / 4), and only where they
+are non-zero (`set_nz`): units without an elite version keep `MaxElite: 0`,
+facilities that never produced a resource stay as they are. The engine
+provably handles these values, so the change is safe. Exceeding the observed
+maxima is untested and stays out of the reliable patch.
+
 ## Tech research
 
 `TechResearchSettings.json` gates anti-air, satellites, buildings and units

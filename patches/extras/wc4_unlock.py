@@ -2,10 +2,13 @@
 """wc4_unlock.py v8 — World Conqueror 4 ultimate unlocker.
 
 Patches ALL JSON data files in-place to unlock everything.
-Does NOT change any stat/combat/effect values.
+Does NOT change combat values (attack/defence/HP/mobility/range).
 PRESERVES AdvanceID chains in GeneralPromotionSettings.
 Elite units recruit in any lvl-1 city (RequireCityType => 20001);
 naval elites (ArmyType==4) KEEP port requirements (20701/20703).
+Army caps raised to the observed maximum: MaxElite => 18, MaxFormation => 4
+(only where non-zero — units without elites stay untouched).
+Facilities: production/recovery maxed to observed values.
 TechResearchSettings: all AA/satellite/building/army unlocks are granted
 at the starting level; research cost zeroed.
 Does NOT touch ScenarioSettings.json.
@@ -206,6 +209,8 @@ _r("EliteChallengeSettings.json", "UnlockId", "zero")
 
 # =====================================================================
 # 13. ARMY PURCHASE
+#     MaxElite/MaxFormation: raised to the observed maximum only where
+#     non-zero — the engine provably handles these values.
 # =====================================================================
 _r("ArmySettings.json", "CostMoney", "cost1")
 _r("ArmySettings.json", "CostGear", "zero")
@@ -213,9 +218,13 @@ _r("ArmySettings.json", "CostAtomic", "zero")
 _r("ArmySettings.json", "CostPoints", "zero")
 _r("ArmySettings.json", "BuildTime", "zero")
 _r("ArmySettings.json", "BuildCD", "zero")
+_r("ArmySettings.json", "MaxElite", "set_nz", 18)
+_r("ArmySettings.json", "MaxFormation", "set_nz", 4)
 
 # =====================================================================
 # 14. BUILDINGS / FACILITIES / AIR DEFENCE
+#     Facility production/recovery maxed to observed values (set_nz:
+#     facilities that never produced a resource stay as they are).
 # =====================================================================
 _r("CityFeatureSettings.json", "CostMoney", "set", 1)
 _r("CityFeatureSettings.json", "CostGear", "zero")
@@ -223,6 +232,11 @@ _r("CityFeatureSettings.json", "CostGear", "zero")
 _r("FacilitySettings.json", "CostMoney", "cost1")
 _r("FacilitySettings.json", "CostGear", "zero")
 _r("FacilitySettings.json", "CostAtomic", "zero")
+_r("FacilitySettings.json", "ProduceMoney", "set_nz", 120)
+_r("FacilitySettings.json", "ProduceGear", "set_nz", 20)
+_r("FacilitySettings.json", "ProduceAtomic", "set_nz", 14)
+_r("FacilitySettings.json", "ArmyRecovery", "set_nz", 16)
+_r("FacilitySettings.json", "CityRecovery", "set_nz", 4)
 
 _r("AirDefenceSettings.json", "CostMoney", "set", 1)
 _r("AirDefenceSettings.json", "CostGear", "zero")
