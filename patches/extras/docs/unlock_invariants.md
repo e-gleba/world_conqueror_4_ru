@@ -1,6 +1,6 @@
 # WC4 unlock patch invariants
 
-This note records the data contracts used by `wc4_unlock.py`. The mod variant may reduce progression costs and HQ gates, but it must not rewrite fields that select gameplay facilities or encode effect values.
+This note records the data contracts used by `wc4_unlock.py`. The mod variant may reduce progression costs and HQ gates, but it must not rewrite fields that select gameplay facilities or encode effect values — except where explicitly documented below.
 
 ## Elite forces
 
@@ -13,7 +13,59 @@ Observed identifiers in the original v1.24.2 data:
 - `20401`, `20403`: airports
 - `20701`, `20703`: ports
 
-Naval elite entries (`ArmyType == 4`) use `20701` or `20703`. Replacing every requirement with `20001` binds them to a city and prevents port-based recruitment. Therefore the unlock patch preserves `RequireCityType` exactly. It may still remove HQ and resource costs.
+The unlock patch rewrites `RequireCityType` to `20001` for every non-naval
+entry (`post_process_elites`), so elite units recruit in any level-1 city
+without factories or airports. Naval elite entries (`ArmyType == 4`) are the
+exception: they keep `20701`/`20703`, because binding them to a city prevents
+port-based recruitment. HQ and resource costs are removed for all entries.
+
+The rewrite must never become a blanket registry rule — the naval guard lives
+in `post_process_elites()` only.
+
+## Army caps and facility output
+
+`ArmySettings.MaxFormation` and the `FacilitySettings` production/recovery
+fields (`ProduceMoney`, `ProduceGear`, `ProduceAtomic`, `ArmyRecovery`,
+`CityRecovery`) are raised only to values observed in the original v1.24.2
+data (4 / 120 / 20 / 14 / 16 / 4), and only where they are non-zero
+(`set_nz`): facilities that never produced a resource stay as they are. The
+engine provably handles these values, so the change is safe.
+
+`MaxElite` is the deliberate exception — EXPERIMENTAL. It is set to 254 for
+every elite-capable unit (non-zero values; units without an elite version
+keep 0). Rationale: 254 fits in a uint8 and avoids 0xFF (255), which is
+commonly a sentinel value. But it exceeds the observed maximum of 18: if the
+engine or the save format stores the counter narrower than a byte, counts
+will misbehave. Verify on device: recruit elites, save, reload, check the
+count persists. If it breaks, revert to 18 (the observed maximum).
+
+## Skill ultimate levels
+
+`SkillSettings.json` rows are linked lists via `UpgradeId` (0 = chain
+terminal). `post_process_skills` appends one ultimate level to every chain:
+`Level+1` (capped at the observed maximum of 10 — levels 1..10 exist in the
+original data, so the engine and UI provably handle them),
+`SkillEffect=420`, `ActivatesChance=100`, `CostMedal=1`; all other fields
+are copied from the terminal row. New row ids start above the observed
+maximum id.
+
+`SkillEffect=420` exceeds the observed maximum of 150 — the field width in
+the engine is unverified (needs at least int16). Negative effects are NOT
+used: debuff skills encode the debuff in `Type` with a positive
+`SkillEffect`; a negative value risks an unsigned wrap.
+
+Idempotence marker: `SkillEffect == 420` never occurs in the original data,
+so re-runs skip rows the patch itself added.
+
+## Tech research
+
+`TechResearchSettings.json` gates anti-air, satellites, buildings and units
+behind research levels. The patch zeroes `NeedAtomic` and copies every unlock
+(union of `UnlockedBuilding` and `UnlockedArmy`, max of `UnlockedAntiAir` and
+`UnlockedSatellite`) onto the starting-level entry (`Level == -1`, falling
+back to `Level == 1`), so everything is available from the first turn
+regardless of research progress. Higher-level entries keep their own unlocks
+unchanged.
 
 ## Wonders
 
@@ -23,7 +75,13 @@ Naval elite entries (`ArmyType == 4`) use `20701` or `20703`. Replacing every re
 - effects: `Type`, `IfPercent`, `FunctionEffect`
 - reward: `PrizeExp`
 
-The mod patch changes only cost fields. `FunctionEffect` is intentionally preserved because values such as `10000`, `16000`, and `20000` are daily resource output, not prices.
+The mod patch changes only cost fields, and sets them to **1, not 0**
+(`cost1`). Rationale: the engine subtracts discounts/promotions from the
+construction price at runtime, and the price field is unsigned —
+`uint32(0 - N)` wraps to ~4 billion, which is exactly the "huge wonder
+price" bug observed in-game. A price of 1 can never underflow and is still
+effectively free. `FunctionEffect` is intentionally preserved because values
+such as `10000`, `16000`, and `20000` are daily resource output, not prices.
 
 No new field is added to force wonder blueprints open. Their availability is save/progression state populated when the corresponding scenario or Domination stage is completed. Mutating effect or stage data to bypass that state would be speculative and risks save incompatibility.
 
@@ -40,8 +98,7 @@ or via ctest after a build (`extras_unlock`).
 Checks:
 
 1. the rule registry never touches `RequireCityType` or `Price`
-2. elite facility requirements remain byte-for-byte equivalent by entry ID
-3. naval elite requirements still point to ports
-4. all wonder resource costs become zero and medal costs remain in `0..1`
-5. wonder effects stay within the original schema range
-6. re-running the unlock on a patched tree is a no-op (idempotence)
+2. non-naval elite requirements are rewritten to `20001`; naval elite requirements still point to ports
+3. all wonder costs stay in `0..1` (never zeroed — uint32 wrap on discounts)
+4. wonder effects stay within the original schema range
+5. re-running the unlock on a patched tree is a no-op (idempotence)

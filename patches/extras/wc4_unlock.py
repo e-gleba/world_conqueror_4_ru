@@ -1,13 +1,25 @@
 #!/usr/bin/env python3
-"""wc4_unlock.py v7 — World Conqueror 4 ultimate unlocker.
+"""wc4_unlock.py v8 — World Conqueror 4 ultimate unlocker.
 
 Patches ALL JSON data files in-place to unlock everything.
-Does NOT change any stat/combat/effect values.
+Does NOT change combat values (attack/defence/HP/mobility/range).
 PRESERVES AdvanceID chains in GeneralPromotionSettings.
-PRESERVES facility requirements in EliteArmySettings.
+Elite units recruit in any lvl-1 city (RequireCityType => 20001);
+naval elites (ArmyType==4) KEEP port requirements (20701/20703).
+Army caps: MaxElite => 254 for elite-capable units (EXPERIMENTAL — fits
+uint8 and avoids the 0xFF sentinel, but exceeds the observed max of 18);
+MaxFormation => 4 (observed max). Only where non-zero.
+Facilities: production/recovery maxed to observed values.
+TechResearchSettings: all AA/satellite/building/army unlocks are granted
+at the starting level; research cost zeroed.
+SkillSettings: every skill chain gets an ultimate level appended
+(Level+1, capped at the observed max of 10; SkillEffect=420,
+ActivatesChance=100, CostMedal=1).
 Does NOT touch ScenarioSettings.json.
 Does NOT touch FrontierStageSetting / FrontierNodeSetting / FrontierChapterSetting.
 Price field intentionally excluded — uint32 underflow risk with active promotions.
+Wonder costs are 1, not 0 — the engine subtracts discounts from the price,
+and uint32(0 - N) wraps to a huge number.
 
 Tutorial mission (Id=10001) grants HQ 50 + 1M medals + unlocks ALL stages.
 
@@ -126,6 +138,7 @@ _r("GeneralStageSettings.json", "UnlockStageId", "zero")
 
 # =====================================================================
 # 7. SKILLS
+#     Ultimate level rows are appended by post_process_skills().
 # =====================================================================
 _r("SkillSettings.json", "CostMedal", "cost1")
 _r("SkillSettings.json", "OpenDefault", "set", 1)
@@ -188,7 +201,8 @@ _r("ArmyGroupChallengeSettings.json", "UnlockId", "zero")
 
 # =====================================================================
 # 12. ELITE ARMY UPGRADES
-#     RequireCityType is a facility id and is intentionally untouched.
+#     Costs/HQ gates cleared here. RequireCityType is rewritten by
+#     post_process_elites(): non-naval => 20001, naval keeps ports.
 # =====================================================================
 _r("EliteArmySettings.json", "NeedHQLv", "zero")
 _r("EliteArmySettings.json", "CostGold", "zero")
@@ -202,6 +216,10 @@ _r("EliteChallengeSettings.json", "UnlockId", "zero")
 
 # =====================================================================
 # 13. ARMY PURCHASE
+#     MaxFormation => 4: observed maximum, engine provably handles it.
+#     MaxElite => 254: EXPERIMENTAL — fits uint8 and avoids the 0xFF
+#     sentinel, but exceeds the observed max (18). Verify on device:
+#     recruit elites, save, reload, check the count persists.
 # =====================================================================
 _r("ArmySettings.json", "CostMoney", "cost1")
 _r("ArmySettings.json", "CostGear", "zero")
@@ -209,9 +227,13 @@ _r("ArmySettings.json", "CostAtomic", "zero")
 _r("ArmySettings.json", "CostPoints", "zero")
 _r("ArmySettings.json", "BuildTime", "zero")
 _r("ArmySettings.json", "BuildCD", "zero")
+_r("ArmySettings.json", "MaxElite", "set_nz", 254)
+_r("ArmySettings.json", "MaxFormation", "set_nz", 4)
 
 # =====================================================================
 # 14. BUILDINGS / FACILITIES / AIR DEFENCE
+#     Facility production/recovery maxed to observed values (set_nz:
+#     facilities that never produced a resource stay as they are).
 # =====================================================================
 _r("CityFeatureSettings.json", "CostMoney", "set", 1)
 _r("CityFeatureSettings.json", "CostGear", "zero")
@@ -219,6 +241,11 @@ _r("CityFeatureSettings.json", "CostGear", "zero")
 _r("FacilitySettings.json", "CostMoney", "cost1")
 _r("FacilitySettings.json", "CostGear", "zero")
 _r("FacilitySettings.json", "CostAtomic", "zero")
+_r("FacilitySettings.json", "ProduceMoney", "set_nz", 120)
+_r("FacilitySettings.json", "ProduceGear", "set_nz", 20)
+_r("FacilitySettings.json", "ProduceAtomic", "set_nz", 14)
+_r("FacilitySettings.json", "ArmyRecovery", "set_nz", 16)
+_r("FacilitySettings.json", "CityRecovery", "set_nz", 4)
 
 _r("AirDefenceSettings.json", "CostMoney", "set", 1)
 _r("AirDefenceSettings.json", "CostGear", "zero")
@@ -226,11 +253,13 @@ _r("AirDefenceSettings.json", "CostAtomic", "zero")
 
 # =====================================================================
 # 15. WONDERS
+#     Costs are 1, not 0: the engine subtracts discounts from the price,
+#     and uint32(0 - N) wraps to ~4 billion (huge price bug in-game).
 # =====================================================================
-_r("WonderSettings.json", "CostGold", "zero")
-_r("WonderSettings.json", "CostIndustry", "zero")
-_r("WonderSettings.json", "CostEnergy", "zero")
-_r("WonderSettings.json", "CostTech", "zero")
+_r("WonderSettings.json", "CostGold", "cost1")
+_r("WonderSettings.json", "CostIndustry", "cost1")
+_r("WonderSettings.json", "CostEnergy", "cost1")
+_r("WonderSettings.json", "CostTech", "cost1")
 _r("WonderSettings.json", "CostMedals", "cost1")
 
 # =====================================================================
@@ -308,6 +337,12 @@ _r("WarZoneStageSetting.json", "UnlockStageId", "clear")
 # 25. ELITE PASS
 # =====================================================================
 _r("ElitePassSettings.json", "Point", "cost1")
+
+# =====================================================================
+# 26. TECH RESEARCH — research free; unlocks moved to the starting
+#     level by post_process_techresearch()
+# =====================================================================
+_r("TechResearchSettings.json", "NeedAtomic", "zero")
 
 
 # ---------------------------------------------------------------------------
@@ -405,6 +440,127 @@ def post_process_tutorial(root: Path) -> None:
     )
 
 
+def post_process_elites(root: Path) -> None:
+    """Elite units recruit in any lvl-1 city. Naval keeps port requirement."""
+    path = root / "EliteArmySettings.json"
+    if not path.exists():
+        return
+
+    data = _read(path)
+    n = 0
+    for entry in data:
+        if not isinstance(entry, dict):
+            continue
+        if entry.get("ArmyType") == 4:
+            continue  # naval: ports 20701/20703 — see docs/unlock_invariants.md
+        if entry.get("RequireCityType") != 20001:
+            entry["RequireCityType"] = 20001
+            n += 1
+
+    _write(path, data)
+    print(
+        f"  ELITE  EliteArmySettings.json: RequireCityType=>20001 on {n} entries"
+        f" (naval kept on ports)"
+    )
+
+
+def post_process_techresearch(root: Path) -> None:
+    """Grant all tech-research unlocks (AA, satellite, buildings, armies)
+    at the starting level, so nothing depends on research progress."""
+    path = root / "TechResearchSettings.json"
+    if not path.exists():
+        return
+
+    data = _read(path)
+    entries = [e for e in data if isinstance(e, dict)]
+    start = next((e for e in entries if e.get("Level") == -1), None)
+    if start is None:
+        start = next((e for e in entries if e.get("Level") == 1), None)
+    if start is None:
+        print("  WARN   TechResearchSettings.json: no starting-level entry", file=sys.stderr)
+        return
+
+    def _ids(field: str) -> list[int]:
+        return sorted(
+            {
+                v
+                for e in entries
+                for v in e.get(field, [])
+                if isinstance(v, int) and not isinstance(v, bool) and v
+            }
+        )
+
+    buildings = _ids("UnlockedBuilding")
+    armies = _ids("UnlockedArmy")
+    start["UnlockedBuilding"] = buildings
+    start["UnlockedArmy"] = armies
+    start["UnlockedAntiAir"] = max(
+        (e.get("UnlockedAntiAir", 0) for e in entries), default=0
+    )
+    start["UnlockedSatellite"] = max(
+        (e.get("UnlockedSatellite", 0) for e in entries), default=0
+    )
+
+    _write(path, data)
+    print(
+        f"  TECH   TechResearchSettings.json: start level grants "
+        f"AA={start['UnlockedAntiAir']}, satellite={start['UnlockedSatellite']}, "
+        f"buildings={len(buildings)}, armies={len(armies)}"
+    )
+
+
+def post_process_skills(root: Path) -> None:
+    """Append an ultimate level to every skill chain.
+
+    Chains are linked lists via UpgradeId (0 = terminal). Each terminal row
+    gets one more level: Level+1 (capped at the observed max of 10),
+    SkillEffect=420, ActivatesChance=100, CostMedal=1; everything else is
+    copied from the terminal row. Idempotence marker: SkillEffect == 420
+    never occurs in original data (observed max 150), so re-runs skip our
+    own rows.
+    """
+    path = root / "SkillSettings.json"
+    if not path.exists():
+        return
+
+    data = _read(path)
+    rows = [e for e in data if isinstance(e, dict)]
+    used = {e.get("Id") for e in rows}
+    next_id = max((i for i in used if isinstance(i, int)), default=3795) + 1
+
+    added = 0
+    for entry in rows:
+        if entry.get("UpgradeId") != 0:
+            continue  # not a chain terminal
+        if entry.get("SkillEffect") == 420:
+            continue  # our own ultimate row — idempotence marker
+        level = entry.get("Level")
+        if not isinstance(level, int) or isinstance(level, bool) or level >= 10:
+            continue  # already at the observed max level
+        while next_id in used:
+            next_id += 1
+        ultimate = dict(entry)
+        ultimate.update(
+            Id=next_id,
+            Level=level + 1,
+            SkillEffect=420,
+            ActivatesChance=100,
+            CostMedal=1,
+            UpgradeId=0,
+        )
+        entry["UpgradeId"] = next_id
+        used.add(next_id)
+        next_id += 1
+        data.append(ultimate)
+        added += 1
+
+    _write(path, data)
+    print(
+        f"  SKILL  SkillSettings.json: +{added} ultimate levels"
+        f" (effect=420, chance=100)"
+    )
+
+
 def main() -> None:
     if len(sys.argv) != 2:
         print(f"usage: {sys.argv[0]} <data_dir>", file=sys.stderr)
@@ -443,6 +599,9 @@ def main() -> None:
                 print(f"  ERR    {path.name}: no result", file=sys.stderr)
 
     post_process_tutorial(root)
+    post_process_elites(root)
+    post_process_techresearch(root)
+    post_process_skills(root)
     print(f"\n  patched: {touched}  |  mutations: {total}")
 
 
