@@ -5,22 +5,25 @@ Only the stdlib json module — no third-party dependency.
 
 from __future__ import annotations
 
-import json
 from typing import Any
+
+from . import repo
 
 
 def loads(text: str) -> Any:
+    import json
+
     return json.loads(text)
 
 
 def dumps(obj: Any, indent: int = 2) -> str:
+    import json
+
     return json.dumps(obj, indent=indent, ensure_ascii=False)
 
 
 def pretty_file(path: str) -> str:
-    from pathlib import Path
-
-    return dumps(loads(Path(path).read_text(encoding="utf-8")))
+    return dumps(loads(repo.read_text(path)))
 
 
 def get_path(obj: Any, dotted: str) -> Any:
@@ -31,7 +34,5 @@ def get_path(obj: Any, dotted: str) -> Any:
 
 
 def query_file(path: str, dotted: str) -> str:
-    from pathlib import Path
-
-    result = get_path(loads(Path(path).read_text(encoding="utf-8")), dotted)
+    result = get_path(loads(repo.read_text(path)), dotted)
     return dumps(result) if isinstance(result, (dict, list)) else str(result)
