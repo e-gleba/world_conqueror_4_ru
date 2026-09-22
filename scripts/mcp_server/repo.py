@@ -14,13 +14,21 @@ def inside_root(path: str) -> Path:
     return candidate
 
 
-def read_text(path: str) -> str:
+def _checked(path: str) -> Path:
     target = inside_root(path)
-    if not target.is_file():
+    if not target.is_file() or target.is_symlink():
         raise ValueError(f"Not a file: {path}")
     if target.stat().st_size > MAX_FILE_BYTES:
         raise ValueError(f"File too large: {path}")
-    return target.read_text(encoding="utf-8")
+    return target
+
+
+def read_text(path: str) -> str:
+    return _checked(path).read_text(encoding="utf-8")
+
+
+def read_bytes(path: str) -> bytes:
+    return _checked(path).read_bytes()
 
 
 def relative_posix(path: Path) -> str:
