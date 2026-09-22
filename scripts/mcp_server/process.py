@@ -7,6 +7,8 @@ from pathlib import Path
 
 from .config import COMMAND_TIMEOUT_SECONDS, ROOT
 
+MAX_OUTPUT_BYTES = 256 * 1024
+
 
 def decode_output(output: str | bytes | None) -> str:
     if isinstance(output, bytes):
@@ -38,18 +40,34 @@ def capture(
 ) -> tuple[int | str, str]:
     cwd = workdir if workdir is not None else ROOT
     try:
-        result = subprocess.run(
+        proc = subprocess.Popen(
             command,
             cwd=cwd,
-            check=False,
-            capture_output=True,
-            text=True,
-            input=stdin_text,
-            stdin=subprocess.DEVNULL if stdin_text is None else None,
-            timeout=timeout,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            stdin=subprocess.DEVNULL if stdin_text is None else subprocess.PIPE,
+            text=False,
         )
-    except subprocess.TimeoutExpired as error:
-        return ("timeout", _joined(error.stdout, error.stderr))
     except OSError as error:
         return ("launch_error", str(error))
-    return (result.returncode, _joined(result.stdout, result.stderr))
+    try:
+        out, _ = proc.communicate(
+            input=stdin_text.encode() if stdin_text is not None else None,
+            timeout=timeout,
+        )
+    except subprocess.TimeoutExpired:
+        proc.kill()
+        out, _ = proc.communicate()
+        return ("timeout", _truncate(out))
+    if proc.returncode is None:
+        proc.kill()
+        out, _ = proc.communicate()
+        return ("timeout", _truncate(out))
+    return (proc.returncode, _truncate(out))
+
+
+def _truncate(data: bytes | None) -> str:
+    raw = data or b""
+    cut = len(raw) > MAX_OUTPUT_BYTES
+    text = raw[:MAX_OUTPUT_BYTES].decode("utf-8", errors="replace").rstrip()
+    return text + "\n[truncated]" if cut else text
