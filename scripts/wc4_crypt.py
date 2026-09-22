@@ -16,6 +16,7 @@ from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 AES_KEY = b"BYPFO2387HLKNJEODFUD9TU8HUB445HS"
 AES_IV = b"SF3WRA3SDF3VFDD9"
 BLOCK = 16
+MAX_FILE_BYTES = 8 * 1024 * 1024
 
 _AES_ALG = algorithms.AES(AES_KEY)
 _AES_MODE = modes.CBC(AES_IV)
@@ -92,6 +93,18 @@ def encrypt(plaintext: bytes) -> bytes:
     return _md5(plaintext) + struct.pack("<I", len(plaintext)) + _encrypt_pt(plaintext)
 
 
+def _read_limited(path: Path, limit: int = MAX_FILE_BYTES) -> bytes | None:
+    try:
+        if not path.is_file() or path.is_symlink():
+            return None
+        if path.stat().st_size > limit:
+            return None
+        with path.open("rb") as fh:
+            return fh.read(limit + 1)
+    except OSError:
+        return None
+
+
 def cmd_decrypt(args: argparse.Namespace) -> int:
     src = Path(args.input)
     if src.is_dir():
@@ -100,7 +113,8 @@ def cmd_decrypt(args: argparse.Namespace) -> int:
         out_dir.mkdir(parents=True, exist_ok=True)
         ok = fail = 0
         for f in files:
-            pt = decrypt(f.read_bytes())
+            raw = _read_limited(f)
+            pt = decrypt(raw) if raw is not None and len(raw) <= MAX_FILE_BYTES else None
             if pt is None:
                 print(f"FAIL {f.name}", file=sys.stderr)
                 fail += 1
@@ -109,7 +123,11 @@ def cmd_decrypt(args: argparse.Namespace) -> int:
             ok += 1
         print(f"decrypt done => {ok}/{ok + fail} ok")
         return 0 if fail == 0 else 1
-    pt = decrypt(src.read_bytes())
+    raw = _read_limited(src)
+    if raw is None or len(raw) > MAX_FILE_BYTES:
+        print(f"cannot decrypt '{src.name}'", file=sys.stderr)
+        return 1
+    pt = decrypt(raw)
     if pt is None:
         print(f"cannot decrypt '{src.name}'", file=sys.stderr)
         return 1
@@ -125,12 +143,22 @@ def cmd_encrypt(args: argparse.Namespace) -> int:
         files = sorted(f for f in src.iterdir() if f.is_file())
         out_dir = Path(args.output) if args.output else src
         out_dir.mkdir(parents=True, exist_ok=True)
+        skipped = 0
         for f in files:
-            (out_dir / f.name).write_bytes(encrypt(f.read_bytes()))
-        print(f"encrypt done => {len(files)}/{len(files)} ok")
-        return 0
+            raw = _read_limited(f)
+            if raw is None or len(raw) > MAX_FILE_BYTES:
+                print(f"SKIP {f.name} (too large or unreadable)", file=sys.stderr)
+                skipped += 1
+                continue
+            (out_dir / f.name).write_bytes(encrypt(raw))
+        print(f"encrypt done => {len(files) - skipped}/{len(files)} ok")
+        return 0 if skipped == 0 else 1
+    raw = _read_limited(src)
+    if raw is None or len(raw) > MAX_FILE_BYTES:
+        print(f"cannot encrypt '{src.name}'", file=sys.stderr)
+        return 1
     dst = Path(args.output) if args.output else src.with_stem(src.stem + ".encrypted")
-    dst.write_bytes(encrypt(src.read_bytes()))
+    dst.write_bytes(encrypt(raw))
     print(f"{src.name} => {dst.name}")
     return 0
 
