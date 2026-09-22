@@ -63,7 +63,19 @@ def _is_text(data: bytes) -> bool:
 
 
 def decrypt(raw: bytes) -> bytes | None:
-    for off in (32, 28, 20, 16, 0):
+    if len(raw) >= 20 + BLOCK and (len(raw) - 20) % BLOCK == 0:
+        try:
+            pt = _decrypt_ct(raw[20:])
+        except Exception:
+            pt = None
+        if (
+            pt is not None
+            and struct.unpack("<I", raw[16:20])[0] == len(pt)
+            and _md5(pt) == raw[:16]
+        ):
+            return pt
+
+    for off in (32, 28, 16, 0):
         ct_len = ((len(raw) - off) // BLOCK) * BLOCK
         if off >= len(raw) or ct_len < BLOCK:
             continue
@@ -84,6 +96,8 @@ def cmd_decrypt(args: argparse.Namespace) -> int:
     src = Path(args.input)
     if src.is_dir():
         files = sorted(f for f in src.iterdir() if f.is_file())
+        out_dir = Path(args.output) if args.output else src
+        out_dir.mkdir(parents=True, exist_ok=True)
         ok = fail = 0
         for f in files:
             pt = decrypt(f.read_bytes())
@@ -91,7 +105,7 @@ def cmd_decrypt(args: argparse.Namespace) -> int:
                 print(f"FAIL {f.name}", file=sys.stderr)
                 fail += 1
                 continue
-            (Path(args.output) / f.name if args.output else f).write_bytes(pt)
+            (out_dir / f.name).write_bytes(pt)
             ok += 1
         print(f"decrypt done => {ok}/{ok + fail} ok")
         return 0 if fail == 0 else 1
