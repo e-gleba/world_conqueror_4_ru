@@ -107,3 +107,7 @@ cmake/toolchains/.macos-toolchain-deps/
 cmake/toolchains/.macos-sdk-cache/
 
 decompiled/
+
+# python venv (scoped MCP server env, self-bootstrapped by run.py)
+.venv/
+scripts/mcp_server/.venv/

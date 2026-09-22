@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 4.2)
+cmake_minimum_required(VERSION 4.3)
 
 project(
     apk_reverse_engineering
@@ -33,11 +33,11 @@ project(
 # --- inputs -----------------------------------------------------------------
 
 set(apk_default_url
-    "https://github.com/e-gleba/world_conqueror_4_ru/releases/download/v1.28.0_pdalife/world-conqueror-4-ww2-strategy-v1-28-0-mod.apk"
+    "https://github.com/e-gleba/world_conqueror_4_ru/releases/download/v1.29.0_pdalife/world-conqueror-4-ww2-strategy-v1-29-0_mod.apk"
 )
 # SHA-256 of the asset above (digest published on GitHub release v1.28.0_pdalife).
 set(apk_default_sha256
-    "270a1b93b2529ec00c24e9f0d4b48b34fe7a0ac8d9bca0311348f6d0b68819c6")
+    "eb5b54c106e9ea36b214ae98821514b307ccf9cbd44de513a47f552814cf9c16")
 
 set(apk_input
     ""
@@ -87,9 +87,6 @@ set(adb_serial
 set(wc4_crypt
     "${CMAKE_CURRENT_SOURCE_DIR}/scripts/wc4_crypt.py"
     CACHE FILEPATH "wc4 encrypt/decrypt script")
-set(wc4_header
-    "MD5_SIZE"
-    CACHE STRING "wc4-crypt header format")
 set(wc4_package
     "com.easytech.wc4.android"
     CACHE STRING "android package name (deploy)")
@@ -233,15 +230,6 @@ message(STATUS "apk_input: ${apk_input} (SHA-256: ${apk_input_actual})")
 file(MAKE_DIRECTORY "${tools_dir}")
 wc4_fetch("${apktool_url}" "${apktool_jar}" "${apktool_sha256}")
 wc4_fetch("${signer_url}" "${signer_jar}" "${uber_signer_sha256}")
-
-execute_process(
-    COMMAND "${python3_bin}" "${wc4_crypt}" --version COMMAND_ECHO STDOUT
-    OUTPUT_QUIET ERROR_QUIET
-    RESULT_VARIABLE py_rc COMMAND_ERROR_IS_FATAL NONE)
-if(py_rc)
-    message(WARNING "python 'cryptography' module missing\n"
-                    "  fix: ${python3_bin} -m pip install cryptography")
-endif()
 
 # --- state 1: decompile + decrypt => pristine decompiled/ -------------------
 

@@ -15,9 +15,9 @@ import sys
 import tempfile
 from pathlib import Path
 
-PATCH_DIR = Path(__file__).resolve().parent
+PATCH_DIR = Path(__file__).resolve().parent.parent
 PATCHER = PATCH_DIR / "patch.py"
-FIXTURE_DIR = PATCH_DIR / "fixtures"
+FIXTURE_DIR = PATCH_DIR / "tests"
 SNIPPET_DIR = PATCH_DIR / "smali"
 
 PROFILE = "2342342223"
@@ -44,7 +44,14 @@ def stage_tree(dest: Path) -> Path:
 
 def run_patch(tree: Path, snippets: Path) -> None:
     subprocess.run(
-        [sys.executable, str(PATCHER), "--tree", str(tree), "--snippets", str(snippets)],
+        [
+            sys.executable,
+            str(PATCHER),
+            "--tree",
+            str(tree),
+            "--snippets",
+            str(snippets),
+        ],
         check=True,
     )
 
@@ -55,8 +62,14 @@ def assert_patched(tree: Path) -> None:
     ).read_text(encoding="utf-8")
     manifest = (tree / "AndroidManifest.xml").read_text(encoding="utf-8")
 
-    assert activity.count(".method private static GetPublicSaveRoot()Ljava/lang/String;") == 1
-    assert activity.count(".method private static CopyFile(Ljava/io/File;Ljava/io/File;)V") == 1
+    assert (
+        activity.count(".method private static GetPublicSaveRoot()Ljava/lang/String;")
+        == 1
+    )
+    assert (
+        activity.count(".method private static CopyFile(Ljava/io/File;Ljava/io/File;)V")
+        == 1
+    )
     assert activity.count(".method private static MigrateSaves()V") == 1
     assert f'const-string p2, "{PROFILE}"' in activity
     assert f'const-string v2, "{SUBDIR}"' in activity

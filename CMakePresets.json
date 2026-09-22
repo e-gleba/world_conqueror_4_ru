@@ -1,10 +1,10 @@
 {
     "$schema": "https://cmake.org/cmake/help/latest/_downloads/3e2d73bff478d88a7de0de736ba5e361/schema.json",
-    "$comment": "Requires CMake 4.2+. Schema v10 (3.31/4.x). Upgrade $schema hash from cmake.org/cmake/help/v4.2 when IDE validation matters.",
+    "$comment": "Requires CMake 4.3+. Schema v10 (3.31/4.x). Upgrade $schema hash from cmake.org/cmake/help/v4.3 when IDE validation matters.",
     "version": 10,
     "cmakeMinimumRequired": {
         "major": 4,
-        "minor": 2,
+        "minor": 3,
         "patch": 0
     },
     "configurePresets": [

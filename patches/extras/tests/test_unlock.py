@@ -30,9 +30,9 @@ from pathlib import Path
 from types import ModuleType
 from typing import Any
 
-PATCH_DIR = Path(__file__).resolve().parent
+PATCH_DIR = Path(__file__).resolve().parent.parent
 UNLOCK_SCRIPT = PATCH_DIR / "wc4_unlock.py"
-FIXTURE_DIR = Path(__file__).resolve().parent / "fixtures"
+FIXTURE_DIR = Path(__file__).resolve().parent.parent / "tests"
 
 
 def load_unlock() -> ModuleType:
@@ -62,12 +62,16 @@ def run_unlock(unlock: ModuleType, fixture: Path) -> Any:
 
 
 def assert_rule_registry_safe(unlock: ModuleType) -> None:
-    elite_fields = {field for field, _, _ in unlock.FILE_RULES["EliteArmySettings.json"]}
+    elite_fields = {
+        field for field, _, _ in unlock.FILE_RULES["EliteArmySettings.json"]
+    }
     wonder_fields = {field for field, _, _ in unlock.FILE_RULES["WonderSettings.json"]}
 
     # RequireCityType is rewritten only by post_process_elites() with a naval
     # guard — it must never become a blanket registry rule.
-    assert "RequireCityType" not in elite_fields, "RequireCityType selects facilities — never patch it"
+    assert (
+        "RequireCityType" not in elite_fields
+    ), "RequireCityType selects facilities — never patch it"
     assert wonder_fields == {
         "CostGold",
         "CostIndustry",
@@ -78,23 +82,28 @@ def assert_rule_registry_safe(unlock: ModuleType) -> None:
 
     # Price is excluded everywhere: promotions subtract, and uint32(1 - N) wraps.
     for name, rules in unlock.FILE_RULES.items():
-        assert "Price" not in {field for field, _, _ in rules}, f"{name}: Price must never be a rule"
+        assert "Price" not in {
+            field for field, _, _ in rules
+        }, f"{name}: Price must never be a rule"
 
 
 def assert_elite_requirements_rewritten(unlock: ModuleType) -> None:
     patched = run_unlock(unlock, FIXTURE_DIR / "EliteArmySettings.json")
 
     assert patched
-    assert any(entry["ArmyType"] == 4 for entry in patched), "fixture must cover naval elites"
+    assert any(
+        entry["ArmyType"] == 4 for entry in patched
+    ), "fixture must cover naval elites"
     for entry in patched:
         if entry["ArmyType"] == 4:
-            assert entry["RequireCityType"] in (20701, 20703), (
-                "naval elite units must remain bound to ports"
-            )
+            assert entry["RequireCityType"] in (
+                20701,
+                20703,
+            ), "naval elite units must remain bound to ports"
         else:
-            assert entry["RequireCityType"] == 20001, (
-                "non-naval elites must recruit in any lvl-1 city"
-            )
+            assert (
+                entry["RequireCityType"] == 20001
+            ), "non-naval elites must recruit in any lvl-1 city"
 
 
 def assert_wonder_costs_bounded(unlock: ModuleType) -> None:
@@ -104,16 +113,26 @@ def assert_wonder_costs_bounded(unlock: ModuleType) -> None:
         # Costs must be 0 or 1, never zeroed to exactly 0 by the patch:
         # the engine subtracts discounts from the price and uint32(0 - N)
         # wraps to ~4 billion. cost1 keeps the price at 1.
-        for field in ("CostGold", "CostIndustry", "CostEnergy", "CostTech", "CostMedals"):
+        for field in (
+            "CostGold",
+            "CostIndustry",
+            "CostEnergy",
+            "CostTech",
+            "CostMedals",
+        ):
             assert 0 <= entry[field] <= 1, f"{field} must be 0 or 1"
-        assert 1 <= entry["FunctionEffect"] <= 20_000, "FunctionEffect is an effect value, not a price"
+        assert (
+            1 <= entry["FunctionEffect"] <= 20_000
+        ), "FunctionEffect is an effect value, not a price"
 
 
 def assert_idempotent(unlock: ModuleType) -> None:
     # Fixtures are already patched: re-running the unlock must change nothing.
     for name in ("EliteArmySettings.json", "WonderSettings.json"):
         fixture = FIXTURE_DIR / name
-        assert run_unlock(unlock, fixture) == read_json(fixture), f"{name}: unlock is not idempotent"
+        assert run_unlock(unlock, fixture) == read_json(
+            fixture
+        ), f"{name}: unlock is not idempotent"
 
 
 def main() -> None:

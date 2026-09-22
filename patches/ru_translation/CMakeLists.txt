@@ -1,30 +1,3 @@
-# ru_translation — RU localization.
-#
-# Ships ONE Russian payload set: a stringtable template, title art, an
-# .lproj bundle and a cyrillic font. At install time apply_ru_locale.py
-# installs the payload over every locale slot in WC4_RU_TARGET_SLOTS
-# (default de = hijack the German slot):
-#
-#   <tree>/assets/stringtable_<slot>.ini         <= stringtable_ru.ini
-#   <tree>/assets/image/tex_title_hd_<slot>.webp <= image/tex_title_hd_ru.webp
-#   <tree>/assets/<slot>.lproj/                  <= ru.lproj/
-#
-# and rewrites the lang_<slot>= menu entry in every stringtable to
-# WC4_RU_LANGUAGE_NAME — the hijacked slot shows up as "Русский" in the
-# language menu whatever the current locale is. Untouched slots keep
-# their stock files from the APK.
-#
-# After a game bump, reconcile the template with the fresh stock table
-# of the hijacked slot (inserts new keys inline in stock order, drops
-# removed ones, dumps the translation TODO line by line):
-#
-#   python3 patches/ru_translation/sync_stringtable.py \
-#       --stock decompiled/assets/stringtable_de.ini
-#
-# Test standalone:
-#   cmake -S patches/ru_translation -B /tmp/ru -DWC4_TREE=<tree>
-#   cmake --install /tmp/ru
-
 cmake_minimum_required(VERSION 4.2)
 project(wc4_patch_ru_translation LANGUAGES NONE)
 
@@ -46,6 +19,43 @@ set(WC4_RU_LANGUAGE_NAME
 
 if(WC4_RU_TARGET_SLOTS STREQUAL "")
     message(FATAL_ERROR "ru_translation: WC4_RU_TARGET_SLOTS is empty")
+endif()
+
+# Sync step: reconcile stringtable_ru.ini with the fresh stock table of
+# the hijacked slot before the payload is applied. Runs on every
+# install when ON. Mutates the checked-in template in place, by design
+# of sync_stringtable.py (--stock only, template resolved by the script).
+option(WC4_RU_AUTO_SYNC
+       "reconcile stringtable_ru.ini with fresh stock at install time" ON)
+
+if(WC4_RU_AUTO_SYNC)
+    # First token of WC4_RU_TARGET_SLOTS regardless of ;/space/comma style.
+    string(
+        REGEX MATCH
+              "^[^;, ]+"
+              _WC4_RU_SYNC_SLOT
+              "${WC4_RU_TARGET_SLOTS}")
+    set(_WC4_RU_SYNC_STOCK
+        "${WC4_TREE}/assets/stringtable_${_WC4_RU_SYNC_SLOT}.ini")
+
+    string(
+        CONFIGURE
+            [=[
+if("@WC4_RU_AUTO_SYNC@")
+  set(_ru_stock "@_WC4_RU_SYNC_STOCK@")
+  if(NOT EXISTS "${_ru_stock}")
+    message(FATAL_ERROR "ru_translation: stock table not found: ${_ru_stock}")
+  endif()
+  execute_process(
+      COMMAND "@Python3_EXECUTABLE@"
+              "@CMAKE_CURRENT_SOURCE_DIR@/sync_stringtable.py"
+              --stock "${_ru_stock}"
+      COMMAND_ERROR_IS_FATAL ANY)
+endif()
+]=]
+            install_sync_code
+        @ONLY)
+    install(CODE "${install_sync_code}")
 endif()
 
 # install step: apply the RU payload over every hijacked slot
@@ -85,8 +95,7 @@ if(WC4_RU_FONT_REBUILD)
     if(NOT FONTFORGE_BIN)
         message(
             STATUS
-                "ru_translation: fontforge not found — keeping checked-in font"
-        )
+                "ru_translation: fontforge not found — keeping checked-in font")
     endif()
 endif()
 

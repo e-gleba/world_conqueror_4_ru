@@ -44,8 +44,7 @@ include(ExternalProject)
 
 function(wc4_discover_patches)
     file(
-        GLOB manifests
-        CONFIGURE_DEPENDS
+        GLOB manifests CONFIGURE_DEPENDS
         LIST_DIRECTORIES FALSE
         "${PROJECT_SOURCE_DIR}/patches/*/CMakeLists.txt")
 
@@ -73,8 +72,9 @@ function(wc4_discover_patches)
 
     set(WC4_PATCHES
         ""
-        CACHE STRING
-              "explicit patch allowlist (semicolon list; empty = every WC4_PATCH_<NAME>=ON)"
+        CACHE
+            STRING
+            "explicit patch allowlist (semicolon list; empty = every WC4_PATCH_<NAME>=ON)"
     )
 
     # Strict selection: a WC4_PATCH_* knob or WC4_PATCHES entry that names
@@ -85,13 +85,20 @@ function(wc4_discover_patches)
         if(var MATCHES "^WC4_PATCH_(.+)$")
             string(TOLOWER "${CMAKE_MATCH_1}" name)
             string(TOUPPER "${CMAKE_MATCH_1}" upper)
-            if(NOT name IN_LIST known)
+            if(NOT
+               name
+               IN_LIST
+               known)
                 message(
                     FATAL_ERROR
                         "unknown patch toggle '${var}' — known patches: ${known}\n"
                         "  fix: correct the name, or drop the stale knob with -U${var}"
                 )
-            elseif(NOT var STREQUAL "WC4_PATCH_${upper}")
+            elseif(
+                NOT
+                var
+                STREQUAL
+                "WC4_PATCH_${upper}")
                 message(
                     FATAL_ERROR
                         "patch toggle '${var}' has no effect — use 'WC4_PATCH_${upper}'"
@@ -104,7 +111,10 @@ function(wc4_discover_patches)
         set(enabled)
         foreach(name IN LISTS WC4_PATCHES)
             string(STRIP "${name}" name)
-            if(NOT name IN_LIST known)
+            if(NOT
+               name
+               IN_LIST
+               known)
                 message(
                     FATAL_ERROR
                         "WC4_PATCHES: unknown patch '${name}' — known patches: ${known}"
@@ -120,7 +130,8 @@ function(wc4_discover_patches)
             if(WC4_PATCH_${upper})
                 list(APPEND enabled "${name}")
             else()
-                message(STATUS "patch '${name}': disabled (WC4_PATCH_${upper}=OFF)")
+                message(
+                    STATUS "patch '${name}': disabled (WC4_PATCH_${upper}=OFF)")
             endif()
         endforeach()
         set(source " (WC4_PATCH_<NAME> toggles)")
@@ -151,23 +162,28 @@ function(wc4_register_patch_tests name tree)
     set_property(GLOBAL APPEND PROPERTY wc4_ctest_hooks "${name}")
 
     file(
-        GLOB test_srcs
-        CONFIGURE_DEPENDS
+        GLOB test_srcs CONFIGURE_DEPENDS
         LIST_DIRECTORIES FALSE
-        "${PROJECT_SOURCE_DIR}/patches/${name}/test_*.py")
+        "${PROJECT_SOURCE_DIR}/patches/${name}/tests/test*.py")
     foreach(test_src IN LISTS test_srcs)
         cmake_path(
             GET
             test_src
             STEM
             test_stem)
-        string(REGEX REPLACE "^test_" "" test_name "${test_stem}")
+        string(
+            REGEX
+            REPLACE "^test_"
+                    ""
+                    test_name
+                    "${test_stem}")
         set(test_args)
-        if(NOT IS_DIRECTORY "${PROJECT_SOURCE_DIR}/patches/${name}/fixtures")
+        if(NOT IS_DIRECTORY "${PROJECT_SOURCE_DIR}/patches/${name}/tests")
             set(test_args --tree "${tree}")
         endif()
-        add_test(NAME "${name}_${test_name}"
-                 COMMAND "${python3_bin}" "${test_src}" ${test_args})
+        add_test(
+            NAME "${name}_${test_name}"
+            COMMAND "${python3_bin}" "${test_src}" ${test_args})
     endforeach()
 endfunction()
 
@@ -191,14 +207,17 @@ function(wc4_add_variant name)
     set(unsigned "${CMAKE_BINARY_DIR}/wc4_${name}.apk")
     set(signed "${CMAKE_BINARY_DIR}/wc4_${name}-aligned-debugSigned.apk")
 
-    string(REPLACE ";" " " active_log "${active}")
+    string(
+        REPLACE ";"
+                " "
+                active_log
+                "${active}")
 
     # per-patch payload tracking (any change re-stages + re-installs)
     set(payload_deps)
     foreach(p IN LISTS active)
         file(
-            GLOB_RECURSE payloads_${p}
-            CONFIGURE_DEPENDS
+            GLOB_RECURSE payloads_${p} CONFIGURE_DEPENDS
             LIST_DIRECTORIES FALSE
             "${PROJECT_SOURCE_DIR}/patches/${p}/*")
         list(APPEND payload_deps ${payloads_${p}})
@@ -216,14 +235,15 @@ function(wc4_add_variant name)
     add_custom_command(
         OUTPUT "${stage_stamp}"
         COMMAND "${CMAKE_COMMAND}" -E rm -rf "${tree}"
-        COMMAND "${CMAKE_COMMAND}" -E copy_directory "${decompiled_dir}"
-                "${tree}"
+        COMMAND
+            "${CMAKE_COMMAND}" -E copy_directory "${decompiled_dir}" "${tree}"
         COMMAND "${CMAKE_COMMAND}" -E touch "${stage_stamp}"
         DEPENDS "${stamp_decompiled}"
                 ${decompiled_files}
                 ${payload_deps}
                 "${CMAKE_BINARY_DIR}/${name}/patches.txt"
-        COMMENT "stage[${name}]: fresh decompiled/ copy (patches: ${active_log})"
+        COMMENT
+            "stage[${name}]: fresh decompiled/ copy (patches: ${active_log})"
         VERBATIM)
 
     add_custom_target(stage-${name} DEPENDS "${stage_stamp}")
@@ -238,7 +258,7 @@ function(wc4_add_variant name)
         set(ep "ep-${name}-${p}")
         set(prefix "${CMAKE_BINARY_DIR}/${name}/ep/${p}")
 
-        ExternalProject_Add(
+        externalproject_add(
             ${ep}
             SOURCE_DIR "${PROJECT_SOURCE_DIR}/patches/${p}"
             PREFIX "${prefix}"
@@ -249,9 +269,11 @@ function(wc4_add_variant name)
             BUILD_COMMAND ""
             CMAKE_CACHE_ARGS "-DWC4_TREE:PATH=${tree}"
             INSTALL_COMMAND "${CMAKE_COMMAND}" --install <BINARY_DIR>)
-        ExternalProject_Add_StepDependencies(${ep} configure
-                                             "${stage_stamp}"
-                                             ${payloads_${p}})
+        externalproject_add_stepdependencies(
+            ${ep}
+            configure
+            "${stage_stamp}"
+            ${payloads_${p}})
 
         list(APPEND patch_eps "${ep}")
 
@@ -272,14 +294,13 @@ function(wc4_add_variant name)
         COMMAND
             "${CMAKE_COMMAND}" "-DPYTHON3=${python3_bin}"
             "-DWCRYPT=${wc4_crypt}" "-DMODE=encrypt"
-            "-DDIR=${tree}/${assets_data_rel}" "-DHEADER=${wc4_header}" -P
-            "${crypt_script}"
+            "-DDIR=${tree}/${assets_data_rel}" -P "${crypt_script}"
         COMMAND
             "${CMAKE_COMMAND}" -E echo
             "+ ${java_bin} -jar ${apktool_jar} b ${tree} -o ${unsigned} -f --debuggable --jobs ${apktool_jobs}"
         COMMAND
-            "${java_bin}" -jar "${apktool_jar}" b "${tree}" -o
-                "${unsigned}" -f --debuggable --jobs "${apktool_jobs}"
+            "${java_bin}" -jar "${apktool_jar}" b "${tree}" -o "${unsigned}" -f
+            --debuggable --jobs "${apktool_jobs}"
         COMMAND
             "${CMAKE_COMMAND}" -E echo
             "+ ${java_bin} -jar ${signer_jar} -a ${unsigned} --out ${CMAKE_BINARY_DIR} --allowResign"
@@ -295,8 +316,7 @@ function(wc4_add_variant name)
                 "${signer_jar}"
         COMMENT
             "apk[${name}]: encrypt + apktool b + sign => wc4_${name}-aligned-debugSigned.apk"
-        USES_TERMINAL
-        VERBATIM)
+        USES_TERMINAL VERBATIM)
 
     add_custom_target(tree-${name} DEPENDS patch-${name})
     add_custom_target(apk-${name} DEPENDS "${signed}")
