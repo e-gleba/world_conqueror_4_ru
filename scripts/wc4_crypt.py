@@ -5,6 +5,8 @@ AES-256-CBC, key/IV extracted from libworld-conqueror-4.so via Ghidra RE.
 Encrypt always writes MD5_SIZE (md5 + origsize + ct). Decrypt auto-detects.
 """
 
+from __future__ import annotations
+
 import argparse
 import hashlib
 import struct
@@ -18,71 +20,61 @@ AES_IV = b"SF3WRA3SDF3VFDD9"
 BLOCK = 16
 MAX_FILE_BYTES = 8 * 1024 * 1024
 
-_AES_ALG = algorithms.AES(AES_KEY)
-_AES_MODE = modes.CBC(AES_IV)
+_ALG = algorithms.AES(AES_KEY)
+_MODE = modes.CBC(AES_IV)
+_SIZE = struct.Struct("<I")
+_TEXT_LEADS = frozenset(b"{[<\"'")
+_WS = b" \t\n\r\x0b\x0c"
 
 
 def _md5(data: bytes) -> bytes:
     return hashlib.md5(data, usedforsecurity=False).digest()
 
 
-def _unpad(data: bytes) -> bytes:
-    if not data:
-        return data
-    n = data[-1]
-    return data[:-n] if 0 < n <= BLOCK and all(b == n for b in data[-n:]) else data
-
-
-def _pad(data: bytes) -> bytes:
-    n = BLOCK - (len(data) % BLOCK)
-    return data + bytes([n] * n)
-
-
 def _decrypt_ct(ct: bytes) -> bytes:
-    dec = Cipher(_AES_ALG, _AES_MODE).decryptor()
-    return _unpad(dec.update(ct) + dec.finalize())
+    d = Cipher(_ALG, _MODE).decryptor()
+    pt = d.update(ct) + d.finalize()
+    n = pt[-1] if pt else 0
+    return pt[:-n] if 0 < n <= BLOCK and pt.endswith(bytes([n]) * n) else pt
 
 
 def _encrypt_pt(pt: bytes) -> bytes:
-    enc = Cipher(_AES_ALG, _AES_MODE).encryptor()
-    return enc.update(_pad(pt)) + enc.finalize()
+    n = BLOCK - len(pt) % BLOCK
+    e = Cipher(_ALG, _MODE).encryptor()
+    return e.update(pt + bytes([n]) * n) + e.finalize()
 
 
-def _is_text(data: bytes) -> bool:
-    if len(data) < 2:
+def _is_text(pt: bytes) -> bool:
+    s = pt.lstrip(_WS)
+    if not s or s[0] not in _TEXT_LEADS:
         return False
     try:
-        return data.decode("utf-8", errors="strict").lstrip()[0:1] in (
-            "{",
-            "[",
-            "<",
-            '"',
-            "'",
-        )
-    except (UnicodeDecodeError, IndexError):
+        s.decode("utf-8")
+        return True
+    except UnicodeDecodeError:
         return False
 
 
 def decrypt(raw: bytes) -> bytes | None:
-    if len(raw) >= 20 + BLOCK and (len(raw) - 20) % BLOCK == 0:
+    if len(raw) >= 20 + BLOCK and len(raw) % BLOCK == 4:
+        pt = None
         try:
             pt = _decrypt_ct(raw[20:])
-        except Exception:
-            pt = None
+        except ValueError:
+            pass
         if (
             pt is not None
-            and struct.unpack("<I", raw[16:20])[0] == len(pt)
+            and _SIZE.unpack(raw[16:20])[0] == len(pt)
             and _md5(pt) == raw[:16]
         ):
             return pt
-
     for off in (32, 28, 16, 0):
-        ct_len = ((len(raw) - off) // BLOCK) * BLOCK
-        if off >= len(raw) or ct_len < BLOCK:
+        end = off + (len(raw) - off) // BLOCK * BLOCK
+        if end - off < BLOCK:
             continue
         try:
-            pt = _decrypt_ct(raw[off : off + ct_len])
-        except Exception:
+            pt = _decrypt_ct(raw[off:end])
+        except ValueError:
             continue
         if _is_text(pt):
             return pt
@@ -90,77 +82,62 @@ def decrypt(raw: bytes) -> bytes | None:
 
 
 def encrypt(plaintext: bytes) -> bytes:
-    return _md5(plaintext) + struct.pack("<I", len(plaintext)) + _encrypt_pt(plaintext)
+    return _md5(plaintext) + _SIZE.pack(len(plaintext)) + _encrypt_pt(plaintext)
 
 
-def _read_limited(path: Path, limit: int = MAX_FILE_BYTES) -> bytes | None:
+def _read(path: Path) -> bytes | None:
     try:
-        if not path.is_file() or path.is_symlink():
+        if (
+            not path.is_file()
+            or path.is_symlink()
+            or path.stat().st_size > MAX_FILE_BYTES
+        ):
             return None
-        if path.stat().st_size > limit:
-            return None
-        with path.open("rb") as fh:
-            return fh.read(limit + 1)
+        data = path.read_bytes()
+        return data if len(data) <= MAX_FILE_BYTES else None
     except OSError:
         return None
 
 
-def cmd_decrypt(args: argparse.Namespace) -> int:
-    src = Path(args.input)
+def _run(src: Path, dst: Path | None, op, verb: str) -> int:
     if src.is_dir():
-        files = sorted(f for f in src.iterdir() if f.is_file())
-        out_dir = Path(args.output) if args.output else src
-        out_dir.mkdir(parents=True, exist_ok=True)
-        ok = fail = 0
-        for f in files:
-            raw = _read_limited(f)
-            pt = decrypt(raw) if raw is not None and len(raw) <= MAX_FILE_BYTES else None
+        out = dst or src
+        out.mkdir(parents=True, exist_ok=True)
+        bad = 0
+        for f in sorted(p for p in src.iterdir() if p.is_file()):
+            raw = _read(f)
+            pt = op(raw) if raw is not None else None
             if pt is None:
-                print(f"FAIL {f.name}", file=sys.stderr)
-                fail += 1
+                print(f"{verb} {f.name}", file=sys.stderr)
+                bad += 1
                 continue
-            (out_dir / f.name).write_bytes(pt)
-            ok += 1
-        print(f"decrypt done => {ok}/{ok + fail} ok")
-        return 0 if fail == 0 else 1
-    raw = _read_limited(src)
-    if raw is None or len(raw) > MAX_FILE_BYTES:
-        print(f"cannot decrypt '{src.name}'", file=sys.stderr)
-        return 1
-    pt = decrypt(raw)
+            (out / f.name).write_bytes(pt)
+        return bool(bad)
+
+    raw = _read(src)
+    pt = op(raw) if raw is not None else None
     if pt is None:
-        print(f"cannot decrypt '{src.name}'", file=sys.stderr)
+        print(f"cannot {verb.lower()} '{src.name}'", file=sys.stderr)
         return 1
-    dst = Path(args.output) if args.output else src.with_stem(src.stem + ".decrypted")
+    if dst is None:
+        dst = src.with_stem(f"{src.stem}.{verb.lower()}ed")
     dst.write_bytes(pt)
-    print(f"{src.name} => {dst.name}")
     return 0
+
+
+def cmd_decrypt(args: argparse.Namespace) -> int:
+    return _run(
+        Path(args.input), Path(args.output) if args.output else None, decrypt, "FAIL"
+    )
 
 
 def cmd_encrypt(args: argparse.Namespace) -> int:
-    src = Path(args.input)
-    if src.is_dir():
-        files = sorted(f for f in src.iterdir() if f.is_file())
-        out_dir = Path(args.output) if args.output else src
-        out_dir.mkdir(parents=True, exist_ok=True)
-        skipped = 0
-        for f in files:
-            raw = _read_limited(f)
-            if raw is None or len(raw) > MAX_FILE_BYTES:
-                print(f"SKIP {f.name} (too large or unreadable)", file=sys.stderr)
-                skipped += 1
-                continue
-            (out_dir / f.name).write_bytes(encrypt(raw))
-        print(f"encrypt done => {len(files) - skipped}/{len(files)} ok")
-        return 0 if skipped == 0 else 1
-    raw = _read_limited(src)
-    if raw is None or len(raw) > MAX_FILE_BYTES:
-        print(f"cannot encrypt '{src.name}'", file=sys.stderr)
-        return 1
-    dst = Path(args.output) if args.output else src.with_stem(src.stem + ".encrypted")
-    dst.write_bytes(encrypt(raw))
-    print(f"{src.name} => {dst.name}")
-    return 0
+    def op(raw: bytes) -> bytes:
+        return encrypt(raw)
+
+    return _run(
+        Path(args.input), Path(args.output) if args.output else None, op, "SKIP"
+    )
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -177,9 +154,7 @@ def build_parser() -> argparse.ArgumentParser:
 
 def main() -> None:
     args = build_parser().parse_args()
-    if args.command == "decrypt":
-        sys.exit(cmd_decrypt(args))
-    sys.exit(cmd_encrypt(args))
+    sys.exit(cmd_decrypt(args) if args.command == "decrypt" else cmd_encrypt(args))
 
 
 if __name__ == "__main__":

@@ -33,17 +33,14 @@ set(WC4_SAVE_SUBDIR
 
 set(snippets "${CMAKE_CURRENT_BINARY_DIR}/smali")
 foreach(
-    name
-    IN
-    ITEMS
-    helpers
-    checkPermission
-    handleLoginResult
-    onDisconnected
-    onCreate
-    onResume)
-    configure_file("smali/${name}.smali.in" "${snippets}/${name}.smali"
-                   @ONLY)
+    name IN
+    ITEMS helpers
+          checkPermission
+          handleLoginResult
+          onDisconnected
+          onCreate
+          onResume)
+    configure_file("smali/${name}.smali.in" "${snippets}/${name}.smali" @ONLY)
 endforeach()
 
 # install step: splice the configured snippets into the stock tree
@@ -53,7 +50,7 @@ string(
 execute_process(
     COMMAND "@Python3_EXECUTABLE@" "@CMAKE_CURRENT_SOURCE_DIR@/patch.py"
             --tree "@WC4_TREE@" --snippets "@CMAKE_CURRENT_BINARY_DIR@/smali"
-    COMMAND_ERROR_IS_FATAL ANY)
+    COMMAND_ERROR_IS_FATAL ANY COMMAND_ECHO STDOUT)
 ]=]
         install_code
     @ONLY)
