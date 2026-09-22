@@ -15,8 +15,11 @@ def inside_root(path: str) -> Path:
 
 
 def _checked(path: str) -> Path:
+    requested = ROOT / path
+    if requested.is_symlink():
+        raise ValueError(f"Not a file: {path}")
     target = inside_root(path)
-    if not target.is_file() or target.is_symlink():
+    if not target.is_file():
         raise ValueError(f"Not a file: {path}")
     if target.stat().st_size > MAX_FILE_BYTES:
         raise ValueError(f"File too large: {path}")
