@@ -3,7 +3,7 @@
     "mcp": {
         "wc4-project": {
             "type": "local",
-            "command": ["python3", "scripts/mcp_server/server.py"],
+            "command": ["python3", "scripts/mcp_server/run.py"],
             "enabled": true
         }
     }

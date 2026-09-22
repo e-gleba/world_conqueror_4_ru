@@ -59,11 +59,11 @@ python3 scripts/test_crypt.py                          # roundtrip-тест
 
 ## MCP-сервер
 
-`scripts/mcp_server/server.py` — Python MCP для opencode-агентов (порт libmcp, без отладчиков, чисто под APK-дамп):
+`scripts/mcp_server/server.py` — Python MCP для opencode-агентов (порт libmcp, без отладчиков, чисто под APK-дамп).
+Нужен только `python3`: первый запуск сам создаст gitignored-venv `scripts/mcp_server/.venv` и докачает зависимости, системный `python3` не трогается:
 
 ```bash
-pip install "mcp[cli]" pydantic
-python3 scripts/mcp_server/server.py
+python3 scripts/mcp_server/run.py
 ```
 
 Тулы: `wc4_decrypt_file`, `wc4_encrypt_bytes`, `json_query_file`, `project_tree`, `read_project_file`, `git_status`, `list_cmake_presets`, `cmake_configure`, `cmake_build`, `ctest`, `list_presets`, `toolchain_info`.
