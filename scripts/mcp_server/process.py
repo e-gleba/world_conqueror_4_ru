@@ -2,24 +2,16 @@
 
 from __future__ import annotations
 
+import os
+import select
 import subprocess
+import time
 from pathlib import Path
 
 from .config import COMMAND_TIMEOUT_SECONDS, ROOT
 
 MAX_OUTPUT_BYTES = 256 * 1024
-
-
-def decode_output(output: str | bytes | None) -> str:
-    if isinstance(output, bytes):
-        return output.decode("utf-8", errors="replace").rstrip()
-    return (output or "").rstrip()
-
-
-def _joined(stdout: str | bytes | None, stderr: str | bytes | None) -> str:
-    return "\n".join(
-        part for part in (decode_output(stdout), decode_output(stderr)) if part
-    )
+_CHUNK = 65536
 
 
 def run(command: list[str], timeout: int = COMMAND_TIMEOUT_SECONDS) -> str:
@@ -45,29 +37,104 @@ def capture(
             cwd=cwd,
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
-            stdin=subprocess.DEVNULL if stdin_text is None else subprocess.PIPE,
+            stdin=subprocess.PIPE if stdin_text is not None else subprocess.DEVNULL,
             text=False,
         )
     except OSError as error:
         return ("launch_error", str(error))
+
+    if proc.stdin is not None:
+        try:
+            if stdin_text is not None:
+                proc.stdin.write(stdin_text.encode())
+            proc.stdin.close()
+        except (BrokenPipeError, OSError):
+            pass
+
+    out = proc.stdout
+    if out is None:
+        try:
+            rc = proc.wait(timeout=timeout)
+        except subprocess.TimeoutExpired:
+            proc.kill()
+            try:
+                proc.wait(timeout=5)
+            except Exception:
+                pass
+            return ("timeout", "")
+        return (rc, "")
+
+    fd = out.fileno()
+    retained = bytearray()
+    truncated = False
+    deadline = time.monotonic() + timeout
     try:
-        out, _ = proc.communicate(
-            input=stdin_text.encode() if stdin_text is not None else None,
-            timeout=timeout,
-        )
+        while True:
+            remaining = deadline - time.monotonic()
+            if remaining <= 0:
+                proc.kill()
+                try:
+                    proc.wait(timeout=5)
+                except Exception:
+                    pass
+                return ("timeout", _decode(bytes(retained), True))
+            try:
+                ready, _, _ = select.select([fd], [], [], remaining)
+            except (OSError, ValueError):
+                break
+            if not ready:
+                proc.kill()
+                try:
+                    proc.wait(timeout=5)
+                except Exception:
+                    pass
+                return ("timeout", _decode(bytes(retained), True))
+            try:
+                chunk = os.read(fd, _CHUNK)
+            except OSError:
+                break
+            if not chunk:
+                break
+            if len(retained) < MAX_OUTPUT_BYTES:
+                need = MAX_OUTPUT_BYTES - len(retained)
+                retained.extend(chunk[:need])
+                if len(chunk) > need:
+                    truncated = True
+            else:
+                truncated = True
+    finally:
+        try:
+            out.close()
+        except Exception:
+            pass
+
+    remaining = deadline - time.monotonic()
+    if remaining <= 0:
+        proc.kill()
+        try:
+            proc.wait(timeout=5)
+        except Exception:
+            pass
+        return ("timeout", _decode(bytes(retained), True))
+    try:
+        rc = proc.wait(timeout=remaining)
     except subprocess.TimeoutExpired:
         proc.kill()
-        out, _ = proc.communicate()
-        return ("timeout", _truncate(out))
-    if proc.returncode is None:
+        try:
+            proc.wait(timeout=5)
+        except Exception:
+            pass
+        return ("timeout", _decode(bytes(retained), True))
+    if rc is None:
         proc.kill()
-        out, _ = proc.communicate()
-        return ("timeout", _truncate(out))
-    return (proc.returncode, _truncate(out))
+        try:
+            proc.wait(timeout=5)
+        except Exception:
+            pass
+        return ("timeout", _decode(bytes(retained), True))
+    return (rc, _decode(bytes(retained), truncated))
 
 
-def _truncate(data: bytes | None) -> str:
-    raw = data or b""
-    cut = len(raw) > MAX_OUTPUT_BYTES
-    text = raw[:MAX_OUTPUT_BYTES].decode("utf-8", errors="replace").rstrip()
-    return text + "\n[truncated]" if cut else text
+def _decode(data: bytes, truncated: bool) -> str:
+    text = bytes(data).decode("utf-8", errors="replace").rstrip()
+    return text + "\n[truncated]" if truncated else text
