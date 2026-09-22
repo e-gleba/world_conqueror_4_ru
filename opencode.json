@@ -1,0 +1,10 @@
+{
+    "$schema": "https://opencode.ai/config.json",
+    "mcp": {
+        "wc4-project": {
+            "type": "local",
+            "command": ["python3", "scripts/mcp_server/server.py"],
+            "enabled": true
+        }
+    }
+}
