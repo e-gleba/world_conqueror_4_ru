@@ -51,6 +51,26 @@ def cmake_presets() -> str:
     return presets.read_raw()
 
 
+def _walk(top: Path, depth: int, ignored: set[str]) -> list[str]:
+    out: list[str] = []
+    stack: list[tuple[Path, int]] = [(top, 0)]
+    while stack:
+        current, level = stack.pop()
+        try:
+            entries = sorted(current.iterdir(), key=lambda p: p.name)
+        except OSError:
+            continue
+        for entry in entries:
+            if entry.name in ignored or entry.name.startswith("build-"):
+                continue
+            out.append(
+                f"{entry.relative_to(top).as_posix()}{'/' if entry.is_dir() else ''}"
+            )
+            if entry.is_dir() and not entry.is_symlink() and level < depth:
+                stack.append((entry, level + 1))
+    return sorted(out)
+
+
 @mcp.tool()
 def project_tree(
     path: Annotated[str, Field(description="Repository-relative directory")] = ".",
@@ -60,15 +80,7 @@ def project_tree(
     if not start.is_dir():
         raise ValueError(f"Not a directory: {path}")
     ignored = {".git", ".venv", "__pycache__", "build", "decompiled"}
-    lines: list[str] = []
-    for candidate in sorted(start.rglob("*")):
-        relative = candidate.relative_to(start)
-        if any(p in ignored or p.startswith("build-") for p in relative.parts):
-            continue
-        if len(relative.parts) > depth:
-            continue
-        lines.append(f"{relative.as_posix()}{'/' if candidate.is_dir() else ''}")
-    return "\n".join(lines)
+    return "\n".join(_walk(start, depth, ignored))
 
 
 @mcp.tool()
@@ -87,8 +99,7 @@ def git_status() -> str:
 def wc4_decrypt_file(
     path: Annotated[str, Field(description="Repository-relative encrypted file")],
 ) -> str:
-    raw = repo.inside_root(path).read_bytes()
-    pt = wc4_decrypt(raw)
+    pt = wc4_decrypt(repo.read_bytes(path))
     if pt is None:
         raise ValueError(f"cannot decrypt: {path}")
     return pt.decode("utf-8", errors="replace")
@@ -106,7 +117,7 @@ def json_query_file(
     path: Annotated[str, Field(description="Repository-relative JSON file")],
     dotted: Annotated[str, Field(description="Dot path, e.g. units.0.name")],
 ) -> str:
-    return jsonutil.query_file(str(repo.inside_root(path)), dotted)
+    return jsonutil.query_file(path, dotted)
 
 
 @mcp.tool()
