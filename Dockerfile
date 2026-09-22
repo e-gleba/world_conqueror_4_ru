@@ -24,7 +24,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     file \
     && rm -rf /var/lib/apt/lists/*
 
-# CMake — distro packages lag behind; the repo requires 4.2+.
+# CMake — distro packages lag behind; the repo requires 4.3+.
 # Install the latest stable release via pip (auto-updates).
 RUN pip3 install --break-system-packages --upgrade cmake cryptography
 
