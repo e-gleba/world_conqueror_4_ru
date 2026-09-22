@@ -48,7 +48,12 @@ else
 fi
 echo "::endgroup::"
 
-if grep -qiE "fatal|crash|exception|kill.*wc4|native.*crash|has died|force finishing" crash.log; then
+# Verdict must stay app-scoped: crash.log intentionally contains system-wide
+# crash channels (a native death notice comes from system_server, not our
+# PID), but unrelated processes also die here (e.g. maps:server_recovery
+# ... has died). Only fail when a failure keyword shares a line with our
+# PID or package — our own death notice always contains $PKG.
+if grep -E " ${PID:-0} |$PKG" crash.log | grep -qiE "fatal|crash|exception|kill.*wc4|native.*crash|has died|force finishing"; then
     echo "::error::crash or fatal exception detected in the 10s window — see 'app logcat' above"
     exit 1
 else
