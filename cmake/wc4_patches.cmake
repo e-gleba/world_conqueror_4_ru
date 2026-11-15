@@ -142,7 +142,9 @@ function(wc4_add_variant name)
     add_custom_command(
         OUTPUT "${signed}"
         BYPRODUCTS "${unsigned}"
-        COMMAND Python3::Interpreter "${wc4_crypt}" encrypt "${tree}/${assets_data_rel}"
+        COMMAND
+            Python3::Interpreter "${wc4_crypt}" encrypt
+            "${tree}/${assets_data_rel}"
         COMMAND
             "${Java_JAVA_EXECUTABLE}" -jar "${apktool_jar}" b "${tree}" -o
             "${unsigned}" -f --debuggable --jobs "${apktool_jobs}"

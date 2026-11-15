@@ -88,4 +88,4 @@ jobs:
           api-level: 31
           target: google_apis
           arch: x86_64
-          script: cd "$GITHUB_WORKSPACE" && bash scripts/smoke_test.sh
+          script: cd "$GITHUB_WORKSPACE" && cmake -DPKG=com.easytech.wc4.android -DAPK="$(find apks -maxdepth 1 -name '*.apk' -print -quit)" -DBACKEND=adb -P cmake/deploy_apk.cmake

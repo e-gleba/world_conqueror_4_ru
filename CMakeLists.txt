@@ -11,14 +11,15 @@ include(CTest)
 include(FetchContent)
 
 find_package(Java REQUIRED COMPONENTS Runtime)
-find_package(Python3 REQUIRED COMPONENTS Interpreter)
+find_package(Python3 3.14 REQUIRED COMPONENTS Interpreter)
+
+find_program(adb NAMES adb)
+find_program(waydroid NAMES waydroid)
 
 set(apk_input "" CACHE FILEPATH "Source APK path (empty = auto-download)")
 set(apktool_version "3.0.3" CACHE STRING "apktool version")
 set(uber_signer_version "1.3.0" CACHE STRING "uber-apk-signer version")
 set(apktool_jobs "8" CACHE STRING "apktool --jobs count")
-set(waydroid_bin "waydroid" CACHE FILEPATH "waydroid binary")
-set(adb_bin "adb" CACHE FILEPATH "adb binary")
 set(adb_serial "" CACHE STRING "adb device serial")
 set(wc4_crypt "${CMAKE_CURRENT_SOURCE_DIR}/scripts/wc4_crypt.py" CACHE FILEPATH "wc4 crypt script")
 set(wc4_package "com.easytech.wc4.android" CACHE STRING "Android package name")
@@ -26,7 +27,7 @@ set(decompiled_dir "${CMAKE_CURRENT_BINARY_DIR}/decompiled" CACHE PATH "Pristine
 set(deploy_variant "wc4" CACHE STRING "Variant for deploy targets")
 set(deploy_watch_timeout "10" CACHE STRING "Logcat watch seconds when debug is OFF")
 
-set(assets_data_rel "assets/json")
+set(assets_data_rel "assets")
 set(stamp_decompiled "${CMAKE_CURRENT_BINARY_DIR}/decompiled.stamp")
 
 foreach(path_var IN ITEMS apk_input wc4_crypt decompiled_dir)
@@ -122,11 +123,11 @@ function(add_deploy_target target backend debug_default)
         ${target}
         DEPENDS "${wc4_variant_${deploy_variant}_apk}"
         COMMAND
-            "${CMAKE_COMMAND}" "-DPKG=${wc4_package}"
-            "-DAPK=${wc4_variant_${deploy_variant}_apk}" "-DBACKEND=${backend}"
+            "${CMAKE_COMMAND}" "-Dpackage=${wc4_package}"
+            "-Dapk=${wc4_variant_${deploy_variant}_apk}" "-Dbackend=${backend}"
             "-DDEBUG=$<BOOL:${deploy_debug_${backend}}>"
-            "-DTIMEOUT=${deploy_watch_timeout}" "-DADB_SERIAL=${adb_serial}"
-            "-DWAYDROID_BIN=${waydroid_bin}" "-DADB_BIN=${adb_bin}" -P
+            "-DTIMEOUT=${deploy_watch_timeout}" "-Dadb_serial=${adb_serial}"
+            "-Dwaydroid=${waydroid}" "-Dadb=${adb}" -P
             "${CMAKE_CURRENT_SOURCE_DIR}/cmake/deploy_apk.cmake"
         COMMENT "deploy ${deploy_variant} => ${backend}"
         USES_TERMINAL VERBATIM)

@@ -1,30 +1,32 @@
-
 #!/usr/bin/env python3
-"""wc4-crypt — encrypt/decrypt World Conqueror 4 asset files.
+"""wc4-crypt — encrypt or decrypt World Conqueror 4 assets (file or directory).
 
 ETEX (v1/v2) and EBTL (v1) containers using AES-256-CBC + HMAC-SHA256
 keys extracted from libworld-conqueror-4.so.
 """
 
-from __future__ import annotations
-
 import argparse
 import hashlib
 import hmac
 import os
-import shutil
+import sqlite3
 import stat
 import struct
 import sys
 import tempfile
-import zlib
-from collections.abc import Iterator
+from compression import zlib
+from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 from enum import StrEnum
 from fnmatch import fnmatchcase
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
+
+# Gitignore-style patterns skipped by directory decrypt/encrypt.
+IGNORE: tuple[str, ...] = (
+    "*.btl",
+)
 
 BLOCK = 16
 MAX_FILE_BYTES = 8 * 1024 * 1024
@@ -32,6 +34,7 @@ _HMAC_LEN = 32
 _MIN_CONTAINER_LEN = 60
 _MAGICS = frozenset({b"ETEX", b"EBTL"})
 _NOFOLLOW = getattr(os, "O_NOFOLLOW", 0)
+_DB_NAME = ".wc4_crypt.db"
 
 _U16 = struct.Struct("<H")
 _U32 = struct.Struct("<I")
@@ -41,6 +44,9 @@ class Mode(StrEnum):
     MODE1 = "mode1"
     MODE0 = "mode0"
     EBTL = "ebtl"
+
+
+type ModeInput = str | Mode
 
 
 @dataclass(frozen=True, slots=True)
@@ -80,16 +86,6 @@ _KEY_SETS: dict[Mode, _KeySet] = {
         "36ce55a19d158cc3278888216f539a00",
         "10942d5b7b3a9686b13a587adcf96ccfeab3c72f3fe5f064c3ef3a61c3e37bb8",
     ),
-}
-
-_EXT_MODES: dict[str, Mode] = {
-    ".btl": Mode.EBTL,
-    ".webp": Mode.MODE0,
-    ".png": Mode.MODE0,
-    ".pkm": Mode.MODE0,
-    ".json": Mode.MODE1,
-    ".ini": Mode.MODE1,
-    ".xml": Mode.MODE1,
 }
 
 
@@ -180,7 +176,7 @@ def _decompress(comp: int, payload: bytes, raw_size: int) -> bytes | None:
             return None
 
 
-def _parse_header(raw: bytes) -> tuple[bytes, int, int, int, int] | None:
+def _parse_header(raw: bytes) -> tuple[bytes, int, int, int, int, int, int] | None:
     if len(raw) < _MIN_CONTAINER_LEN:
         return None
     magic = raw[:4]
@@ -202,7 +198,8 @@ def _parse_header(raw: bytes) -> tuple[bytes, int, int, int, int] | None:
     path_len = _U16.unpack_from(raw, len_off)[0]
     if path_len == 0:
         return None
-    size_off = len_off + 2 + path_len
+    path_off = len_off + 2
+    size_off = path_off + path_len
     ct_off = size_off + 4
     tag_off = len(raw) - _HMAC_LEN
     if ct_off + BLOCK > tag_off or (tag_off - ct_off) % BLOCK != 0:
@@ -210,14 +207,18 @@ def _parse_header(raw: bytes) -> tuple[bytes, int, int, int, int] | None:
     raw_size = _U32.unpack_from(raw, size_off)[0]
     if raw_size > MAX_FILE_BYTES:
         return None
-    return magic, comp, ct_off, tag_off, raw_size
+    return magic, comp, path_off, size_off, ct_off, tag_off, raw_size
 
 
-def decrypt(raw: bytes) -> bytes | None:
+def _decrypt_container(raw: bytes) -> tuple[bytes, Mode, str] | None:
     parsed = _parse_header(raw)
     if parsed is None:
         return None
-    magic, comp, ct_off, tag_off, raw_size = parsed
+    magic, comp, path_off, size_off, ct_off, tag_off, raw_size = parsed
+    try:
+        header_path = raw[path_off:size_off].decode("utf-8")
+    except UnicodeDecodeError:
+        return None
     mv = memoryview(raw)
     body = mv[:tag_off]
     tag = raw[tag_off:]
@@ -227,15 +228,23 @@ def decrypt(raw: bytes) -> bytes | None:
         ks = _KEY_SETS[mode]
         if hmac.compare_digest(_hmac_sha256(ks.hmac_key, body), tag):
             pt = _aes_decrypt(ks, mv[ct_off:tag_off])
-            return None if pt is None else _decompress(comp, pt, raw_size)
+            if pt is None:
+                return None
+            out = _decompress(comp, pt, raw_size)
+            return None if out is None else (out, mode, header_path)
     return None
+
+
+def decrypt(raw: bytes) -> bytes | None:
+    res = _decrypt_container(raw)
+    return None if res is None else res[0]
 
 
 def encrypt(
     plaintext: bytes,
     rel_path: str = "data.json",
     *,
-    mode: str | Mode = Mode.MODE1,
+    mode: ModeInput = Mode.MODE1,
 ) -> bytes:
     if len(plaintext) > MAX_FILE_BYTES:
         raise ValueError("plaintext exceeds MAX_FILE_BYTES")
@@ -266,24 +275,6 @@ def encrypt(
     return body + _hmac_sha256(ks.hmac_key, body)
 
 
-def _open_regular(path: Path) -> tuple[int, os.stat_result] | None:
-    if not _NOFOLLOW and path.is_symlink():
-        return None
-    try:
-        fd = os.open(path, os.O_RDONLY | _NOFOLLOW)
-    except OSError:
-        return None
-    try:
-        st = os.fstat(fd)
-        if not stat.S_ISREG(st.st_mode):
-            os.close(fd)
-            return None
-    except OSError:
-        os.close(fd)
-        return None
-    return fd, st
-
-
 def _read_magic(fd: int) -> bytes:
     buf = bytearray()
     while len(buf) < 4:
@@ -294,14 +285,29 @@ def _read_magic(fd: int) -> bytes:
     return bytes(buf)
 
 
-def _read_bounded(fd: int, prefix: bytes, size: int) -> bytes | None:
-    if size > MAX_FILE_BYTES:
-        os.close(fd)
-        return None
-    with os.fdopen(fd, "rb") as fh:
-        rest = fh.read(MAX_FILE_BYTES - len(prefix) + 1)
-    data = prefix + rest
-    return data if len(data) <= MAX_FILE_BYTES else None
+def _read_file(path: Path, *, want_container: bool) -> bytes | None:
+    if not _NOFOLLOW and path.is_symlink():
+        raise OSError(f"refusing symlink: {path}")
+    fd = os.open(path, os.O_RDONLY | _NOFOLLOW)
+    try:
+        st = os.fstat(fd)
+        if not stat.S_ISREG(st.st_mode):
+            raise OSError(f"not a regular file: {path}")
+        magic = _read_magic(fd)
+        # Skip non-matching files before checking MAX_FILE_BYTES so large unencrypted media is ignored quickly.
+        if (magic in _MAGICS) != want_container:
+            return None
+        if st.st_size > MAX_FILE_BYTES:
+            raise ValueError(f"file exceeds {MAX_FILE_BYTES} bytes: {path}")
+        with os.fdopen(fd, "rb") as fh:
+            fd = -1
+            data = magic + fh.read(MAX_FILE_BYTES - len(magic) + 1)
+    finally:
+        if fd >= 0:
+            os.close(fd)
+    if len(data) > MAX_FILE_BYTES:
+        raise ValueError(f"file exceeds {MAX_FILE_BYTES} bytes: {path}")
+    return data
 
 
 def _write_atomic(dst: Path, data: bytes) -> None:
@@ -312,239 +318,222 @@ def _write_atomic(dst: Path, data: bytes) -> None:
     tmp = Path(tmp_name)
     try:
         with os.fdopen(fd, "wb") as fh:
+            fd = -1
             fh.write(data)
-        os.replace(tmp, dst)
+        tmp.replace(dst)
+    except BaseException:
+        if fd >= 0:
+            os.close(fd)
+        tmp.unlink(missing_ok=True)
+        raise
+
+
+def _is_ignored(rel: PurePosixPath) -> bool:
+    for raw in IGNORE:
+        pat = raw.strip()
+        if not pat or pat.startswith("#"):
+            continue
+        dir_only = pat.endswith("/")
+        anchored = pat.startswith("/")
+        pat = pat.strip("/")
+        if "/" in pat or anchored:
+            if rel.full_match(f"{pat}/**") or (not dir_only and rel.full_match(pat)):
+                return True
+        elif any(fnmatchcase(part, pat) for part in (rel.parts[:-1] if dir_only else rel.parts)):
+            return True
+    return False
+
+
+def _walk_files(root: Path) -> list[Path]:
+    if root.is_symlink():
+        raise OSError(f"refusing symlink directory: {root}")
+    out: list[Path] = []
+    for cur, dirs, files in root.walk(follow_symlinks=False):
+        dirs.sort()
+        for name in dirs:
+            d = cur / name
+            if d.is_symlink():
+                raise OSError(f"refusing symlink directory: {d}")
+        for name in sorted(files):
+            p = cur / name
+            if p.is_symlink():
+                raise OSError(f"refusing symlink: {p}")
+            if cur == root and name == _DB_NAME:
+                continue
+            if not _is_ignored(PurePosixPath(p.relative_to(root).as_posix())):
+                out.append(p)
+    return out
+
+
+def _read_db(db_path: Path) -> list[tuple[str, str, str]]:
+    if db_path.is_symlink():
+        raise OSError(f"refusing symlink: {db_path}")
+    conn = sqlite3.connect(db_path)
+    try:
+        return conn.execute("SELECT path, mode, header_path FROM files ORDER BY path").fetchall()
+    finally:
+        conn.close()
+
+
+def _write_db(db_path: Path, entries: dict[str, tuple[str, str]]) -> None:
+    if db_path.is_symlink():
+        raise OSError(f"refusing symlink destination: {db_path}")
+    fd, tmp_name = tempfile.mkstemp(dir=db_path.parent, prefix=f".{_DB_NAME}.", suffix=".tmp")
+    os.close(fd)
+    tmp = Path(tmp_name)
+    try:
+        conn = sqlite3.connect(tmp)
+        try:
+            conn.execute(
+                "CREATE TABLE files (path TEXT PRIMARY KEY, mode TEXT NOT NULL, header_path TEXT NOT NULL)"
+            )
+            conn.executemany(
+                "INSERT INTO files VALUES (?, ?, ?)",
+                ((p, m, hp) for p, (m, hp) in sorted(entries.items())),
+            )
+            conn.commit()
+        finally:
+            conn.close()
+        tmp.replace(db_path)
     except BaseException:
         tmp.unlink(missing_ok=True)
         raise
 
 
-def _copy_atomic(dst: Path, in_fd: int, prefix: bytes) -> None:
-    with os.fdopen(in_fd, "rb") as in_fh:
-        if dst.is_symlink():
-            raise OSError(f"refusing symlink destination: {dst}")
-        dst.parent.mkdir(parents=True, exist_ok=True)
-        fd, tmp_name = tempfile.mkstemp(dir=dst.parent, prefix=f".{dst.name}.", suffix=".tmp")
-        tmp = Path(tmp_name)
-        try:
-            with os.fdopen(fd, "wb") as out_fh:
-                out_fh.write(prefix)
-                shutil.copyfileobj(in_fh, out_fh)
-            os.replace(tmp, dst)
-        except BaseException:
-            tmp.unlink(missing_ok=True)
-            raise
-
-
-def _iter_files(root: Path) -> Iterator[Path]:
-    for cur, dirs, files in root.walk(follow_symlinks=False):
-        dirs.sort()
-        for name in sorted(files):
-            yield cur / name
-
-
-def _is_excluded(rel_posix: str, excludes: tuple[str, ...]) -> bool:
-    return any(fnmatchcase(rel_posix, pat) for pat in excludes)
-
-
-def _process_decrypt(src: Path, copy_dst: Path | None, *, allow_plain: bool) -> bool:
-    opened = _open_regular(src)
-    if opened is None:
-        return False
-    fd, st = opened
-    try:
-        magic = _read_magic(fd)
-    except OSError:
-        os.close(fd)
-        return False
-
-    # Peek magic before checking MAX_FILE_BYTES so large unencrypted media is skipped without reading.
-    if magic not in _MAGICS:
-        if not allow_plain:
-            os.close(fd)
-            return False
-        if copy_dst is None:
-            os.close(fd)
-            return True
-        try:
-            _copy_atomic(copy_dst, fd, magic)
-            return True
-        except OSError:
-            return False
-
-    raw = _read_bounded(fd, magic, st.st_size)
+def decrypt_file(src: Path, dst: Path) -> None:
+    raw = _read_file(src, want_container=True)
     if raw is None:
-        return False
-    pt = decrypt(raw)
-    if pt is None:
-        return False
-    try:
-        _write_atomic(copy_dst or src, pt)
-        return True
-    except OSError:
-        return False
+        raise ValueError(f"not an ETEX/EBTL container: {src}")
+    res = _decrypt_container(raw)
+    if res is None:
+        raise ValueError(f"cannot decrypt '{src.name}' (bad header, HMAC, or payload)")
+    _write_atomic(dst, res[0])
 
 
-def _process_encrypt(
+def encrypt_file(
     src: Path,
-    copy_dst: Path | None,
-    rel_path: str,
+    dst: Path,
     *,
-    mode: Mode | None,
-    allow_skip: bool,
-) -> bool:
-    opened = _open_regular(src)
-    if opened is None:
-        return False
-    fd, st = opened
-    try:
-        magic = _read_magic(fd)
-    except OSError:
-        os.close(fd)
-        return False
-
-    if magic in _MAGICS or mode is None:
-        if magic not in _MAGICS and not allow_skip:
-            os.close(fd)
-            return False
-        if copy_dst is None:
-            os.close(fd)
-            return True
-        try:
-            _copy_atomic(copy_dst, fd, magic)
-            return True
-        except OSError:
-            return False
-
-    raw = _read_bounded(fd, magic, st.st_size)
+    mode: Mode = Mode.MODE1,
+    rel_path: str | None = None,
+) -> None:
+    raw = _read_file(src, want_container=False)
     if raw is None:
-        return False
-    try:
-        ct = encrypt(raw, rel_path, mode=mode)
-        _write_atomic(copy_dst or src, ct)
-        return True
-    except (ValueError, OSError):
-        return False
+        raise ValueError(f"already encrypted: {src}")
+    resolved_rel = src.name if rel_path is None else rel_path
+    _write_atomic(dst, encrypt(raw, resolved_rel, mode=mode))
 
 
-def cmd_decrypt(args: argparse.Namespace) -> int:
-    if args.output and len(args.inputs) > 1:
-        print("error: -o/--output requires a single input", file=sys.stderr)
-        return 2
+def decrypt_dir(root: Path) -> None:
+    db_path = root / _DB_NAME
+    entries: dict[str, tuple[str, str]] = {}
+    if db_path.exists():
+        for rel, mode_str, header_path in _read_db(db_path):
+            if not _is_ignored(PurePosixPath(rel)) and (root / rel).is_file():
+                entries[rel] = (mode_str, header_path)
 
-    bad = 0
-    for src in args.inputs:
-        if src.is_symlink():
-            print(f"FAIL {src.name}", file=sys.stderr)
-            bad += 1
-            continue
-        if src.is_dir():
-            out_root = args.output or src
-            if out_root.is_symlink():
-                print(f"FAIL {out_root.name}", file=sys.stderr)
-                bad += 1
-                continue
-            in_place = out_root.resolve() == src.resolve()
-            for f in _iter_files(src):
-                rel = f.relative_to(src)
-                copy_dst = None if in_place else out_root / rel
-                if not _process_decrypt(f, copy_dst, allow_plain=True):
-                    print(f"FAIL {rel.as_posix()}", file=sys.stderr)
-                    bad += 1
-        else:
-            multi = len(args.inputs) > 1
-            dst = args.output or (
-                src if args.in_place else (None if multi else src.with_stem(f"{src.stem}.decrypted"))
-            )
-            copy_dst = None if dst is None or dst == src else dst
-            if not _process_decrypt(src, copy_dst, allow_plain=multi):
-                print(f"cannot decrypt '{src.name}'", file=sys.stderr)
-                bad += 1
-    return 1 if bad else 0
+    def worker(path: Path) -> tuple[str, str, str] | None:
+        raw = _read_file(path, want_container=True)
+        if raw is None:
+            return None
+        res = _decrypt_container(raw)
+        if res is None:
+            raise ValueError(f"cannot decrypt '{path}' (bad header, HMAC, or payload)")
+        pt, mode, header_path = res
+        _write_atomic(path, pt)
+        return path.relative_to(root).as_posix(), mode.value, header_path
+
+    with ThreadPoolExecutor() as pool:
+        for item in pool.map(worker, _walk_files(root)):
+            if item is not None:
+                rel, mode_str, header_path = item
+                entries[rel] = (mode_str, header_path)
+    _write_db(db_path, entries)
 
 
-def cmd_encrypt(args: argparse.Namespace) -> int:
-    if args.output and len(args.inputs) > 1:
-        print("error: -o/--output requires a single input", file=sys.stderr)
-        return 2
+def encrypt_dir(root: Path) -> None:
+    if root.is_symlink():
+        raise OSError(f"refusing symlink directory: {root}")
+    db_path = root / _DB_NAME
+    if not db_path.is_file():
+        raise FileNotFoundError(f"missing manifest database: {db_path}")
+    rows = [r for r in _read_db(db_path) if not _is_ignored(PurePosixPath(r[0]))]
+    root_resolved = root.resolve()
 
-    excludes = tuple(args.exclude)
-    forced_mode = Mode(args.mode) if args.mode else None
-    root_resolved = args.root.resolve() if args.root else None
-    bad = 0
+    def worker(row: tuple[str, str, str]) -> None:
+        rel_posix, mode_str, header_path = row
+        target = root / rel_posix
+        if not target.resolve().is_relative_to(root_resolved):
+            raise ValueError(f"manifest path escapes root: {rel_posix}")
+        raw = _read_file(target, want_container=False)
+        if raw is None:
+            return
+        _write_atomic(target, encrypt(raw, header_path, mode=mode_str))
 
-    for src in args.inputs:
-        if src.is_symlink():
-            print(f"SKIP {src.name}", file=sys.stderr)
-            bad += 1
-            continue
-        if src.is_dir():
-            out_root = args.output or src
-            if out_root.is_symlink():
-                print(f"SKIP {out_root.name}", file=sys.stderr)
-                bad += 1
-                continue
-            src_resolved = src.resolve()
-            in_place = out_root.resolve() == src_resolved
-            rel_base = root_resolved or src_resolved
-            for f in _iter_files(src):
-                rel = f.relative_to(src)
-                rel_posix = rel.as_posix()
-                try:
-                    rel_hdr = (src_resolved / rel).relative_to(rel_base).as_posix()
-                except ValueError:
-                    rel_hdr = rel_posix
-                excluded = _is_excluded(rel_hdr, excludes) or _is_excluded(rel_posix, excludes)
-                mode = None if excluded else (forced_mode or _EXT_MODES.get(f.suffix.lower()))
-                copy_dst = None if in_place else out_root / rel
-                if not _process_encrypt(f, copy_dst, rel_hdr, mode=mode, allow_skip=True):
-                    print(f"SKIP {rel_posix}", file=sys.stderr)
-                    bad += 1
-        else:
-            try:
-                rel_hdr = (
-                    src.resolve().relative_to(root_resolved).as_posix()
-                    if root_resolved is not None
-                    else src.name
-                )
-            except ValueError:
-                rel_hdr = src.name
-            excluded = _is_excluded(rel_hdr, excludes) or _is_excluded(src.name, excludes)
-            mode = None if excluded else (forced_mode or _EXT_MODES.get(src.suffix.lower(), Mode.MODE1))
-            multi = len(args.inputs) > 1
-            dst = args.output or (
-                src if args.in_place else (None if multi else src.with_stem(f"{src.stem}.encrypted"))
-            )
-            copy_dst = None if dst is None or dst == src else dst
-            if not _process_encrypt(src, copy_dst, rel_hdr, mode=mode, allow_skip=multi):
-                print(f"cannot encrypt '{src.name}'", file=sys.stderr)
-                bad += 1
-    return 1 if bad else 0
+    with ThreadPoolExecutor() as pool:
+        for _ in pool.map(worker, rows):
+            pass
+    # apktool zips every file under assets/ (including dotfiles), so drop the DB after encrypting.
+    db_path.unlink()
 
 
 def build_parser() -> argparse.ArgumentParser:
-    p = argparse.ArgumentParser(prog="wc4-crypt", description=__doc__)
-    sub = p.add_subparsers(dest="command", required=True, metavar="<command>")
+    parser = argparse.ArgumentParser(
+        prog="wc4-crypt",
+        description=__doc__,
+        suggest_on_error=True,
+    )
+    parser.add_argument("action", choices=("decrypt", "encrypt"))
+    parser.add_argument("path", type=Path, help="target file or directory")
+    parser.add_argument(
+        "-o",
+        "--output",
+        type=Path,
+        metavar="<file>",
+        help="output path for single-file mode (default: replace in place)",
+    )
+    parser.add_argument(
+        "--mode",
+        choices=tuple(Mode),
+        help="encryption mode for single-file encrypt (default: mode1)",
+    )
+    parser.add_argument(
+        "--rel-path",
+        metavar="<path>",
+        help="container header path (single-file encrypt only, defaults to filename)",
+    )
+    return parser
 
-    for name, help_text in (
-        ("decrypt", "decrypt file(s) or directory (skips unencrypted files)"),
-        ("encrypt", "encrypt file(s) or directory (ETEX/EBTL)"),
-    ):
-        s = sub.add_parser(name, help=help_text)
-        s.add_argument("inputs", nargs="+", type=Path, metavar="<path>")
-        s.add_argument("-o", "--output", type=Path, metavar="<path>")
-        s.add_argument("-i", "--in-place", action="store_true", help="modify single file in place")
-        if name == "encrypt":
-            s.add_argument("--root", type=Path, metavar="<dir>", help="base dir for container rel_path")
-            s.add_argument("--mode", choices=tuple(Mode), help="override extension-based mode")
-            s.add_argument("--exclude", action="append", default=[], metavar="<glob>", help="skip matching paths")
-    return p
 
+def main() -> int:
+    parser = build_parser()
+    args = parser.parse_args()
+    if args.action == "decrypt" and (args.mode is not None or args.rel_path is not None):
+        parser.error("--mode and --rel-path are only valid with encrypt")
 
-def main() -> None:
-    args = build_parser().parse_args()
-    sys.exit(cmd_decrypt(args) if args.command == "decrypt" else cmd_encrypt(args))
+    is_dir = args.path.is_dir() and not args.path.is_symlink()
+    if is_dir and (args.output is not None or args.mode is not None or args.rel_path is not None):
+        parser.error("-o/--output, --mode, and --rel-path are only valid for a single file")
+
+    try:
+        if is_dir:
+            decrypt_dir(args.path) if args.action == "decrypt" else encrypt_dir(args.path)
+        else:
+            dst = args.output or args.path
+            if args.action == "decrypt":
+                decrypt_file(args.path, dst)
+            else:
+                encrypt_file(
+                    args.path,
+                    dst,
+                    mode=Mode(args.mode) if args.mode else Mode.MODE1,
+                    rel_path=args.rel_path,
+                )
+    except (OSError, ValueError, sqlite3.Error) as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        return 1
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
