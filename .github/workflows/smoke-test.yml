@@ -88,4 +88,4 @@ jobs:
           api-level: 31
           target: google_apis
           arch: x86_64
-          script: cd "$GITHUB_WORKSPACE" && cmake -DPKG=com.easytech.wc4.android -DAPK="$(find apks -maxdepth 1 -name '*.apk' -print -quit)" -DBACKEND=adb -P cmake/deploy_apk.cmake
+          script: cd "$GITHUB_WORKSPACE" && cmake -Dpackage=com.easytech.wc4.android -Dapk="$(find "$GITHUB_WORKSPACE/apks" -maxdepth 1 -name '*.apk' -print -quit)" -Dbackend=adb -P cmake/deploy_apk.cmake
