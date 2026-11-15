@@ -1,3 +1,0 @@
-cryptography>=44
-mcp[cli]>=1,<2
-pydantic>=2.0

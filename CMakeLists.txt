@@ -33,11 +33,11 @@ project(
 # --- inputs -----------------------------------------------------------------
 
 set(apk_default_url
-    "https://github.com/e-gleba/world_conqueror_4_ru/releases/download/v1.29.0_pdalife/world-conqueror-4-ww2-strategy-v1-29-0_mod.apk"
+    "https://github.com/e-gleba/world_conqueror_4_ru/releases/download/v1.30.0_pdalife/world-conqueror-4-v1-30-0_mod.apk"
 )
 # SHA-256 of the asset above (digest published on GitHub release v1.28.0_pdalife).
 set(apk_default_sha256
-    "eb5b54c106e9ea36b214ae98821514b307ccf9cbd44de513a47f552814cf9c16")
+    "9f3dd7fc3a3604e96d58f5b9142219ca48f48080377f52d01cf22480ae980684")
 
 set(apk_input
     ""
@@ -99,7 +99,7 @@ set(deploy_variant
     CACHE STRING "Variant installed by the deploy-* targets")
 
 set(tools_dir "${CMAKE_CURRENT_BINARY_DIR}/tools")
-set(assets_data_rel "assets/data")
+set(assets_data_rel "assets")
 set(apktool_jar "${tools_dir}/apktool_${apktool_version}.jar")
 set(signer_jar "${tools_dir}/uber-apk-signer-${uber_signer_version}.jar")
 set(crypt_script "${CMAKE_CURRENT_SOURCE_DIR}/cmake/crypt_json.cmake")

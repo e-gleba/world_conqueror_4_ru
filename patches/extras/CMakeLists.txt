@@ -28,7 +28,7 @@ string(
         [=[
 execute_process(
     COMMAND "@Python3_EXECUTABLE@" "@CMAKE_CURRENT_SOURCE_DIR@/wc4_unlock.py"
-            "@WC4_TREE@/assets/data"
+            "@WC4_TREE@/assets/json"
     COMMAND_ERROR_IS_FATAL ANY)
 ]=]
         install_code
