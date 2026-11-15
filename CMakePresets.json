@@ -21,11 +21,6 @@
                     "type": "FILEPATH",
                     "value": ""
                 },
-                "apk_input_sha256": {
-                    "$comment": "Expected SHA-256 of apk_input — empty prints the actual hash without verifying",
-                    "type": "STRING",
-                    "value": ""
-                },
                 "WC4_PATCHES": {
                     "$comment": "Explicit patch allowlist, e.g. \"ru_translation;extras\" — empty = every WC4_PATCH_<NAME>=ON",
                     "type": "STRING",

@@ -7,315 +7,117 @@ project(
     HOMEPAGE_URL "https://github.com/e-gleba/world_conqueror_4_ru"
     LANGUAGES NONE)
 
-# ---------------------------------------------------------------------------
-# 3-state pipeline:
-#
-#   1. configure  fetch + verify inputs, decompile + decrypt => decompiled/
-#   2. build      per variant: fresh tree copy, apply patches (each patch is
-#                 a standalone project applied via its install phase), then
-#                 encrypt + compile + sign
-#   3. deploy     install one signed variant via waydroid or adb, launch it
-#                 and watch the logs
-#
-# decompiled/ is PRISTINE — patches never touch it. Every variant builds
-# from a fresh copy under build/<variant>/tree, so changing the patch set
-# or editing patch payloads rebuilds only that copy, never a re-decompile.
-#
-# Patch selection (cmake/wc4_patches.cmake) — one combination per build
-# tree, validated at configure time (an unknown name fails the configure
-# instead of silently building the wrong APK):
-#
-#   -DWC4_PATCH_<NAME>=ON/OFF   per-patch toggles, all ON by default
-#   -DWC4_PATCHES="a;b"         explicit allowlist, wins over the toggles —
-#                               the CI / release / matrix knob
-# ---------------------------------------------------------------------------
+include(CTest)
+include(FetchContent)
 
-# --- inputs -----------------------------------------------------------------
+find_package(Java REQUIRED COMPONENTS Runtime)
+find_package(Python3 REQUIRED COMPONENTS Interpreter)
 
-set(apk_default_url
-    "https://github.com/e-gleba/world_conqueror_4_ru/releases/download/v1.30.0_pdalife/world-conqueror-4-v1-30-0_mod.apk"
-)
-# SHA-256 of the asset above (digest published on GitHub release v1.30.0_pdalife).
-set(apk_default_sha256
-    "9f3dd7fc3a3604e96d58f5b9142219ca48f48080377f52d01cf22480ae980684")
+set(apk_input "" CACHE FILEPATH "Source APK path (empty = auto-download)")
+set(apktool_version "3.0.3" CACHE STRING "apktool version")
+set(uber_signer_version "1.3.0" CACHE STRING "uber-apk-signer version")
+set(apktool_jobs "8" CACHE STRING "apktool --jobs count")
+set(waydroid_bin "waydroid" CACHE FILEPATH "waydroid binary")
+set(adb_bin "adb" CACHE FILEPATH "adb binary")
+set(adb_serial "" CACHE STRING "adb device serial")
+set(wc4_crypt "${CMAKE_CURRENT_SOURCE_DIR}/scripts/wc4_crypt.py" CACHE FILEPATH "wc4 crypt script")
+set(wc4_package "com.easytech.wc4.android" CACHE STRING "Android package name")
+set(decompiled_dir "${CMAKE_CURRENT_BINARY_DIR}/decompiled" CACHE PATH "Pristine decompiled tree")
+set(deploy_variant "wc4" CACHE STRING "Variant for deploy targets")
+set(deploy_watch_timeout "10" CACHE STRING "Logcat watch seconds when debug is OFF")
 
-set(apk_input
-    ""
-    CACHE FILEPATH "Path to source .apk (empty = auto-download)")
-set(apk_input_sha256
-    ""
-    CACHE STRING "Expected SHA-256 of apk_input (empty = print actual only)")
-
-set(apktool_version
-    "3.0.3"
-    CACHE STRING "apktool version")
-set(uber_signer_version
-    "1.3.0"
-    CACHE STRING "uber-apk-signer version")
-
-# Pinned tool hashes — wc4_fetch verifies the jars at configure time, so a
-# truncated or corrupted download fails loudly instead of breaking targets
-# mid-build. renovate tracks the versions (.github/renovate.json); on a
-# version bump the configure error prints the actual hash — paste it here.
-set(apktool_sha256
-    "dbf930b076c6b9be08d57c449cacefc3bdd6b71ebd59b3066fc0e1f5b14f9423"
-    CACHE STRING "SHA-256 of apktool_${apktool_version}.jar")
-set(uber_signer_sha256
-    "e1299fd6fcf4da527dd53735b56127e8ea922a321128123b9c32d619bba1d835"
-    CACHE STRING "SHA-256 of uber-apk-signer-${uber_signer_version}.jar")
-
-set(apktool_jobs
-    "8"
-    CACHE STRING "apktool --jobs thread count (decode + build)")
-
-set(java_bin
-    "java"
-    CACHE FILEPATH "Java binary")
-set(python3_bin
-    "python3"
-    CACHE FILEPATH "Python 3 binary")
-set(waydroid_bin
-    "waydroid"
-    CACHE FILEPATH "waydroid binary (deploy-waydroid)")
-set(adb_bin
-    "adb"
-    CACHE FILEPATH "adb binary (deploy-adb)")
-set(adb_serial
-    ""
-    CACHE STRING "adb device serial for deploy-adb (empty = default device)")
-
-set(wc4_crypt
-    "${CMAKE_CURRENT_SOURCE_DIR}/scripts/wc4_crypt.py"
-    CACHE FILEPATH "wc4 encrypt/decrypt script")
-set(wc4_package
-    "com.easytech.wc4.android"
-    CACHE STRING "android package name (deploy)")
-
-set(decompiled_dir
-    "${CMAKE_CURRENT_SOURCE_DIR}/decompiled"
-    CACHE PATH "Pristine decompiled tree (gitignored; patches never touch it)")
-set(deploy_variant
-    "wc4"
-    CACHE STRING "Variant installed by the deploy-* targets")
-
-set(tools_dir "${CMAKE_CURRENT_BINARY_DIR}/tools")
-set(assets_data_rel "assets")
-set(apktool_jar "${tools_dir}/apktool_${apktool_version}.jar")
-set(signer_jar "${tools_dir}/uber-apk-signer-${uber_signer_version}.jar")
-set(crypt_script "${CMAKE_CURRENT_SOURCE_DIR}/cmake/crypt_json.cmake")
-set(deploy_script "${CMAKE_CURRENT_SOURCE_DIR}/cmake/deploy_apk.cmake")
+set(assets_data_rel "assets/json")
 set(stamp_decompiled "${CMAKE_CURRENT_BINARY_DIR}/decompiled.stamp")
 
-set(apktool_url
-    "https://github.com/iBotPeaches/Apktool/releases/download/v${apktool_version}/apktool_${apktool_version}.jar"
-)
-set(signer_url
-    "https://github.com/patrickfav/uber-apk-signer/releases/download/v${uber_signer_version}/uber-apk-signer-${uber_signer_version}.jar"
-)
-
 foreach(path_var IN ITEMS apk_input wc4_crypt decompiled_dir)
-    if(NOT
-       "${${path_var}}"
-       STREQUAL
-       ""
-       AND NOT IS_ABSOLUTE "${${path_var}}")
+    if(NOT "${${path_var}}" STREQUAL "")
         cmake_path(
-            ABSOLUTE_PATH
-            ${path_var}
-            BASE_DIRECTORY
-            "${CMAKE_CURRENT_SOURCE_DIR}"
+            ABSOLUTE_PATH ${path_var}
+            BASE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
             NORMALIZE)
     endif()
 endforeach()
 
 if(NOT EXISTS "${wc4_crypt}")
-    message(FATAL_ERROR "'wc4_crypt' does not exist: ${wc4_crypt}")
+    message(FATAL_ERROR "wc4_crypt does not exist: ${wc4_crypt}")
 endif()
 
-# --- fetch helper: download once, verify SHA-256 when provided --------------
+FetchContent_Declare(
+    apktool
+    URL "https://github.com/iBotPeaches/Apktool/releases/download/v${apktool_version}/apktool_${apktool_version}.jar"
+    URL_HASH SHA256=dbf930b076c6b9be08d57c449cacefc3bdd6b71ebd59b3066fc0e1f5b14f9423
+    DOWNLOAD_NO_EXTRACT TRUE)
 
-function(
-    wc4_fetch
-    url
-    output
-    expected_sha256)
-    if(EXISTS "${output}")
-        if(NOT
-           expected_sha256
-           STREQUAL
-           "")
-            file(SHA256 "${output}" actual)
-            if(NOT
-               actual
-               STREQUAL
-               expected_sha256)
-                message(
-                    FATAL_ERROR
-                        "SHA-256 mismatch: ${output}\n"
-                        "  expected: ${expected_sha256}\n"
-                        "  actual:   ${actual}\n"
-                        "  fix: delete the file and re-configure, or correct the hash"
-                )
-            endif()
-        endif()
-        return()
-    endif()
+FetchContent_MakeAvailable(apktool)
 
-    cmake_path(
-        GET
-        output
-        PARENT_PATH
-        output_dir)
-    file(MAKE_DIRECTORY "${output_dir}")
+FetchContent_Declare(
+    uber_signer
+    URL "https://github.com/patrickfav/uber-apk-signer/releases/download/v${uber_signer_version}/uber-apk-signer-${uber_signer_version}.jar"
+    URL_HASH SHA256=e1299fd6fcf4da527dd53735b56127e8ea922a321128123b9c32d619bba1d835
+    DOWNLOAD_NO_EXTRACT TRUE)
 
-    set(hash_args)
-    if(NOT
-       expected_sha256
-       STREQUAL
-       "")
-        list(
-            APPEND
-            hash_args
-            EXPECTED_HASH
-            "SHA256=${expected_sha256}")
-    endif()
-
-    message(STATUS "downloading '${url}'")
-    file(
-        DOWNLOAD "${url}" "${output}"
-        SHOW_PROGRESS
-        STATUS status
-        ${hash_args})
-    list(
-        GET
-        status
-        0
-        rc)
-    if(rc)
-        file(REMOVE "${output}")
-        message(FATAL_ERROR "download failed: ${url}\n${status}")
-    endif()
-endfunction()
-
-# --- input APK: auto-download (pinned hash) or verify user-provided ---------
+FetchContent_MakeAvailable(uber_signer)
 
 if(apk_input STREQUAL "")
-    set(apk_input "${CMAKE_CURRENT_BINARY_DIR}/original.apk")
-    wc4_fetch("${apk_default_url}" "${apk_input}" "${apk_default_sha256}")
-elseif(NOT EXISTS "${apk_input}")
-    message(
-        FATAL_ERROR
-            "apk_input does not exist: '${apk_input}'\n"
-            "  fix: pass -Dapk_input=<path to existing .apk>\n"
-            " or leave empty to auto-download")
+    FetchContent_Declare(
+        original_apk
+        URL "https://github.com/e-gleba/world_conqueror_4_ru/releases/download/v1.30.0_pdalife/world-conqueror-4-v1-30-0_mod.apk"
+        URL_HASH SHA256=9f3dd7fc3a3604e96d58f5b9142219ca48f48080377f52d01cf22480ae980684
+        DOWNLOAD_NAME "original.apk"
+        DOWNLOAD_NO_EXTRACT TRUE)
+    FetchContent_MakeAvailable(original_apk)
+    set(apk_input "${original_apk_SOURCE_DIR}/original.apk")
+else()
+    if(NOT EXISTS "${apk_input}")
+        message(FATAL_ERROR "apk_input does not exist: ${apk_input}")
+    endif()
 endif()
 
-file(SHA256 "${apk_input}" apk_input_actual)
-if(NOT
-   apk_input_sha256
-   STREQUAL
-   ""
-   AND NOT
-       apk_input_actual
-       STREQUAL
-       apk_input_sha256)
-    message(
-        FATAL_ERROR
-            "apk_input SHA-256 mismatch: ${apk_input}\n"
-            "  expected: ${apk_input_sha256}\n"
-            "  actual:   ${apk_input_actual}")
-endif()
-message(STATUS "apk_input: ${apk_input} (SHA-256: ${apk_input_actual})")
-
-file(MAKE_DIRECTORY "${tools_dir}")
-wc4_fetch("${apktool_url}" "${apktool_jar}" "${apktool_sha256}")
-wc4_fetch("${signer_url}" "${signer_jar}" "${uber_signer_sha256}")
-
-# --- state 1: decompile + decrypt => pristine decompiled/ -------------------
+set(apktool_jar "${apktool_SOURCE_DIR}/apktool_${apktool_version}.jar")
+set(signer_jar "${uber_signer_SOURCE_DIR}/uber-apk-signer-${uber_signer_version}.jar")
 
 add_custom_command(
     OUTPUT "${stamp_decompiled}"
     COMMAND "${CMAKE_COMMAND}" -E rm -rf "${decompiled_dir}"
     COMMAND "${CMAKE_COMMAND}" -E make_directory "${decompiled_dir}"
     COMMAND
-        "${CMAKE_COMMAND}" -E echo
-        "+ ${java_bin} -jar ${apktool_jar} d ${apk_input} -o ${decompiled_dir} -f --all-src --jobs ${apktool_jobs}"
-    COMMAND
-        "${java_bin}" -jar "${apktool_jar}" d "${apk_input}" -o
+        "${Java_JAVA_EXECUTABLE}" -jar "${apktool_jar}" d "${apk_input}" -o
         "${decompiled_dir}" -f --all-src --jobs "${apktool_jobs}"
     COMMAND
-        "${CMAKE_COMMAND}" "-DPYTHON3=${python3_bin}" "-DWCRYPT=${wc4_crypt}"
-        "-DMODE=decrypt" "-DDIR=${decompiled_dir}/${assets_data_rel}" -P
-        "${crypt_script}"
+        Python3::Interpreter "${wc4_crypt}" decrypt
+        "${decompiled_dir}/${assets_data_rel}"
     COMMAND "${CMAKE_COMMAND}" -E touch "${stamp_decompiled}"
-    DEPENDS "${apk_input}"
-            "${apktool_jar}"
-            "${wc4_crypt}"
-            "${crypt_script}"
-    COMMENT "decompile => decompiled/ (apktool d + decrypt json & stringtables)"
+    DEPENDS "${apk_input}" "${apktool_jar}" "${wc4_crypt}"
+    COMMENT "decompile => decompiled/ (apktool d + decrypt ${assets_data_rel})"
     USES_TERMINAL VERBATIM)
 
 add_custom_target(decompile DEPENDS "${stamp_decompiled}")
 
-# Manual edits in decompiled/ rebuild the variant trees (re-globbed per build).
 file(
     GLOB_RECURSE decompiled_files CONFIGURE_DEPENDS
     LIST_DIRECTORIES FALSE
     "${decompiled_dir}/*")
 
-option(BUILD_TESTING "enable ctest tests (patch validation)" ON)
-if(BUILD_TESTING)
-    enable_testing()
-endif()
-
-# --- state 2: variant = copy + patch (install phase) + encrypt + sign -------
-# One decompiled APK => a signed APK built from ALL SELECTED patches. The
-# combination is picked at configure time — WC4_PATCH_<NAME> toggles (all
-# ON by default) or the WC4_PATCHES allowlist — never a hardcoded list, so
-# CI / release / matrix jobs choose with -D flags. Add another output APK
-# with one more wc4_add_variant(<name>) line.
-
 include(cmake/wc4_patches.cmake)
 wc4_discover_patches()
-
 wc4_add_variant(wc4)
 
 get_property(all_apks GLOBAL PROPERTY wc4_all_apks)
 if(NOT all_apks)
-    message(FATAL_ERROR "no variants defined — add a wc4_add_variant() call")
+    message(FATAL_ERROR "no variants defined")
 endif()
 add_custom_target(apks DEPENDS ${all_apks})
 
-# --- state 3: deploy = install + launch + log watch -------------------------
-# DEBUG=ON  => infinite logcat tail (Ctrl+C to stop)
-# DEBUG=OFF => bounded CI-style watch: capture deploy_watch_timeout seconds
-#              of logcat, fail on fatal/crash patterns (like smoke-test.yml)
-
-set(deploy_watch_timeout
-    "10"
-    CACHE STRING "logcat watch window in seconds when deploy debug is OFF")
-
 get_property(known_variants GLOBAL PROPERTY wc4_variants)
-if(NOT
-   deploy_variant
-   IN_LIST
-   known_variants)
-    message(
-        FATAL_ERROR
-            "deploy_variant '${deploy_variant}' is not a variant (known: ${known_variants})"
-    )
+if(NOT deploy_variant IN_LIST known_variants)
+    message(FATAL_ERROR "unknown deploy_variant '${deploy_variant}' (known: ${known_variants})")
 endif()
 
-function(
-    add_deploy_target
-    target
-    backend
-    debug_default)
+function(add_deploy_target target backend debug_default)
     option(
         deploy_debug_${backend}
-        "deploy-${backend}: infinite logcat tail after launch (OFF = ${deploy_watch_timeout}s crash watch)"
+        "deploy-${backend}: tail logcat (OFF = ${deploy_watch_timeout}s watch)"
         ${debug_default})
-
     add_custom_target(
         ${target}
         DEPENDS "${wc4_variant_${deploy_variant}_apk}"
@@ -325,13 +127,10 @@ function(
             "-DDEBUG=$<BOOL:${deploy_debug_${backend}}>"
             "-DTIMEOUT=${deploy_watch_timeout}" "-DADB_SERIAL=${adb_serial}"
             "-DWAYDROID_BIN=${waydroid_bin}" "-DADB_BIN=${adb_bin}" -P
-            "${deploy_script}"
-        COMMENT
-            "deploy ${deploy_variant} => ${backend} (install + launch + log)"
+            "${CMAKE_CURRENT_SOURCE_DIR}/cmake/deploy_apk.cmake"
+        COMMENT "deploy ${deploy_variant} => ${backend}"
         USES_TERMINAL VERBATIM)
 endfunction()
 
-# waydroid defaults to the bounded watch (emulator, usually CI-like);
-# adb defaults to the infinite tail (real phone — you are watching it).
 add_deploy_target(deploy-waydroid waydroid OFF)
 add_deploy_target(deploy-adb adb ON)
