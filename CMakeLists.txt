@@ -35,7 +35,7 @@ project(
 set(apk_default_url
     "https://github.com/e-gleba/world_conqueror_4_ru/releases/download/v1.30.0_pdalife/world-conqueror-4-v1-30-0_mod.apk"
 )
-# SHA-256 of the asset above (digest published on GitHub release v1.28.0_pdalife).
+# SHA-256 of the asset above (digest published on GitHub release v1.30.0_pdalife).
 set(apk_default_sha256
     "9f3dd7fc3a3604e96d58f5b9142219ca48f48080377f52d01cf22480ae980684")
 
@@ -252,7 +252,7 @@ add_custom_command(
             "${apktool_jar}"
             "${wc4_crypt}"
             "${crypt_script}"
-    COMMENT "decompile => decompiled/ (apktool d + decrypt json)"
+    COMMENT "decompile => decompiled/ (apktool d + decrypt json & stringtables)"
     USES_TERMINAL VERBATIM)
 
 add_custom_target(decompile DEPENDS "${stamp_decompiled}")
